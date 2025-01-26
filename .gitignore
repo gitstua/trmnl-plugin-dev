@@ -5,6 +5,14 @@
 .env.*
 !.env.example
 
-# node_modules
-node_modules
- a
+# Dependencies
+node_modules/
+node_modules/*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# .DS_Store
+.DS_Store
+node_modules/.bin/aaaa

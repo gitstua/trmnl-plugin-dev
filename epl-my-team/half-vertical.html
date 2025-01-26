@@ -53,34 +53,11 @@
 
                 <!-- Fixtures Section -->
                 <div class="section">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th class="date"><span class="title title--small">Date</span></th>
-                                <th class="time"><span class="title title--small">Time</span></th>
-                                <th class="team"><span class="title title--small">Home</span></th>
-                                <th class="team"><span class="title title--small">Away</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% assign counter = 0 %}
-                            {% assign upcoming_matches = matches | sort: "date" %}
-
-                            {% for match in upcoming_matches %}
-                            {% if counter < 7 and match.score.ft == nil %} {% if match.team1=="Manchester United FC" or
-                                match.team2=="Manchester United FC" %} {% assign match_date=match.date | date: "%-d %b"
-                                %} <tr>
-                                <td><span class="title title--small">{{ match_date }}</span></td>
-                                <td><span class="title title--small">{{ match.time }}</span></td>
-                                <td><span class="title ">{{ match.team1 }}</span></td>
-                                <td><span class="title ">{{ match.team2 }}</span></td>
-                                </tr>
-                                {% assign counter = counter | plus: 1 %}
-                                {% endif %}
-                                {% endif %}
-                                {% endfor %}
-                        </tbody>
-                    </table>
+                    <span class="description clamp clamp--3">
+                        {% assign counter = 0 %}
+                        {% assign upcoming_matches = matches | sort: "date" %}
+                        {% for match in upcoming_matches %}{% if counter < 7 and match.score.ft == nil %}{% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}{% assign match_date = match.date | date: "%-d %b" %}{% if match.team1 == "Manchester United FC" %}{{ match_date }} HOME {{ match.team2 }}{% else %}{{ match_date }} AWAY {{ match.team1 }}{% endif %}{% unless forloop.last %}, {% endunless %}{% assign counter = counter | plus: 1 %}{% endif %}{% endif %}{% endfor %}
+                    </span>
                 </div>
             </div>
         </div>

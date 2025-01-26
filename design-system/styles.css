@@ -34,16 +34,16 @@
 
 /* Table Styles */
 .trmnl .table tbody tr {
-    height: 30px;
+    height: 40px;
 }
 
 .trmnl .table tbody tr td {
-    font-size: 12px;
+    font-size: 16px;
 }
 
 /* Typography */
 .title--small {
-    font-size: 12px;
+    font-size: 16px;
 }
 
 /* Labels */
@@ -51,7 +51,7 @@
     border: 1px solid #000;
     padding: 2px 5px;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 16px;
 }
 
 /* Layout */
