@@ -4,10 +4,14 @@
   "description": "Test app for EPL plugins",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js --ext js,json,yaml,html,css"
   },
   "dependencies": {
     "express": "^4.17.1",
     "liquidjs": "^9.25.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
-} 
+}
