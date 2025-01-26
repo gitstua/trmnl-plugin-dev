@@ -6,5 +6,6 @@ globs: *.html
 # TRMNL Design System
 
 When generating templaes for a plugin 
-- use the styles as per the example in [table.html](mdc:design-system-examples/table.html) [description.html](mdc:design-system-examples/description.html) [label.html](mdc:design-system-examples/label.html)
-- do not include the header tags, just include the styles in the body
+- use the styles as per the example in [description.example.html](mdc:design-system/description.example.html) [label.example.html](mdc:design-system/label.example.html) [table.example.html](mdc:design-system/table.example.html) [title-bar.example.html](mdc:design-system/title-bar.example.html) [title.example.html](mdc:design-system/title.example.html) [title-bar.example.html](mdc:design-system/title-bar.example.html)
+
+- do not include the header tags in a plugin, just include any styles in the body however just use those in [styles.css](mdc:design-system/styles.css) where possible based on the above examples

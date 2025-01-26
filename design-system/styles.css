@@ -10,6 +10,7 @@
     font-size: 18px;
 }
 
+
 .title_bar .image {
     height: 24px;
     margin-right: 10px;
@@ -50,4 +51,8 @@
 /* Layout */
 .section-divider {
     margin: 10px 0;
+}
+
+.table {
+    width: 100%;
 } 
