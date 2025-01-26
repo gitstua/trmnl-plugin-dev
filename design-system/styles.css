@@ -26,6 +26,12 @@
     color: gray;
 }
 
+/* align the th title left */
+.table th {
+    text-align: left;
+}
+
+
 /* Table Styles */
 .trmnl .table tbody tr {
     height: 30px;
@@ -55,4 +61,18 @@
 
 .table {
     width: 100%;
+}
+
+/* Preview frame layouts */
+.preview-frame.half-horizontal .view {
+    height: 100%;
+}
+
+.preview-frame.half-horizontal .layout {
+    height: 100%;
 } 
+
+body {
+    height: 100%;
+    width: 100%;
+}

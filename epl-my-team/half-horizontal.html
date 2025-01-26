@@ -1,4 +1,3 @@
-
 <div class="view bg-white">
     <div class="layout layout--col gap--space-between">
         <div class="columns">
@@ -20,7 +19,7 @@
                             {% assign all_matches = matches | sort: "date" | reverse %}
 
                             {% for match in all_matches %}
-                            {% if counter < 3 and match.score.ft and match.score.ft[0] !=nil %} {% if
+                            {% if counter < 3 and match.score.ft and match.score.ft[0] != nil %} {% if
                                 match.team1=="Manchester United FC" or match.team2=="Manchester United FC" %} {% assign
                                 match_date=match.date | date: "%-d %b" %} <tr>
                                 <td><span class="title title--small">{{ match_date }}</span></td>
