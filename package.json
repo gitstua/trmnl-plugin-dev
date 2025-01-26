@@ -1,0 +1,13 @@
+{
+  "name": "epl-plugin-tester",
+  "version": "1.0.0",
+  "description": "Test app for EPL plugins",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "liquidjs": "^9.25.1"
+  }
+} 

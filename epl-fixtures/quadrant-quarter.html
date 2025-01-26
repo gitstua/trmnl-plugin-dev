@@ -1,0 +1,79 @@
+<style>
+    .trmnl .table tbody tr {
+      height: 25px; /* Reduced row height to avoid tall rows */
+    }
+    .trmnl .table tbody tr td {
+      font-size: 12px;
+      padding: 3px 5px; /* Reduced padding to make rows more compact */
+      word-wrap: break-word; /* Allows text to wrap properly */
+    }
+    .title--small {
+      font-size: 12px;
+    }
+    .label--outline {
+      border: 1px solid #000;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+  
+    /* Quadrant Layout */
+    .quadrant .layout {
+      display: block;
+      height: 100%;
+      padding: 10px;
+    }
+    .quadrant .column {
+      padding: 10px;
+    }
+    .match-result {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .match-number {
+      min-width: 80px; /* Wider Date column to fit "5 Jan" */
+    }
+    .match-result {
+      min-width: 250px; /* Increased min-width for fixture column */
+      max-width: 350px; /* Increased max-width for fixture column */
+    }
+  </style>
+  
+  <!-- Quadrant Layout for displaying matches 1-5 -->
+  <div class="view bg-white quadrant">
+    <div class="layout">
+      <div class="column">
+        <table class="table">
+          <thead>
+            <tr>
+              <th><span class="title title--small">Date</span></th>
+              <th><span class="title title--small">Fixture</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% assign today = "now" | date: "%Y-%m-%d" %}
+            {% assign counter = 0 %}
+            {% assign upcoming_matches = matches | sort: "date" %}
+            {% for match in upcoming_matches %}
+              {% if match.date > today and counter < 5 %}
+                {% assign match_date = match.date | date: "%d %b" %} <!-- Format date as "5 Jan" -->
+                {% assign home_abbr = match.team1 | slice: 0, 9 %}
+                {% assign away_abbr = match.team2 | slice: 0, 9 %}
+                {% assign score = match.score.ft[0] | append: " - " | append: match.score.ft[1] %}
+                <tr>
+                  <td class="match-number"><span class="title title--small">{{ match_date }}</span></td>
+                  <td class="match-result">
+                    <span class="title title--small">{{ home_abbr }}</span>
+                    <span class="title title--small">{{ score }}</span>
+                    <span class="title title--small">{{ away_abbr }}</span>
+                  </td>
+                </tr>
+                {% assign counter = counter | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

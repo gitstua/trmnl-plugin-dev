@@ -1,0 +1,8 @@
+---
+description: 
+globs: *.html
+---
+
+# TRMNL Design System
+
+when generating templaes for a plugin use the styles as per the example in [table.html](mdc:design-system-examples/table.html) [description.html](mdc:design-system-examples/description.html) [label.html](mdc:design-system-examples/label.html)

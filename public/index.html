@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>EPL Plugin Tester</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .preview {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 800px;
+            height: 480px;
+            margin: 0 auto;
+            position: relative;
+        }
+        select, button {
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .preview-frame {
+            border: none;
+            width: 800px;
+            height: 480px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .full {
+            transform: none;
+        }
+        .half-horizontal {
+            transform: scaleY(0.5);
+            transform-origin: top;
+        }
+        .half-vertical {
+            transform: scaleX(0.5);
+            transform-origin: left;
+        }
+        .quadrant {
+            transform: scale(0.5);
+            transform-origin: top left;
+        }
+        .size-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <select id="plugin">
+            <option value="epl-fixtures">EPL Fixtures</option>
+            <option value="epl-my-team">My Team (Man Utd)</option>
+        </select>
+        <select id="layout">
+            <option value="full">Full</option>
+            <option value="half-horizontal">Half Horizontal</option>
+            <option value="half-vertical">Half Vertical</option>
+            <option value="quadrant-quarter">Quadrant</option>
+        </select>
+        <button onclick="loadPreview()">Load Preview</button>
+    </div>
+    <div class="preview">
+        <iframe id="preview-frame" class="preview-frame full"></iframe>
+    </div>
+    <div class="size-indicator">800 x 480</div>
+
+    <script>
+        async function loadPreview() {
+            const plugin = document.getElementById('plugin').value;
+            const layout = document.getElementById('layout').value;
+            const frame = document.getElementById('preview-frame');
+            
+            // Update frame size
+            frame.className = `preview-frame ${layout}`;
+            
+            // Load the rendered template
+            frame.src = `/preview/${plugin}/${layout}`;
+        }
+
+        // Load initial preview
+        loadPreview();
+    </script>
+</body>
+</html> 

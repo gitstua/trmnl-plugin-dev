@@ -1,0 +1,88 @@
+<style>
+    .trmnl .table tbody tr {
+      height: 30px;
+    }
+    .trmnl .table tbody tr td {
+      font-size: 12px;
+    }
+    .title--small {
+      font-size: 12px;
+    }
+    .label--outline {
+      border: 1px solid #000;
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+    /* Half Horizontal Layout */
+    .half-horizontal .layout {
+      display: block;
+      width: 100%;
+    }
+    .half-horizontal .column {
+      width: 100%;
+      padding: 10px;
+    }
+  </style>
+  
+  <div class="view bg-white half-horizontal">
+    <div class="layout layout--col gap--space-between">
+      <div class="column">
+        <table class="table">
+          <thead>
+            <tr>
+              <th><span class="title title--small">Match #</span></th>
+              <th><span class="title title--small">Date</span></th>
+              <th><span class="title title--small">Time</span></th>
+              <th><span class="title title--small">Home</span></th>
+              <th><span class="title title--small">Away</span></th>
+              <th><span class="title title--small">Score</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% assign today = "now" | date: "%Y-%m-%d" %}
+            {% assign counter = 0 %}
+            {% assign upcoming_matches = matches | sort: "date" %}
+            {% for match in upcoming_matches %}
+              {% if match.date > today and counter < 15 %}
+                {% assign formatted_date = match.date | date: "%-d %b" %}
+                <tr>
+                  <td><span class="title title--small">{{ forloop.index0 | plus: 1 }}</span></td>
+                  <td><span class="title title--small">{{ formatted_date }}</span></td>
+                  <td><span class="title title--small">{{ match.time }}</span></td>
+                  <td>
+                    <div class="flex gap gap--small" style="align-items: center">
+                      {% if match.score.ft[0] > match.score.ft[1] %}
+                        <span class="label label--outline">{{ match.team1 }}</span>
+                      {% else %}
+                        <span class="title title--small">{{ match.team1 }}</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex gap gap--small" style="align-items: center">
+                      {% if match.score.ft[1] > match.score.ft[0] %}
+                        <span class="label label--outline">{{ match.team2 }}</span>
+                      {% else %}
+                        <span class="title title--small">{{ match.team2 }}</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="title title--small">
+                      {% if match.score.ft %}
+                        {{ match.score.ft[0] }} - {{ match.score.ft[1] }}
+                      {% else %}
+                        TBD
+                      {% endif %}
+                    </span>
+                  </td>
+                </tr>
+                {% assign counter = counter | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
