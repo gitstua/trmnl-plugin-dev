@@ -1,0 +1,53 @@
+/* Title Bar Component */
+.title_bar {
+    display: flex;
+    align-items: center;
+    background-image: radial-gradient(#ccc 1px, white 1px);
+    background-size: 4px 4px;
+    padding: 8px 16px;
+    border-bottom: 2px solid #ccc;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+.title_bar .image {
+    height: 24px;
+    margin-right: 10px;
+}
+
+.title_bar .title {
+    font-weight: bold;
+    margin-right: auto;
+}
+
+.title_bar .instance {
+    font-size: 16px;
+    color: gray;
+}
+
+/* Table Styles */
+.trmnl .table tbody tr {
+    height: 30px;
+}
+
+.trmnl .table tbody tr td {
+    font-size: 12px;
+}
+
+/* Typography */
+.title--small {
+    font-size: 12px;
+}
+
+/* Labels */
+.label--outline {
+    border: 1px solid #000;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+/* Layout */
+.section-divider {
+    margin: 10px 0;
+} 

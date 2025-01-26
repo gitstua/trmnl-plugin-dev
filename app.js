@@ -11,6 +11,7 @@ const engine = new Liquid({
     root: path.join(__dirname),
     extname: '.html'
 });
+
 app.engine('html', engine.express());
 app.set('view engine', 'html');
 
@@ -19,6 +20,7 @@ app.set('views', __dirname);
 
 // Serve static files
 app.use(express.static('public'));
+app.use('/design-system', express.static('design-system'));
 
 // Load sample data
 async function loadSampleData() {
@@ -43,7 +45,10 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
 
         // Construct the view path
         const viewPath = path.join(plugin, layout);
-        res.render(viewPath, viewData);
+        const templateContent = await engine.renderFile(viewPath, viewData);
+        const cssLink = '<link rel="stylesheet" href="/design-system/styles.css">';
+        const htmlContent = `<!DOCTYPE html><html><head>${cssLink}</head><body>${templateContent}</body></html>`;
+        res.send(htmlContent);
     } catch (error) {
         console.error('Error rendering template:', error);
         res.status(500).send('Error rendering template');

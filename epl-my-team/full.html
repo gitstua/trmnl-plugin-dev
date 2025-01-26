@@ -1,93 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Team - Manchester United FC</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 12px;
-            background: white;
-            max-height: 480px;
-            box-sizing: border-box;
-        }
-        h1 {
-            margin: 0 0 12px 0;
-            font-size: 16px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #000;
-        }
-        .section {
-            border: 1px solid #000;
-            padding: 8px;
-            margin-bottom: 12px;
-        }
-        h2 {
-            margin: 0 0 8px 0;
-            font-size: 14px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 4px;
-        }
-        .match-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .match-item {
-            padding: 4px 0;
-            font-size: 12px;
-            line-height: 1.2;
-        }
-    </style>
-</head>
-<body>
-    <div style="display:none">
-        Debug - Number of matches: {{ matches | size }}
-        First match: {{ matches | first | json }}
-    </div>
-
-    <h1>Manchester United FC</h1>
-
-    <div class="section">
-        <h2>Results</h2>
-        <ul class="match-list">
-            {% assign counter = 0 %}
-            {% assign all_matches = matches | sort: "date" | reverse %}
-            
-            {% for match in all_matches %}
-                {% if counter < 7 %}
-                    {% if match.score.ft and match.score.ft[0] != nil %}
-                        {% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}
-                            {% assign match_date = match.date | date: "%-d %b" %}
-                            <li class="match-item">{{ match_date }}: {{ match.team1 }} {{ match.score.ft[0] }}-{{ match.score.ft[1] }} {{ match.team2 }}</li>
-                            {% assign counter = counter | plus: 1 %}
-                        {% endif %}
-                    {% endif %}
+<div class="view bg-white">
+  <div class="layout layout--col gap--space-between">
+    <div class="columns">
+      <div class="column">
+        <!-- Results Section -->
+        <div class="section">
+          <span class="title title--small">Recent Results</span>
+          <table class="table">
+            <thead>
+              <tr>
+                <th><span class="title title--small">Date</span></th>
+                <th><span class="title title--small">Home</span></th>
+                <th><span class="title title--small">Score</span></th>
+                <th><span class="title title--small">Away</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% assign counter = 0 %}
+              {% assign all_matches = matches | sort: "date" | reverse %}
+              
+              {% for match in all_matches %}
+                {% if counter < 7 and match.score.ft and match.score.ft[0] != nil %}
+                  {% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}
+                    {% assign match_date = match.date | date: "%-d %b" %}
+                    <tr>
+                      <td><span class="title title--small">{{ match_date }}</span></td>
+                      <td>
+                        <div class="flex gap gap--small" style="align-items: center">
+                          {% if match.score.ft[0] > match.score.ft[1] %}
+                            <span class="label label--outline">{{ match.team1 }}</span>
+                          {% else %}
+                            <span class="title title--small">{{ match.team1 }}</span>
+                          {% endif %}
+                        </div>
+                      </td>
+                      <td><span class="title title--small">{{ match.score.ft[0] }} - {{ match.score.ft[1] }}</span></td>
+                      <td>
+                        <div class="flex gap gap--small" style="align-items: center">
+                          {% if match.score.ft[1] > match.score.ft[0] %}
+                            <span class="label label--outline">{{ match.team2 }}</span>
+                          {% else %}
+                            <span class="title title--small">{{ match.team2 }}</span>
+                          {% endif %}
+                        </div>
+                      </td>
+                    </tr>
+                    {% assign counter = counter | plus: 1 %}
+                  {% endif %}
                 {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
-    <div class="section">
-        <h2>Fixtures</h2>
-        <ul class="match-list">
-            {% assign counter = 0 %}
-            {% assign upcoming_matches = matches | sort: "date" %}
-            
-            {% for match in upcoming_matches %}
-                {% if counter < 7 %}
-                    {% if match.score.ft == nil %}
-                        {% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}
-                            {% assign match_date = match.date | date: "%-d %b" %}
-                            <li class="match-item">{{ match_date }}: {{ match.team1 }} vs {{ match.team2 }} ({{ match.time }})</li>
-                            {% assign counter = counter | plus: 1 %}
-                        {% endif %}
-                    {% endif %}
+        <div class="section-divider"></div>
+
+        <!-- Fixtures Section -->
+        <div class="section">
+          <span class="title title--small">Upcoming Fixtures</span>
+          <table class="table">
+            <thead>
+              <tr>
+                <th><span class="title title--small">Date</span></th>
+                <th><span class="title title--small">Time</span></th>
+                <th><span class="title title--small">Home</span></th>
+                <th><span class="title title--small">Away</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% assign counter = 0 %}
+              {% assign upcoming_matches = matches | sort: "date" %}
+              
+              {% for match in upcoming_matches %}
+                {% if counter < 7 and match.score.ft == nil %}
+                  {% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}
+                    {% assign match_date = match.date | date: "%-d %b" %}
+                    <tr>
+                      <td><span class="title title--small">{{ match_date }}</span></td>
+                      <td><span class="title title--small">{{ match.time }}</span></td>
+                      <td><span class="title title--small">{{ match.team1 }}</span></td>
+                      <td><span class="title title--small">{{ match.team2 }}</span></td>
+                    </tr>
+                    {% assign counter = counter | plus: 1 %}
+                  {% endif %}
                 {% endif %}
-            {% endfor %}
-        </ul>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-</body>
-</html> 
+  </div>
+  <div class="title_bar">
+    <img class="image" src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" />
+    <span class="title">Manchester United FC</span>
+    <span class="instance">Results & Fixtures</span>
+  </div>
+</div> 
