@@ -23,7 +23,6 @@
         <table class="table">
           <thead>
             <tr>
-              <th><span class="title title--small">Match #</span></th>
               <th><span class="title title--small">Date</span></th>
               <th><span class="title title--small">Time</span></th>
               <th><span class="title title--small">Home</span></th>
@@ -40,7 +39,6 @@
               {% if match.date > today and counter < 15 %}
                 {% assign formatted_date = match.date | date: "%-d %b" %} <!-- Converts to '1 Jan' format -->
                 <tr>
-                  <td><span class="title title--small">{{ forloop.index0 | plus: 1 }}</span></td>
                   <td><span class="title title--small">{{ formatted_date }}</span></td>
                   <td><span class="title title--small">{{ match.time }}</span></td>
                   <td>
