@@ -19,7 +19,7 @@
 4. (Optional) Create a `.env` file with:
    - `SOURCE_URL` - API endpoint for data
    - `HEADERS` - Any required headers for the API
-5. Use the TRMNL Design System styles from `design-system/styles.css`
+5. Use the kind of TRMNL Design System styles from `design-system/styles.css` - refer to https://usetrmnl.com/framework/ for the correct examples and documentation
 6. Your plugin will automatically appear in the plugin dropdown
 
 ## Design System Guidelines
