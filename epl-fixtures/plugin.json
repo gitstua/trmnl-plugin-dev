@@ -1,0 +1,11 @@
+{
+    "name": "EPL Fixtures",
+    "description": "Shows English Premier League fixtures and results from the Football Data API. Displays match dates, teams, and scores for the current season.",
+    "version": "1.0.0",
+    "author": "TRMNL",
+    "layouts": ["full", "half-horizontal", "half-vertical", "quadrant-quarter"],
+    "public_url": "https://api.football-data.org/v2/competitions/PL/matches",
+    "update_frequency": "5m",
+    "data_source": "Football Data API",
+    "tags": ["sports", "football", "premier-league"]
+} 

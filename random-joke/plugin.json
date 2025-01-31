@@ -1,0 +1,11 @@
+{
+    "name": "Random Joke",
+    "description": "Displays a random joke with setup and punchline from the Official Joke API. Updates on each refresh to show a new joke.",
+    "version": "1.0.0",
+    "author": "TRMNL",
+    "layouts": ["full", "half-horizontal", "half-vertical", "quadrant-quarter"],
+    "public_url": "https://official-joke-api.appspot.com/random_joke",
+    "update_frequency": "on-refresh",
+    "data_source": "Official Joke API",
+    "tags": ["entertainment", "humor"]
+} 

@@ -88,8 +88,7 @@
 <body>
     <div class="controls">
         <select id="plugin">
-            <option value="epl-fixtures">EPL Fixtures</option>
-            <option value="epl-my-team">My Team (Man Utd)</option>
+            <option value="">Select a plugin</option>
         </select>
         <select id="layout">
             <option value="full">Full</option>
@@ -103,22 +102,59 @@
         <iframe id="preview-frame" class="preview-frame full"></iframe>
     </div>
     <div class="size-indicator">800 x 480</div>
+    <div class="plugin-info" style="display: none; margin: 0 auto 20px; max-width: 800px; padding: 10px 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <span class="description"></span>
+    </div>
 
     <script>
         async function loadPreview() {
-            const plugin = document.getElementById('plugin').value;
+            const pluginSelect = document.getElementById('plugin');
             const layout = document.getElementById('layout').value;
             const frame = document.getElementById('preview-frame');
+            const pluginInfo = document.querySelector('.plugin-info');
+            
+            // Don't load if no plugin is selected
+            if (!pluginSelect.value) {
+                frame.src = 'about:blank';
+                pluginInfo.style.display = 'none';
+                return;
+            }
+            
+            // Show plugin description
+            const response = await fetch('/api/plugins');
+            const plugins = await response.json();
+            const selectedPlugin = plugins.find(p => p.id === pluginSelect.value);
+            if (selectedPlugin) {
+                pluginInfo.querySelector('.description').textContent = selectedPlugin.description;
+                pluginInfo.style.display = 'block';
+            }
             
             // Update frame size
             frame.className = `preview-frame ${layout}`;
             
             // Load the rendered template
-            frame.src = `/preview/${plugin}/${layout}`;
+            frame.src = `/preview/${pluginSelect.value}/${layout}`;
         }
 
-        // Load initial preview
-        loadPreview();
+        // Replace the existing DOMContentLoaded event listener with this:
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch available plugins
+            const response = await fetch('/api/plugins');
+            const plugins = await response.json();
+            
+            const select = document.getElementById('plugin');
+            plugins.forEach(plugin => {
+                const option = document.createElement('option');
+                option.value = plugin.id;
+                option.textContent = plugin.name;
+                select.appendChild(option);
+            });
+
+            // Only load preview if a plugin is selected
+            if (select.value) {
+                loadPreview();
+            }
+        });
     </script>
 </body>
 </html> 

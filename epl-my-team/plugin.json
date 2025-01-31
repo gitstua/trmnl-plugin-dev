@@ -1,0 +1,11 @@
+{
+    "name": "EPL My Team",
+    "description": "Displays Manchester United's fixtures and results from the Football Data API. Shows past results and upcoming matches for the current season.",
+    "version": "1.0.0",
+    "author": "TRMNL",
+    "layouts": ["full", "half-horizontal", "half-vertical", "quadrant-quarter"],
+    "public_url": "https://api.football-data.org/v2/teams/66/matches",
+    "update_frequency": "5m",
+    "data_source": "Football Data API",
+    "tags": ["sports", "football", "premier-league", "manchester-united"]
+} 
