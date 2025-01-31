@@ -30,7 +30,7 @@ async function loadSampleData() {
     return { eplFixtures, eplMyTeam };
 }
 
-// Add this function to scan for plugins
+// Update the getAvailablePlugins function to include an "All" option
 async function getAvailablePlugins() {
     const fs = require('fs').promises;
     const path = require('path');
@@ -42,8 +42,14 @@ async function getAvailablePlugins() {
             !name.startsWith('.')
         );
 
+    // Add the "All" option as the first plugin
+    const plugins = [{
+        id: 'all',
+        name: 'All Plugins'
+    }];
+
     // Get plugin info for each directory
-    const plugins = await Promise.all(
+    const pluginInfos = await Promise.all(
         dirs.map(async (dir) => {
             try {
                 const pluginInfo = JSON.parse(
@@ -61,8 +67,9 @@ async function getAvailablePlugins() {
         })
     );
 
-    // Filter out any null entries from failed reads
-    return plugins.filter(plugin => plugin !== null);
+    // Add the valid plugins after the "All" option
+    plugins.push(...pluginInfos.filter(plugin => plugin !== null));
+    return plugins;
 }
 
 // Add this new endpoint
@@ -71,7 +78,7 @@ app.get('/api/plugins', async (req, res) => {
     res.json(plugins);
 });
 
-// Remove the headers from the root route
+// Update the root route to handle rendering all plugins
 app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -90,30 +97,25 @@ async function fetchLiveData(url, envVars) {
     }
 }
 
-// Modify the preview route
+// Remove special handling for "all" in the preview route since we'll handle it client-side
 app.get('/preview/:plugin/:layout', async (req, res) => {
     const { plugin, layout } = req.params;
     const { live } = req.query;
     
     try {
+        // Existing single plugin logic
         let data;
-        
         if (live === 'true') {
-            // Get plugin info to get the URL
             const pluginInfo = JSON.parse(
                 await fs.readFile(path.join(__dirname, plugin, 'plugin.json'), 'utf8')
             );
-            
-            // Fetch live data directly from the public URL
             data = await fetchLiveData(pluginInfo.public_url);
         } else {
-            // Load sample data
             data = JSON.parse(
                 await fs.readFile(`./${plugin}/sample.json`, 'utf8')
             );
         }
 
-        // Construct the view path
         const viewPath = path.join(plugin, layout);
         const templateContent = await engine.renderFile(viewPath, data);
         const cssLink = '<link rel="stylesheet" href="/design-system/styles.css">';
