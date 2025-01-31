@@ -127,6 +127,33 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
     }
 });
 
+// Simplify the plugin.json endpoint to just serve the raw file
+app.get('/api/plugin-json/:pluginId', async (req, res) => {
+    try {
+        const pluginJson = await fs.readFile(path.join(__dirname, req.params.pluginId, 'plugin.json'), 'utf8');
+        res.type('application/json').send(pluginJson);
+    } catch (error) {
+        console.error('Error reading plugin.json:', error);
+        res.status(404).json({ error: 'Plugin configuration not found' });
+    }
+});
+
+// Update the layout endpoint to handle the .html extension
+app.get('/api/layout/:pluginId/:layout', async (req, res) => {
+    try {
+        // Remove .html from the layout parameter if present
+        const layoutName = req.params.layout.replace('.html', '');
+        const layoutContent = await fs.readFile(
+            path.join(__dirname, req.params.pluginId, `${layoutName}.html`),
+            'utf8'
+        );
+        res.send(layoutContent);
+    } catch (error) {
+        console.error('Error reading layout template:', error);
+        res.status(404).json({ error: 'Layout template not found' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Test app running at http://localhost:${port}`);
 }); 

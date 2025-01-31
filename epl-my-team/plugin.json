@@ -1,11 +1,10 @@
 {
-    "name": "EPL My Team",
-    "description": "Displays Manchester United's fixtures and results from the open football.json dataset. Shows past results and upcoming matches for the current season.",
-    "version": "1.0.0",
-    "author": "@gitstua",
-    "layouts": ["full", "half-horizontal", "half-vertical", "quadrant-quarter"],
-    "public_url": "https://raw.githubusercontent.com/openfootball/football.json/refs/heads/master/2024-25/en.1.json",
-    "update_frequency": "2/day",
-    "data_source": "OpenFootball JSON",
-    "tags": ["sports", "football", "premier-league", "manchester-united"]
-} 
+  "name": "EPL My Team",
+  "description": "Displays Manchester United's fixtures and results from the open football.json dataset. Shows past results and upcoming matches for the current season.",
+  "version": "1.0.0",
+  "author": "@gitstua",
+  "public_url": "https://raw.githubusercontent.com/openfootball/football.json/refs/heads/master/2024-25/en.1.json",
+  "update_frequency": "2/day",
+  "data_source": "OpenFootball JSON",
+  "tags": ["sports","football","premier-league","manchester-united"]
+}

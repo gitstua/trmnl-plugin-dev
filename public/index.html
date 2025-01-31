@@ -17,7 +17,7 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 800px;
+            max-width: 1600px;
             margin-left: auto;
             margin-right: auto;
             display: flex;
@@ -114,15 +114,13 @@
         }
         
         .preview-container {
+            flex: 0 0 800px;
+            height: 480px;
+            margin: 0;
+            overflow: hidden;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 40px;
-            overflow: hidden;
-            width: 800px;
-            height: 480px;
-            margin-left: auto;
-            margin-right: auto;
         }
         
         .preview-container h2 {
@@ -188,6 +186,126 @@
         .live-button:hover {
             background: #218838 !important;
         }
+
+        .preview-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto 40px;
+            align-items: flex-start;
+        }
+
+        .plugin-info-panel {
+            flex: 1;
+            min-width: 0;
+            max-width: 700px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+            height: 440px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .plugin-info-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .plugin-info-panel pre {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 0 0 20px 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .layout-links {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .layout-links h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .layout-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .copy-button {
+            background: #6c757d;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 0;
+            flex: 1;
+            min-width: 120px;
+            white-space: nowrap;
+        }
+
+        .copy-button:hover {
+            background: #5a6268 !important;
+        }
+
+        /* Add styles for URL copy button */
+        .url-button {
+            margin: 0 !important;
+            padding: 4px 12px !important;
+            font-size: 12px !important;
+            background: #007bff !important;
+            height: fit-content;
+        }
+
+        .url-button:hover {
+            background: #0056b3 !important;
+        }
+
+        /* Update json-header styles */
+        .json-header {
+            flex: 0 0 auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .json-header h3 {
+            margin: 0;
+            padding: 0;
+            border: none;
+            flex: 1;
+        }
+
+        /* Update plugin-info-content styles */
+        .plugin-info-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
+            margin-bottom: 85px;
+        }
     </style>
 </head>
 <body>
@@ -234,33 +352,17 @@
                 const plugins = await response.json();
                 const actualPlugins = plugins.filter(p => p.id !== 'all');
                 
-                // Create a preview div for each plugin
                 actualPlugins.forEach(plugin => {
-                    const container = document.createElement('div');
-                    container.className = 'preview-container';
-                    
-                    const title = document.createElement('h2');
-                    title.textContent = plugin.name;
-                    container.appendChild(title);
-                    
-                    const iframe = document.createElement('iframe');
-                    iframe.className = `preview-frame ${layout}`;
-                    iframe.src = `/preview/${plugin.id}/${layout}`;
-                    container.appendChild(iframe);
-                    
-                    previewContainer.appendChild(container);
+                    const wrapper = createPreviewElement(plugin, layout);
+                    previewContainer.appendChild(wrapper);
                 });
-            } else {
-                // Single plugin preview
-                const container = document.createElement('div');
-                container.className = 'preview-container';
-                
-                const iframe = document.createElement('iframe');
-                iframe.className = `preview-frame ${layout}`;
-                iframe.src = pluginSelect.value ? `/preview/${pluginSelect.value}/${layout}` : 'about:blank';
-                container.appendChild(iframe);
-                
-                previewContainer.appendChild(container);
+            } else if (pluginSelect.value) {
+                const plugin = {
+                    id: pluginSelect.value,
+                    name: pluginSelect.options[pluginSelect.selectedIndex].text
+                };
+                const wrapper = createPreviewElement(plugin, layout);
+                previewContainer.appendChild(wrapper);
             }
             
             // Always show the preview container
@@ -287,32 +389,17 @@
                 const plugins = await response.json();
                 const actualPlugins = plugins.filter(p => p.id !== 'all');
                 
-                // Create a preview div for each plugin
                 actualPlugins.forEach(plugin => {
-                    const container = document.createElement('div');
-                    container.className = 'preview-container';
-                    
-                    const title = document.createElement('h2');
-                    title.textContent = plugin.name;
-                    container.appendChild(title);
-                    
-                    const iframe = document.createElement('iframe');
-                    iframe.className = `preview-frame ${layout}`;
-                    iframe.src = `/preview/${plugin.id}/${layout}?live=true`;
-                    container.appendChild(iframe);
-                    
-                    previewContainer.appendChild(container);
+                    const wrapper = createPreviewElement(plugin, layout, true);
+                    previewContainer.appendChild(wrapper);
                 });
             } else if (pluginSelect.value) {
-                const container = document.createElement('div');
-                container.className = 'preview-container';
-                
-                const iframe = document.createElement('iframe');
-                iframe.className = `preview-frame ${layout}`;
-                iframe.src = `/preview/${pluginSelect.value}/${layout}?live=true`;
-                container.appendChild(iframe);
-                
-                previewContainer.appendChild(container);
+                const plugin = {
+                    id: pluginSelect.value,
+                    name: pluginSelect.options[pluginSelect.selectedIndex].text
+                };
+                const wrapper = createPreviewElement(plugin, layout, true);
+                previewContainer.appendChild(wrapper);
             }
             
             // Always show the preview container
@@ -356,6 +443,135 @@
                 }
             }
         });
+
+        async function fetchPluginJson(pluginId) {
+            try {
+                const response = await fetch(`/api/plugin-json/${pluginId}`);
+                if (!response.ok) throw new Error('Failed to fetch plugin.json');
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching plugin.json:', error);
+                return null;
+            }
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                // Could add a toast notification here
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        }
+
+        async function copyLayout(pluginId, layoutName) {
+            try {
+                const response = await fetch(`/api/layout/${pluginId}/${layoutName}.html`);
+                if (!response.ok) throw new Error('Failed to fetch layout');
+                const layoutContent = await response.text();
+                await copyToClipboard(layoutContent);
+                
+                // Optional: Show feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            } catch (error) {
+                console.error('Error copying layout:', error);
+                // Optional: Show error feedback
+                const button = event.target;
+                button.textContent = 'Error!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }
+        }
+
+        function createPreviewElement(plugin, layout, isLive = false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'preview-wrapper';
+
+            // Create the preview container
+            const container = document.createElement('div');
+            container.className = 'preview-container';
+            
+            const title = document.createElement('h2');
+            title.textContent = plugin.name;
+            container.appendChild(title);
+            
+            const iframe = document.createElement('iframe');
+            iframe.className = `preview-frame ${layout}`;
+            iframe.src = `/preview/${plugin.id}/${layout}${isLive ? '?live=true' : ''}`;
+            container.appendChild(iframe);
+            
+            wrapper.appendChild(container);
+
+            // Create the info panel
+            const infoPanel = document.createElement('div');
+            infoPanel.className = 'plugin-info-panel';
+            
+            // Create scrollable content container
+            const infoContent = document.createElement('div');
+            infoContent.className = 'plugin-info-content';
+            
+            // Add plugin.json content with title
+            fetchPluginJson(plugin.id).then(pluginJson => {
+                if (pluginJson) {
+                    const jsonHeader = document.createElement('div');
+                    jsonHeader.className = 'json-header';
+                    
+                    const jsonTitle = document.createElement('h3');
+                    jsonTitle.textContent = 'plugin.json';
+                    
+                    // Add public_url copy button if it exists
+                    let urlButton;
+                    const parsedJson = typeof pluginJson === 'string' ? JSON.parse(pluginJson) : pluginJson;
+                    if (parsedJson.public_url) {
+                        urlButton = document.createElement('button');
+                        urlButton.className = 'copy-button url-button';
+                        urlButton.textContent = 'Copy Public URL';
+                        urlButton.onclick = async () => {
+                            await copyToClipboard(parsedJson.public_url);
+                            urlButton.textContent = 'Copied!';
+                            setTimeout(() => {
+                                urlButton.textContent = 'Copy Public URL';
+                            }, 2000);
+                        };
+                    }
+                    
+                    jsonHeader.appendChild(jsonTitle);
+                    if (urlButton) {
+                        jsonHeader.appendChild(urlButton);
+                    }
+                    
+                    const jsonPre = document.createElement('pre');
+                    jsonPre.textContent = typeof pluginJson === 'string' ? pluginJson : JSON.stringify(pluginJson, null, 2);
+                    
+                    infoPanel.appendChild(jsonHeader);
+                    infoContent.appendChild(jsonPre);
+                    infoPanel.appendChild(infoContent);
+                }
+            });
+
+            // Add layout links section
+            const layoutLinks = document.createElement('div');
+            layoutLinks.className = 'layout-links';
+            layoutLinks.innerHTML = `
+                <h3>Layout Templates</h3>
+                <div class="layout-buttons">
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full')">Copy Full Layout</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-horizontal')">Copy Half Horizontal</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-vertical')">Copy Half Vertical</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant-quarter')">Copy Quadrant</button>
+                </div>
+            `;
+            infoPanel.appendChild(layoutLinks);
+            
+            wrapper.appendChild(infoPanel);
+            return wrapper;
+        }
     </script>
 </body>
 </html> 

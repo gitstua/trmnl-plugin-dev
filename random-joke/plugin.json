@@ -1,11 +1,10 @@
 {
-    "name": "Random Joke",
-    "description": "Displays a random joke with setup and punchline from the Official Joke API. Updates on each refresh to show a new joke.",
-    "version": "1.0.0",
-    "author": "@gitstua",
-    "layouts": ["full", "half-horizontal", "half-vertical", "quadrant-quarter"],
-    "public_url": "https://official-joke-api.appspot.com/random_joke",
-    "update_frequency": "hourly",
-    "data_source": "Official Joke API",
-    "tags": ["entertainment", "humor"]
-} 
+  "name": "Random Joke",
+  "description": "Displays a random joke with setup and punchline from the Official Joke API. Updates on each refresh to show a new joke.",
+  "version": "1.0.0",
+  "author": "@gitstua",
+  "public_url": "https://official-joke-api.appspot.com/random_joke",
+  "update_frequency": "hourly",
+  "data_source": "Official Joke API",
+  "tags": ["entertainment","humor"]
+}
