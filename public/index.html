@@ -1,3 +1,5 @@
+<!-- Copyright (c) 2025 Stu Eggerton. All rights reserved. -->
+<!-- See LICENSE.md for license details. -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -306,36 +308,6 @@
             padding-right: 10px;
             margin-bottom: 85px;
         }
-
-        /* Add device frame styles */
-        .device-frame {
-            width: 880px;
-            padding: 40px;
-            background: #e0e0e0;
-            border-radius: 16px;
-            box-shadow: 
-                inset 0 0 0 2px #d0d0d0,
-                0 4px 8px rgba(0,0,0,0.1);
-            margin: 0 auto;
-            position: relative;
-            padding-bottom: 60px;
-        }
-
-        /* Add logo container */
-        .device-logo {
-            position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 20px;
-            background-image: url('/trmnl-logo.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.8;
-            filter: grayscale(100%);
-        }
     </style>
 </head>
 <body>
@@ -523,10 +495,6 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'preview-wrapper';
 
-            // Create the device frame
-            const deviceFrame = document.createElement('div');
-            deviceFrame.className = 'device-frame';
-
             // Create the preview container
             const container = document.createElement('div');
             container.className = 'preview-container';
@@ -539,16 +507,8 @@
             iframe.className = `preview-frame ${layout}`;
             iframe.src = `/preview/${plugin.id}/${layout}${isLive ? '?live=true' : ''}`;
             container.appendChild(iframe);
-
-            // Add the logo element
-            const logo = document.createElement('div');
-            logo.className = 'device-logo';
             
-            // Add everything to the device frame
-            deviceFrame.appendChild(container);
-            deviceFrame.appendChild(logo);
-            
-            wrapper.appendChild(deviceFrame);
+            wrapper.appendChild(container);
 
             // Create the info panel
             const infoPanel = document.createElement('div');

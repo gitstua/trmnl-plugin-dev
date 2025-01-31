@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Stu Eggerton. All rights reserved.
+// See LICENSE.md for license details.
+
 const express = require('express');
 const { Liquid } = require('liquidjs');
 const fs = require('fs').promises;
