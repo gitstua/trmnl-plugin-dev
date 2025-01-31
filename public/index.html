@@ -97,6 +97,7 @@
             <option value="quadrant-quarter">Quadrant</option>
         </select>
         <button onclick="loadPreview()">Load Preview</button>
+        <button onclick="loadLiveData()" class="live-button" style="background: #28a745;">Load Live Data</button>
     </div>
     <div class="preview">
         <iframe id="preview-frame" class="preview-frame full"></iframe>
@@ -134,6 +135,17 @@
             
             // Load the rendered template
             frame.src = `/preview/${pluginSelect.value}/${layout}`;
+        }
+
+        async function loadLiveData() {
+            const plugin = document.getElementById('plugin').value;
+            if (!plugin) return;
+            
+            const layout = document.getElementById('layout').value;
+            const frame = document.getElementById('preview-frame');
+            
+            // Load live data from the plugin's URL
+            frame.src = `/preview/${plugin}/${layout}?live=true`;
         }
 
         // Replace the existing DOMContentLoaded event listener with this:

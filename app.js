@@ -2,6 +2,7 @@ const express = require('express');
 const { Liquid } = require('liquidjs');
 const fs = require('fs').promises;
 const path = require('path');
+const fetch = require('node-fetch');
 
 const app = express();
 const port = 3000;
@@ -75,24 +76,52 @@ app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Simplify the fetchLiveData function
+async function fetchLiveData(url, envVars) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching live data:', error);
+        throw error;
+    }
+}
+
+// Modify the preview route
 app.get('/preview/:plugin/:layout', async (req, res) => {
     const { plugin, layout } = req.params;
+    const { live } = req.query;
     
     try {
-        // Load the plugin's sample data
-        const sampleData = JSON.parse(
-            await fs.readFile(`./${plugin}/sample.json`, 'utf8')
-        );
+        let data;
+        
+        if (live === 'true') {
+            // Get plugin info to get the URL
+            const pluginInfo = JSON.parse(
+                await fs.readFile(path.join(__dirname, plugin, 'plugin.json'), 'utf8')
+            );
+            
+            // Fetch live data directly from the public URL
+            data = await fetchLiveData(pluginInfo.public_url);
+        } else {
+            // Load sample data
+            data = JSON.parse(
+                await fs.readFile(`./${plugin}/sample.json`, 'utf8')
+            );
+        }
 
         // Construct the view path
         const viewPath = path.join(plugin, layout);
-        const templateContent = await engine.renderFile(viewPath, sampleData);
+        const templateContent = await engine.renderFile(viewPath, data);
         const cssLink = '<link rel="stylesheet" href="/design-system/styles.css">';
         const htmlContent = `<!DOCTYPE html><html><head>${cssLink}</head><body>${templateContent}</body></html>`;
         res.send(htmlContent);
     } catch (error) {
         console.error('Error rendering template:', error);
-        res.status(500).send('Error rendering template');
+        res.status(500).send(`Error: ${error.message}`);
     }
 });
 
