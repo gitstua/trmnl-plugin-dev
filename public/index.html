@@ -222,6 +222,8 @@
             const params = new URLSearchParams(window.location.search);
             params.set('plugin', pluginSelect.value);
             params.set('layout', layout);
+            // Remove live parameter when loading preview
+            params.delete('live');
             window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
             
             // Clear existing content
@@ -268,18 +270,53 @@
         async function loadLiveData() {
             const pluginSelect = document.getElementById('plugin');
             const layout = document.getElementById('layout').value;
+            const previewContainer = document.querySelector('.preview');
+            
+            // Update URL parameters
+            const params = new URLSearchParams(window.location.search);
+            params.set('plugin', pluginSelect.value);
+            params.set('layout', layout);
+            params.set('live', 'true');
+            window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+            
+            // Clear and rebuild the preview container
+            previewContainer.innerHTML = '';
             
             if (pluginSelect.value === 'all') {
-                const iframes = document.querySelectorAll('.preview-frame');
-                iframes.forEach(iframe => {
-                    const currentSrc = iframe.src;
-                    const pluginPath = currentSrc.split('/preview/')[1].split('/')[0];
-                    iframe.src = `/preview/${pluginPath}/${layout}?live=true`;
+                const response = await fetch('/api/plugins');
+                const plugins = await response.json();
+                const actualPlugins = plugins.filter(p => p.id !== 'all');
+                
+                // Create a preview div for each plugin
+                actualPlugins.forEach(plugin => {
+                    const container = document.createElement('div');
+                    container.className = 'preview-container';
+                    
+                    const title = document.createElement('h2');
+                    title.textContent = plugin.name;
+                    container.appendChild(title);
+                    
+                    const iframe = document.createElement('iframe');
+                    iframe.className = `preview-frame ${layout}`;
+                    iframe.src = `/preview/${plugin.id}/${layout}?live=true`;
+                    container.appendChild(iframe);
+                    
+                    previewContainer.appendChild(container);
                 });
             } else if (pluginSelect.value) {
-                const iframe = document.querySelector('.preview-frame');
+                const container = document.createElement('div');
+                container.className = 'preview-container';
+                
+                const iframe = document.createElement('iframe');
+                iframe.className = `preview-frame ${layout}`;
                 iframe.src = `/preview/${pluginSelect.value}/${layout}?live=true`;
+                container.appendChild(iframe);
+                
+                previewContainer.appendChild(container);
             }
+            
+            // Always show the preview container
+            previewContainer.style.display = 'block';
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
