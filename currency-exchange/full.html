@@ -1,13 +1,24 @@
-<div style="padding: 20px;">
-    <span class="title">{{ data.AUD.code }}</span>
-    <p class="description" style="margin-top: 10px;">{{ data.AUD.value }}</p>
-</div>
-<div style="padding: 20px;">
-    <span class="title">{{ data.USD.code }}</span>
-    <p class="description" style="margin-top: 10px;">{{ data.USD.value }}</p>
+<div class="layout">
+  <div class="grid grid--cols-1 gap--xlarge">
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        <span class="value value--xxxlarge value--tnums" data-value-type="number" data-raw-value="{{ data.AUD.value }}">{{ data.AUD.value }}</span>
+        <span class="label label--large">{{ data.AUD.code }}</span>
+      </div>
+    </div>
+    <div class="w-full b-h-gray-5"></div>
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        <span class="value value--xxxlarge value--tnums" data-value-type="number" data-raw-value="{{ data.USD.value }}">{{ data.USD.value }}</span>
+        <span class="label label--large">{{ data.USD.code }}</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="title_bar">
-    <span class="title">Currency Exchange Rates</span>
-    <span class="instance">{{ meta.last_updated_at }}</span>
-  </div>
+  <span class="title">Currency Exchange Rates</span>
+  <span class="instance">{{ meta.last_updated_at }}</span>
+</div>
