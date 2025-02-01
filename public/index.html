@@ -33,7 +33,7 @@
         .preview-frame {
             border: none;
             width: 800px;
-            height: calc(480px - 43px);
+            height: 480px;
             display: block;
             margin: 0;
         }
@@ -504,6 +504,25 @@
             position: relative;
             z-index: 1;
         }
+
+        .plugin-title {
+            margin: 0 0 10px 0;
+            line-height: 1;
+        }
+        
+        .preview-container {
+            width: 800px;
+            height: 480px;
+            margin-bottom: 20px;
+        }
+        
+        .preview-frame {
+            width: 800px;
+            height: 480px;
+            border: none;
+            display: block;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -730,42 +749,42 @@
         function createPreviewElement(plugin, layout, isLive = false) {
             const wrapper = document.createElement('div');
             wrapper.className = 'preview-wrapper';
-
-            // Create the preview container
+            
+            // Create left side with title and preview
+            const leftSide = document.createElement('div');
+            
+            // Create title
+            const title = document.createElement('h2');
+            title.className = 'plugin-title';
+            title.textContent = plugin.name;
+            leftSide.appendChild(title);
+            
+            // Create preview container
             const container = document.createElement('div');
             container.className = 'preview-container';
-            
-            const title = document.createElement('h2');
-            title.textContent = plugin.name;
-            container.appendChild(title);
             
             const iframe = document.createElement('iframe');
             iframe.className = `preview-frame ${layout}`;
             iframe.src = `/preview/${plugin.id}/${layout}${isLive ? '?live=true' : ''}`;
             container.appendChild(iframe);
             
-            wrapper.appendChild(container);
+            leftSide.appendChild(container);
+            wrapper.appendChild(leftSide);
 
-            // Create the info panel
+            // Add the info panel (right side)
             const infoPanel = document.createElement('div');
             infoPanel.className = 'plugin-info-panel';
-
-            // Create content container for scrolling
-            const infoContent = document.createElement('div');
-            infoContent.className = 'plugin-info-content';
-
+            
             // Add plugin.json section
             fetchPluginJson(plugin.id).then(pluginJson => {
                 if (pluginJson) {
                     const jsonHeader = document.createElement('div');
                     jsonHeader.className = 'json-header';
                     
-                    // Create h3 element
                     const h3 = document.createElement('h3');
                     h3.textContent = 'plugin.json';
                     jsonHeader.appendChild(h3);
                     
-                    // Create URL button if public_url exists
                     if (pluginJson.public_url) {
                         const urlButton = document.createElement('button');
                         urlButton.className = 'url-button';
@@ -777,15 +796,13 @@
                         jsonHeader.appendChild(urlButton);
                     }
                     
-                    infoContent.appendChild(jsonHeader);
+                    infoPanel.appendChild(jsonHeader);
 
                     const pre = document.createElement('pre');
                     pre.textContent = JSON.stringify(pluginJson, null, 2);
-                    infoContent.appendChild(pre);
+                    infoPanel.appendChild(pre);
                 }
             });
-
-            infoPanel.appendChild(infoContent);
 
             // Add layout links section
             const layoutLinks = document.createElement('div');

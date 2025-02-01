@@ -1,69 +1,4 @@
-/* Title Bar Component */
-.title_bar {
-    display: flex;
-    align-items: center;
-    background-image: radial-gradient(#ccc 1px, white 1px);
-    background-size: 4px 4px;
-    padding: 8px 16px;
-    border-bottom: 2px solid #ccc;
-    font-family: Arial, sans-serif;
-    font-size: 18px;
-}
-
-
-.title_bar .image {
-    height: 24px;
-    margin-right: 10px;
-}
-
-.title_bar .title {
-    font-weight: bold;
-    margin-right: auto;
-}
-
-.title_bar .instance {
-    font-size: 16px;
-    color: gray;
-}
-
-/* align the th title left */
-.table th {
-    text-align: left;
-}
-
-
-/* Table Styles */
-.trmnl .table tbody tr {
-    height: 40px;
-}
-
-.trmnl .table tbody tr td {
-    font-size: 16px;
-}
-
-/* Typography */
-.title--small {
-    font-size: 16px;
-}
-
-/* Labels */
-.label--outline {
-    border: 1px solid #000;
-    padding: 2px 5px;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* Layout */
-.section-divider {
-    margin: 10px 0;
-}
-
-.table {
-    width: 100%;
-}
-
-/* Preview frame layouts */
+/* Preview frame layouts - Keep these as they're specific to the dev environment */
 .preview-frame.half-horizontal .view {
     height: 100%;
 }
@@ -72,8 +7,23 @@
     height: 100%;
 } 
 
-
+/* Keep this as it's for the dev environment */
 body {
     height: 100%;
     width: 100%;
 }
+
+/* Remove everything else as it's covered by plugins.css:
+
+.title_bar {...} - Covered by .trmnl .title_bar
+.title_bar .image {...} - Covered by .trmnl .title_bar__image
+.title_bar .title {...} - Covered by .trmnl .title_bar__title
+.title_bar .instance {...} - Covered by .trmnl .title_bar__instance
+.table th {...} - Covered by .trmnl .table th
+.trmnl .table tbody tr {...} - Already in plugins.css
+.trmnl .table tbody tr td {...} - Already in plugins.css
+.title--small {...} - Covered by .trmnl .title--small
+.label--outline {...} - Covered by .trmnl .label--outline
+.section-divider {...} - Covered by .trmnl .divider
+.table {...} - Covered by .trmnl .table
+*/

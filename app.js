@@ -6,6 +6,7 @@ const { Liquid } = require('liquidjs');
 const fs = require('fs').promises;
 const path = require('path');
 const fetch = require('node-fetch');
+const config = require('./config.json');
 
 const app = express();
 const port = 3000;
@@ -100,13 +101,12 @@ async function fetchLiveData(url, envVars) {
     }
 }
 
-// Remove special handling for "all" in the preview route since we'll handle it client-side
+// Update the preview route to include plugins.js and initialize it
 app.get('/preview/:plugin/:layout', async (req, res) => {
     const { plugin, layout } = req.params;
     const { live } = req.query;
     
     try {
-        // Existing single plugin logic
         let data;
         if (live === 'true') {
             const pluginInfo = JSON.parse(
@@ -121,8 +121,63 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
 
         const viewPath = path.join(plugin, layout);
         const templateContent = await engine.renderFile(viewPath, data);
-        const cssLink = '<link rel="stylesheet" href="/design-system/styles.css">';
-        const htmlContent = `<!DOCTYPE html><html><head>${cssLink}</head><body>${templateContent}</body></html>`;
+        
+        const fontFaces = `
+            @font-face {
+                font-family: 'NicoClean';
+                src: url('${config.designSystem.fonts.path}/NicoClean-Regular.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: 'NicoBold';
+                src: url('${config.designSystem.fonts.path}/NicoBold-Regular.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: 'NicoPups';
+                src: url('${config.designSystem.fonts.path}/NicoPups-Regular.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: 'BlockKie';
+                src: url('${config.designSystem.fonts.path}/BlockKie.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+            /* Include Inter font */
+            @import url('${config.designSystem.fonts.path}/inter.css');
+        `;
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>${fontFaces}</style>
+                <link rel="stylesheet" href="${config.designSystem.cssPath}">
+                <link rel="stylesheet" href="/custom-dev-styles.css">
+            </head>
+            <body class="trmnl preview-frame full" style="padding:0;margin:0;">
+                <div class="screen">
+                    ${templateContent}
+                </div>
+                <script src="${config.designSystem.jsPath}"></script>
+                <script>
+                    window.addEventListener('load', function() {
+                        if (typeof terminalize === 'function') {
+                            terminalize();
+                        }
+                    });
+                </script>
+            </body>
+            </html>
+        `;
         res.send(htmlContent);
     } catch (error) {
         console.error('Error rendering template:', error);

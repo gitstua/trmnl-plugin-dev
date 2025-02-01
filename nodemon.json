@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "app.js",
+    "config.json",
+    "**/*.html", 
+    "public/**/*",  
+    "design-system/**/*",  
+    "**/plugin.json"  
+  ],
+  "ext": "js,json,html,css",
+  "ignore": [
+    "node_modules/*",
+    "design-system/fonts/*"
+  ]
+} 
