@@ -31,28 +31,6 @@ You can either:
 1. Copy the `random-joke` folder as a starting point and modify it for your needs
 2. Create a new plugin from scratch following the structure below
 
-## Acknowledgments
-
-This project would not be possible without the following:
-
-### Core Dependencies
-- [Express](https://expressjs.com/) - Web framework
-- [LiquidJS](https://liquidjs.com/) - Template engine
-- [node-fetch](https://github.com/node-fetch/node-fetch) - Fetch API for Node.js
-
-### Design & Assets
-- [Icons8](https://icons8.com) - Providing the plugin favicon
-- [TRMNL](https://usetrmnl.com/) - The e-ink device and design system for which this tool is built
-
-### Development Tools
-- AI Code Assistants - Making code refactoring and development more efficient
-
-## License
-
-See [LICENSE.md](LICENSE.md) for details.
-
-Copyright (c) 2025 Stu Eggerton. All rights reserved.
-
 ## Usage
 1. Open `http://localhost:3000` in your browser
 2. Select a plugin from the dropdown
@@ -106,3 +84,25 @@ plugin-name/
 - enter the `public_url` from the `plugin.json` file - you can copy this from the UI
 - select `Edit Markup` and paste the contents of the `full.html`, `half-horizontal.html`, `half-vertical.html`, `quadrant-quarter.html` files using the buttons in the UI
 - you may need to force refresh the data
+
+## Acknowledgments
+
+This project would not be possible without the following:
+
+### Core Dependencies
+- [Express](https://expressjs.com/) - Web framework
+- [LiquidJS](https://liquidjs.com/) - Template engine
+- [node-fetch](https://github.com/node-fetch/node-fetch) - Fetch API for Node.js
+
+### Design & Assets
+- [Icons8](https://icons8.com) - Providing the plugin favicon
+- [TRMNL](https://usetrmnl.com/) - The e-ink device and design system for which this tool is built
+
+### Development Tools
+- AI Code Assistants - Making code refactoring and development more efficient
+
+## License
+
+See [LICENSE.md](LICENSE.md) for details.
+
+Copyright (c) 2025 Stu Eggerton. All rights reserved.
