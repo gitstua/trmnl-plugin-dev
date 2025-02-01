@@ -30,7 +30,7 @@
             {% assign upcoming_matches = matches | sort: "date" %} <!-- Sort matches in ascending order (next matches) -->
 
             {% for match in upcoming_matches %}
-              {% if match.date > today and counter < 15 %}
+              {% if match.date > today and counter < 8 %}
                 {% assign formatted_date = match.date | date: "%-d %b" %} <!-- Converts to '1 Jan' format -->
                 <tr>
                   <td><span class="title title--small">{{ formatted_date }}</span></td>
@@ -74,6 +74,6 @@
   <div class="title_bar">
     <img class="image" src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" />
     <span class="title">Premier League</span>
-    <span class="instance">Next 15 Matches</span>
+    <span class="instance">Next 8 Matches</span>
   </div>
 </div>

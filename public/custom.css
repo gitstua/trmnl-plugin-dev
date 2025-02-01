@@ -10,8 +10,11 @@ the CDN and sizes the layout not to match the rendering on the server.
 
 /* update title_bar class in view to have a gray dotted background */
 .trmnl .title_bar.title_bar {
-    background: #f0f0f0;
-    border: 1px dotted #ccc;
+    background-image: url('/images/grayscale/gray-6.png');
+    background-repeat: repeat;
+    border-radius: 5px;
+
+    
     position: absolute  !important;
     bottom: 0;
     left: 0;
