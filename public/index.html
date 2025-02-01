@@ -12,6 +12,7 @@
             margin: 0;
             padding: 20px;
             background: #f0f0f0;
+            padding-bottom: 60px;
         }
         .controls {
             margin-bottom: 20px;
@@ -67,6 +68,7 @@
             font-weight: 500;
             backdrop-filter: blur(4px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 110;
         }
         .plugin-container {
             margin-bottom: 2rem;
@@ -308,6 +310,115 @@
             padding-right: 10px;
             margin-bottom: 85px;
         }
+
+        /* Update footer styles */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            z-index: 100;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Update heading styles */
+        .controls-heading {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            margin-left: auto;
+            padding-left: 20px;
+            color: #f8654b;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-heading::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: #f8654b;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        /* Add welcome popup styles */
+        .welcome-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 500px;
+            width: 90%;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .welcome-popup h2 {
+            color: #f8654b;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .welcome-popup p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+        }
+
+        .welcome-popup a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .welcome-popup a:hover {
+            text-decoration: underline;
+        }
+
+        .welcome-popup button {
+            margin-top: 20px;
+            background: #f8654b;
+        }
+
+        .welcome-popup button:hover {
+            background: #e55a41 !important;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
@@ -323,6 +434,7 @@
         </select>
         <button onclick="loadPreview()">Load Preview</button>
         <button onclick="loadLiveData()" class="live-button" style="background: #28a745;">Load Live Data</button>
+        <h1 class="controls-heading">TRMNL Plugin Dev</h1>
     </div>
     <div class="preview">
         <iframe id="preview-frame" class="preview-frame full"></iframe>
@@ -330,6 +442,34 @@
     <div class="size-indicator">800 x 480</div>
     <div class="plugin-info" style="display: none; margin: 0 auto 20px; max-width: 800px; padding: 10px 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <span class="description"></span>
+    </div>
+
+    <div class="footer">
+        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.1
+    </div>
+
+    <!-- Add popup HTML -->
+    <div class="popup-overlay" id="welcomeOverlay">
+        <div class="welcome-popup">
+            <h2>
+                <span style="color: #f8654b; font-weight: 600;">TRMNL</span>
+                Plugin Dev Environment
+            </h2>
+            <p>
+                Welcome to a tool that speeds up development and testing of plugins for 
+                <a href="https://usetrmnl.com/" target="_blank">TRMNL</a> e-ink displays.
+            </p>
+            <p>
+                For more information, check out the 
+                <a href="https://github.com/gitstua/trmnl-plugin-dev#trmnl-plugin-tester" target="_blank">documentation</a>, 
+                <a href="https://github.com/gitstua/trmnl-plugin-dev/" target="_blank">source code</a>, 
+                and <a href="https://github.com/gitstua/trmnl-plugin-dev/blob/main/LICENSE.md" target="_blank">license</a>.
+            </p>
+            <p style="margin-top: 20px; font-style: italic;">
+                Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.1
+            </p>
+            <button onclick="closeWelcome()">Get Started</button>
+        </div>
     </div>
 
     <script>
@@ -574,6 +714,19 @@
             wrapper.appendChild(infoPanel);
             return wrapper;
         }
+
+        // Simplify welcome popup functions
+        function closeWelcome() {
+            document.getElementById('welcomeOverlay').style.display = 'none';
+        }
+
+        // Show welcome popup only when no query params
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const hasParams = Array.from(params.keys()).length > 0;
+            
+            document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
+        });
     </script>
 </body>
 </html> 
