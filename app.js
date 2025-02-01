@@ -124,22 +124,31 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
                 await fs.readFile(path.join(__dirname, plugin, 'plugin.json'), 'utf8')
             );
 
-            //read the .env
-            const env = await fs.readFile(path.join(__dirname, plugin, '.env'), 'utf8');
-            const envVars = env.split('\n').reduce((acc, line) => {
-                const [key, value] = line.split('=');
-                acc[key] = value;
-                return acc;
-            }, {});
-
-            //if the additional_query_string_params is set, then add it to the public_url
-            if (envVars.additional_query_string_params) {
-                pluginInfo.public_url += envVars.additional_query_string_params;
+            let envVars = {};
+            try {
+                // Try to read the .env file, but don't throw if it doesn't exist
+                const env = await fs.readFile(path.join(__dirname, plugin, '.env'), 'utf8');
+                envVars = env.split('\n').reduce((acc, line) => {
+                    const [key, value] = line.split('=');
+                    if (key && value) {
+                        acc[key.trim()] = value.trim();
+                    }
+                    return acc;
+                }, {});
+            } catch (err) {
+                // Just log a warning if .env doesn't exist
+                console.warn(`Warning: No .env file found for plugin ${plugin}`);
             }
 
-            headers = envVars.HEADERS;
+            let publicUrl = pluginInfo.public_url;
+            //if the additional_query_string_params is set, then add it to the public_url
+            if (envVars.additional_query_string_params) {
+                publicUrl += envVars.additional_query_string_params;
+            }
 
-            data = await fetchLiveData(pluginInfo.public_url, headers);
+            const headers = envVars.HEADERS;
+
+            data = await fetchLiveData(publicUrl, headers);
         } else {
             data = JSON.parse(
                 await fs.readFile(`./${plugin}/sample.json`, 'utf8')

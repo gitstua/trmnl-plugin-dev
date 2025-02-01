@@ -1,0 +1,9 @@
+{
+  "name": "Random Fact",
+  "id": "random-fact",
+  "description": "Displays a random fact",
+  "public_url": "https://uselessfacts.jsph.pl/random.json?language=en",
+  "update_frequency": "hourly",
+  "data_source": "Useless Facts API",
+  "tags": ["random", "fact", "useless", "funny"]
+} 
