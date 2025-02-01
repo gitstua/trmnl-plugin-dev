@@ -1,7 +1,13 @@
-<div style="padding: 5px;">
-    <span class="title title--small">{{ setup }}</span>
-    <p class="description" style="margin-top: 2px; font-size: 12px;">{{ punchline }}</p>
+<div style="padding: 20px;">
+    <span class="title">{{ data.AUD.code }}</span>
+    <p class="description" style="margin-top: 10px;">{{ data.AUD.value }}</p>
 </div>
-<div class="title_bar" style="position: absolute; bottom: 0; width: 100%;">
-    <span class="title">Random Joke</span>
+<div style="padding: 20px;">
+    <span class="title">{{ data.USD.code }}</span>
+    <p class="description" style="margin-top: 10px;">{{ data.USD.value }}</p>
+</div>
+
+<div class="title_bar">
+    <span class="title">Currency Exchange Rates</span>
+    <span class="instance">{{ meta.last_updated_at }}</span>
 </div> 
