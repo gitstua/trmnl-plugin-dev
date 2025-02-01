@@ -26,11 +26,6 @@ A development tool for testing TRMNL plugins.
    ```
    This convenience script will start the server on port 3000.
 
-### Creating Your Plugin
-You can either:
-1. Copy the `random-joke` folder as a starting point and modify it for your needs
-2. Create a new plugin from scratch following the structure below
-
 ## Usage
 1. Open `http://localhost:3000` in your browser
 2. Select a plugin from the dropdown
@@ -40,7 +35,14 @@ You can either:
    - Half Vertical (400x480)
    - Quadrant (400x240)
 
-## Adding a New Plugin
+
+### Creating Your Plugin
+You can either:
+1. Copy the `random-joke` folder as a starting point and modify it for your needs
+2. Create a new plugin from scratch following the structure below
+
+
+## Adding a New Plugin - detailed steps
 
 1. Create a new directory in the project root with your plugin name (e.g. `my-plugin/`)
 2. Create HTML files for each supported layout:
