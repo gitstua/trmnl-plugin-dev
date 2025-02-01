@@ -26,6 +26,8 @@ app.set('views', __dirname);
 // Serve static files
 app.use(express.static('public'));
 app.use('/design-system', express.static('design-system'));
+app.use('/fonts', express.static('design-system/fonts'));  // Serve fonts at /fonts
+app.use('/images', express.static(path.join(__dirname, config.designSystem.imagesPath)));
 
 // Load sample data
 async function loadSampleData() {
@@ -161,12 +163,10 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
             <head>
                 <style>${fontFaces}</style>
                 <link rel="stylesheet" href="${config.designSystem.cssPath}">
-                <link rel="stylesheet" href="/custom-dev-styles.css">
+                <link rel="stylesheet" href="/custom.css">
             </head>
-            <body class="trmnl preview-frame full" style="padding:0;margin:0;">
-                <div class="screen">
-                    ${templateContent}
-                </div>
+            <body class="trmnl view-only" style="padding:0;margin:0;background:white;">
+                ${templateContent}
                 <script src="${config.designSystem.jsPath}"></script>
                 <script>
                     window.addEventListener('load', function() {

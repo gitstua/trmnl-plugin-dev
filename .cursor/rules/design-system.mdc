@@ -6,7 +6,8 @@ globs: *.html
 # TRMNL Design System
 
 When generating templaes for a plugin 
-- use the styles as per the example in [description.example.html](mdc:design-system/description.example.html) [label.example.html](mdc:design-system/label.example.html) [table.example.html](mdc:design-system/table.example.html) [title-bar.example.html](mdc:design-system/title-bar.example.html) [title.example.html](mdc:design-system/title.example.html) [title-bar.example.html](mdc:design-system/title-bar.example.html) [clamp.example.html](mdc:design-system/clamp.example.html)
+- use the styles in [plugins.css](mdc:design-system/cdn-copy-20250201/plugins.css) where possible since these are use by the real TRMNL server for rendering.
+- examples in @description.example.html @label.example.html @table.example.html @title-bar.example.html @title.example.html @title-bar.example.html @clamp.example.html may help
 
 - do not include the header tags in a plugin, just include any styles in the body however just use those in [styles.css](mdc:design-system/styles.css) where possible based on the above examples
 

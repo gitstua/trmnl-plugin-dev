@@ -1,18 +1,19 @@
 {
-    "designSystem": {
-        "cssPath": "/design-system/cdn-copy-20250201/plugins.css",
-        "jsPath": "/design-system/cdn-copy-20250201/plugins.js",
-        "fonts": {
-            "path": "/design-system/fonts",
-            "files": [
-                "NicoClean-Regular.ttf",
-                "NicoBold-Regular.ttf",
-                "NicoPups-Regular.ttf",
-                "BlockKie.ttf",
-                "dogicapixel.ttf",
-                "dogicapixelbold.ttf"
-            ]
-        }
-    },
-    "version": "0.1"
-} 
+  "designSystem": {
+    "cssPath": "/design-system/cdn-copy-20250201/plugins.css",
+    "jsPath": "/design-system/cdn-copy-20250201/plugins.js",
+    "imagesPath": "/design-system/cdn-copy-20250201/images",
+    "fonts": {
+      "path": "/fonts",
+      "files": [
+        "NicoClean-Regular.ttf",
+        "NicoBold-Regular.ttf",
+        "NicoPups-Regular.ttf",
+        "BlockKie.ttf",
+        "dogicapixel.ttf",
+        "dogicapixelbold.ttf"
+      ]
+    }
+  },
+  "version": "0.1"
+}

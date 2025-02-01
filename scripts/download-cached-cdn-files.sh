@@ -14,6 +14,26 @@ FOLDER_NAME="design-system/cdn-copy-$DATE"
 # Create the folder if it doesn't exist
 mkdir -p "$FOLDER_NAME"
 
+# Update config.json with new paths
+echo "Updating config.json with new paths..."
+CONFIG_FILE="config.json"
+TMP_FILE="config.tmp.json"
+
+# Use jq to update the paths
+jq --arg date "$DATE" '.designSystem.cssPath = "/design-system/cdn-copy-" + $date + "/plugins.css" | 
+    .designSystem.jsPath = "/design-system/cdn-copy-" + $date + "/plugins.js" |
+    .designSystem.imagesPath = "/design-system/cdn-copy-" + $date + "/images"' "$CONFIG_FILE" > "$TMP_FILE"
+
+# Check if jq command was successful
+if [ $? -eq 0 ]; then
+    mv "$TMP_FILE" "$CONFIG_FILE"
+    echo "✓ Successfully updated config.json"
+else
+    echo "✗ Failed to update config.json"
+    rm -f "$TMP_FILE"
+    exit 1
+fi
+
 # Create fonts directory
 FONTS_DIR="$FOLDER_NAME/../fonts"
 mkdir -p "$FONTS_DIR"
@@ -38,6 +58,28 @@ else
     echo "✗ Failed to download/format plugins.js"
     exit 1
 fi
+
+# Extract and download images from plugins.css
+echo "Downloading images referenced in plugins.css..."
+cd "$FOLDER_NAME"
+grep -o 'url([^)]*)' plugins.css | sed 's/url(//' | sed 's/)//' | sed 's/"//g' | sed "s/'//g" | while read -r url; do
+    # Skip data URLs and fonts
+    if [[ $url != data:* ]] && [[ $url != *".ttf"* ]] && [[ $url != *".woff"* ]]; then
+        # Convert relative URLs to absolute
+        if [[ $url != http* ]]; then
+            url="https://usetrmnl.com$url"
+        fi
+        
+        # Create directory structure if needed
+        dir=$(dirname "$url" | sed 's|https://usetrmnl.com||')
+        mkdir -p ".$dir"
+        
+        # Download the file
+        echo "Downloading $url"
+        curl -s -o ".$dir/$(basename "$url")" "$url"
+    fi
+done
+cd ../..
 
 # Download fonts
 echo "Downloading fonts..."
@@ -70,24 +112,5 @@ else
     echo "✗ Failed to download Inter font"
     exit 1
 fi
-
-# Extract image URLs from CSS and download them
-grep -o 'url([^)]*)' plugins.css | sed 's/url(//' | sed 's/)//' | sed 's/"//g' | sed "s/'//g" | while read -r url; do
-    # Skip data URLs and fonts
-    if [[ $url != data:* ]] && [[ $url != *".ttf"* ]] && [[ $url != *".woff"* ]]; then
-        # Convert relative URLs to absolute
-        if [[ $url != http* ]]; then
-            url="https://cdn.usetrmnl.com$url"
-        fi
-        
-        # Create directory structure if needed
-        dir=$(dirname "$url" | sed 's|https://cdn.usetrmnl.com||')
-        mkdir -p ".$dir"
-        
-        # Download the file
-        echo "Downloading $url"
-        curl -o ".$dir/$(basename "$url")" "$url"
-    fi
-done
 
 echo "Done! Files have been saved to $FOLDER_NAME"

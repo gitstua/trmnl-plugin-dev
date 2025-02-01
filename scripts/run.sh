@@ -30,7 +30,7 @@ fi
 # Check if fonts directory exists
 if [ ! -d "design-system/fonts" ] || [ -z "$(ls -A design-system/fonts)" ]; then
     echo "Error: Fonts directory is missing or empty."
-    echo "Please run: ./scripts/update-cached-cdn.sh"
+    echo "Please run: ./scripts/download-cached-cdn-files.sh"
     echo "This will download required fonts and other CDN assets."
     exit 1
 fi
