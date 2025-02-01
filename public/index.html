@@ -212,7 +212,7 @@
             height: 440px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .plugin-info-panel h3 {
@@ -309,6 +309,7 @@
             overflow-x: hidden;
             padding-right: 10px;
             margin-bottom: 85px;
+            position: relative;
         }
 
         /* Update footer styles */
@@ -419,6 +420,90 @@
             backdrop-filter: blur(3px);
             z-index: 999;
         }
+
+        /* Completely revise tooltip styles */
+        [data-tooltip] {
+            position: relative !important;
+        }
+
+        [data-tooltip]:after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 100%;
+            left: 0;
+            transform: none;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            font-size: 12px;
+            border-radius: 4px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            margin-top: 8px;
+            z-index: 10000;
+            max-width: 600px;
+            white-space: normal;
+            text-align: left;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        [data-tooltip]:hover:after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Remove any overflow constraints from parent containers */
+        .json-header, .plugin-info-panel, .plugin-info-content {
+            overflow: visible !important;
+        }
+
+        /* Ensure buttons are above other content */
+        .url-button {
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        /* Ensure tooltip stays in view */
+        .url-button[data-tooltip]:after {
+            left: 0;
+            right: auto;
+            transform: none;
+        }
+
+        /* Add empty state styles */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 40px auto;
+            max-width: 600px;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .empty-state code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #f8654b;
+        }
+
+        /* Update button container to handle positioning */
+        .json-header {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -432,12 +517,14 @@
             <option value="half-vertical">Half Vertical</option>
             <option value="quadrant-quarter">Quadrant</option>
         </select>
-        <button onclick="loadPreview()">Load Preview</button>
-        <button onclick="loadLiveData()" class="live-button" style="background: #28a745;">Load Live Data</button>
+        <button onclick="loadPreview()" data-tooltip="Loads the sample.json from the plugin folder">Load Preview</button>
+        <button onclick="loadLiveData()" class="live-button" style="background: #28a745;" data-tooltip="Loads the json data from the public_url specified in your plugin.json file">Load Live Data</button>
         <h1 class="controls-heading">TRMNL Plugin Dev</h1>
     </div>
     <div class="preview">
-        <iframe id="preview-frame" class="preview-frame full"></iframe>
+        <div class="empty-state">
+            <p>Select a plugin or "All Plugins" and then press <code>Load Preview</code> or <code>Load Live Data</code></p>
+        </div>
     </div>
     <div class="size-indicator">800 x 480</div>
     <div class="plugin-info" style="display: none; margin: 0 auto 20px; max-width: 800px; padding: 10px 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -445,7 +532,7 @@
     </div>
 
     <div class="footer">
-        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.1
+        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.1 | <a href="https://github.com/gitstua/trmnl-plugin-dev/">Source Code</a>
     </div>
 
     <!-- Add popup HTML -->
@@ -477,6 +564,16 @@
             const pluginSelect = document.getElementById('plugin');
             const layout = document.getElementById('layout').value;
             const previewContainer = document.querySelector('.preview');
+            
+            // Show empty state if no plugin selected
+            if (!pluginSelect.value) {
+                previewContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>Select a plugin or "All Plugins" and then press <code>Load Preview</code></p>
+                    </div>
+                `;
+                return;
+            }
             
             // Update URL with new parameters
             const params = new URLSearchParams(window.location.search);
@@ -575,15 +672,14 @@
                 document.getElementById('layout').value = selectedLayout;
             }
             
-            // Show/hide preview based on whether we're showing all plugins
-            if (selectedPlugin === 'all') {
-                preview.classList.remove('show');
-            } else {
-                preview.classList.add('show');
-                if (selectedPlugin) {
-                    loadPreview();
-                }
+            // Auto-load preview if we have parameters
+            if (selectedPlugin) {
+                loadPreview();
             }
+
+            // Handle welcome popup display
+            const hasParams = Array.from(params.keys()).length > 0;
+            document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
         });
 
         async function fetchPluginJson(pluginId) {
@@ -653,49 +749,43 @@
             // Create the info panel
             const infoPanel = document.createElement('div');
             infoPanel.className = 'plugin-info-panel';
-            
-            // Create scrollable content container
+
+            // Create content container for scrolling
             const infoContent = document.createElement('div');
             infoContent.className = 'plugin-info-content';
-            
-            // Add plugin.json content with title
+
+            // Add plugin.json section
             fetchPluginJson(plugin.id).then(pluginJson => {
                 if (pluginJson) {
                     const jsonHeader = document.createElement('div');
                     jsonHeader.className = 'json-header';
                     
-                    const jsonTitle = document.createElement('h3');
-                    jsonTitle.textContent = 'plugin.json';
+                    // Create h3 element
+                    const h3 = document.createElement('h3');
+                    h3.textContent = 'plugin.json';
+                    jsonHeader.appendChild(h3);
                     
-                    // Add public_url copy button if it exists
-                    let urlButton;
-                    const parsedJson = typeof pluginJson === 'string' ? JSON.parse(pluginJson) : pluginJson;
-                    if (parsedJson.public_url) {
-                        urlButton = document.createElement('button');
-                        urlButton.className = 'copy-button url-button';
-                        urlButton.textContent = 'Copy Public URL';
-                        urlButton.onclick = async () => {
-                            await copyToClipboard(parsedJson.public_url);
-                            urlButton.textContent = 'Copied!';
-                            setTimeout(() => {
-                                urlButton.textContent = 'Copy Public URL';
-                            }, 2000);
-                        };
-                    }
-                    
-                    jsonHeader.appendChild(jsonTitle);
-                    if (urlButton) {
+                    // Create URL button if public_url exists
+                    if (pluginJson.public_url) {
+                        const urlButton = document.createElement('button');
+                        urlButton.className = 'url-button';
+                        urlButton.textContent = 'Copy URL';
+                        urlButton.onclick = () => copyToClipboard(pluginJson.public_url);
+                        urlButton.setAttribute('data-tooltip', 'Copy this URL to paste into the TRMNL dashboard when creating your plugin');
+                        urlButton.style.position = 'relative';
+                        urlButton.style.zIndex = '2';
                         jsonHeader.appendChild(urlButton);
                     }
                     
-                    const jsonPre = document.createElement('pre');
-                    jsonPre.textContent = typeof pluginJson === 'string' ? pluginJson : JSON.stringify(pluginJson, null, 2);
-                    
-                    infoPanel.appendChild(jsonHeader);
-                    infoContent.appendChild(jsonPre);
-                    infoPanel.appendChild(infoContent);
+                    infoContent.appendChild(jsonHeader);
+
+                    const pre = document.createElement('pre');
+                    pre.textContent = JSON.stringify(pluginJson, null, 2);
+                    infoContent.appendChild(pre);
                 }
             });
+
+            infoPanel.appendChild(infoContent);
 
             // Add layout links section
             const layoutLinks = document.createElement('div');
@@ -703,10 +793,14 @@
             layoutLinks.innerHTML = `
                 <h3>Layout Templates</h3>
                 <div class="layout-buttons">
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full')">Copy Full Layout</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-horizontal')">Copy Half Horizontal</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-vertical')">Copy Half Vertical</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant-quarter')">Copy Quadrant</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full')" 
+                        data-tooltip="Copy the full screen (800x480) layout template to clipboard">Copy Full Layout</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-horizontal')" 
+                        data-tooltip="Copy the half height (800x240) layout template to clipboard">Copy Half Horizontal</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-vertical')" 
+                        data-tooltip="Copy the half width (400x480) layout template to clipboard">Copy Half Vertical</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant-quarter')" 
+                        data-tooltip="Copy the quarter size (400x240) layout template to clipboard">Copy Quadrant</button>
                 </div>
             `;
             infoPanel.appendChild(layoutLinks);
@@ -719,14 +813,6 @@
         function closeWelcome() {
             document.getElementById('welcomeOverlay').style.display = 'none';
         }
-
-        // Show welcome popup only when no query params
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const hasParams = Array.from(params.keys()).length > 0;
-            
-            document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
-        });
     </script>
 </body>
 </html> 

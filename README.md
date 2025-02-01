@@ -2,6 +2,35 @@
 
 A development tool for testing TRMNL plugins.
 
+## Getting Started
+
+### Prerequisites
+- Ensure you have [Node.js](https://nodejs.org/) installed
+- Git installed on your machine
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/gitstua/trmnl-plugin-dev.git
+   cd trmnl-plugin-dev
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   ./scripts/run.sh
+   ```
+   This convenience script will start the server on port 3000.
+
+### Creating Your Plugin
+You can either:
+1. Copy the `random-joke` folder as a starting point and modify it for your needs
+2. Create a new plugin from scratch following the structure below
+
 ## Acknowledgments
 
 This project would not be possible without the following:
@@ -24,7 +53,7 @@ See [LICENSE.md](LICENSE.md) for details.
 
 Copyright (c) 2025 Stu Eggerton. All rights reserved.
 
-### Usage
+## Usage
 1. Open `http://localhost:3000` in your browser
 2. Select a plugin from the dropdown
 3. Choose a layout configuration:
@@ -42,16 +71,21 @@ Copyright (c) 2025 Stu Eggerton. All rights reserved.
    - `half-vertical.html` - Vertical split layout
    - `quadrant-quarter.html` - Quarter screen layout
 3. Create a `sample.json` file with test data for your plugin
-4. (Optional) Create a `.env` file with:
-   - `SOURCE_URL` - API endpoint for data
-   - `HEADERS` - Any required headers for the API
+4. Create a `plugin.json` file containing:
+   ```json
+   {
+     "name": "Your Plugin Name",
+     "public_url": "https://your-api-endpoint.com/data",
+     "description": "What your plugin does"
+   }
+   ```
 5. Use the kind of TRMNL Design System styles from `design-system/styles.css` - refer to https://usetrmnl.com/framework/ for the correct examples and documentation
 6. Your plugin will automatically appear in the plugin dropdown
 
 ## Design System Guidelines
 
 When creating plugin templates:
-- Use the styles as per the examples in the `design-system/` directory
+- Use the styles as per the examples in the `design-system/` directory refer to https://usetrmnl.com/framework/ for the correct examples and documentation
 - Do not include `<head>` tags in your plugin templates
 - Include any necessary styles in the body, but prefer using the design system styles where possible
 - Use Liquid syntax for data representation
@@ -63,11 +97,12 @@ plugin-name/
   - half-vertical.html
   - quadrant-quarter.html
   - sample.json
+  - plugin.json
   - .env
 
-  ## Deploying a plugin to TRMNL
-  - create a new private plugin in the TRMNL dashboard
-  - choose `polling`
-  - enter the `url` from the `.env` file
-  - select `Edit Markup` and paste the contents of the `full.html`, `half-horizontal.html`, `half-vertical.html`, `quadrant-quarter.html` files
-  - you may need to force refresh the data
+## Deploying a plugin to TRMNL
+- create a new private plugin in the TRMNL dashboard
+- choose `polling`
+- enter the `public_url` from the `plugin.json` file - you can copy this from the UI
+- select `Edit Markup` and paste the contents of the `full.html`, `half-horizontal.html`, `half-vertical.html`, `quadrant-quarter.html` files using the buttons in the UI
+- you may need to force refresh the data
