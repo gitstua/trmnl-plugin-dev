@@ -304,7 +304,7 @@ body {
 .preview-wrapper {
     display: flex;
     gap: 20px;
-    max-width: 1200px;
+    max-width: 1440px;  /* Increased from 1300px to accommodate wider panel */
     margin: 0 auto;
     align-items: flex-start;
 }
@@ -317,12 +317,13 @@ body {
 /* Right side - plugin info */
 .plugin-info-panel {
     flex: 1;
-    min-width: 300px;  /* Minimum width to prevent squishing */
-    max-width: 360px;  /* Maximum width */
+    min-width: 500px;
+    max-width: 600px;
     background: white;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 30px;    /* Added top margin */
 }
 
 /* Plugin info content */
@@ -355,8 +356,9 @@ body {
 
 .layout-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;  /* Changed from column to row */
+    gap: 8px;            /* Slightly larger gap for horizontal layout */
+    flex-wrap: wrap;     /* Allow wrapping if needed */
 }
 
 /* Fix iframe body padding */
@@ -381,12 +383,12 @@ body.trmnl.preview-frame {
 
 /* Button styles */
 button {
-    padding: 8px 16px;
+    padding: 6px 12px;  /* Reduced padding */
     border: none;
     border-radius: 4px;
     background: #f8654b;
     color: white;
-    font-size: 14px;
+    font-size: 13px;    /* Reduced font size */
     cursor: pointer;
     transition: background 0.2s;
     position: relative;
@@ -397,13 +399,15 @@ button:hover {
 }
 
 .copy-button {
-    width: 100%;
+    width: auto;         /* Changed from 100% to auto */
     text-align: left;
     background: #f5f5f5;
     color: #333;
-    padding: 10px;
+    padding: 4px 8px;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap; /* Prevent button text from wrapping */
 }
 
 .copy-button:hover {
@@ -491,4 +495,32 @@ body.view-only {
 /* Make sure view is also white */
 .view {
     background: white;
+}
+
+/* Toast notification styles */
+.toast {
+    position: fixed;
+    bottom: 60px;  /* Increased from 20px to avoid size indicator */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.toast.success {
+    background: rgba(40, 167, 69, 0.9);
+}
+
+.toast.error {
+    background: rgba(220, 53, 69, 0.9);
 } 

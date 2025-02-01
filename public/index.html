@@ -61,6 +61,9 @@
         </div>
     </div>
 
+    <!-- Add toast container -->
+    <div id="toast" class="toast"></div>
+
     <script>
         async function loadPreview() {
             const pluginSelect = document.getElementById('plugin');
@@ -195,23 +198,34 @@
             }
         }
 
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
         async function copyToClipboard(text) {
             try {
                 await navigator.clipboard.writeText(text);
-                // Could add a toast notification here
+                showToast('Copied to clipboard!');
             } catch (err) {
                 console.error('Failed to copy:', err);
+                showToast('Failed to copy to clipboard', 'error');
             }
         }
 
-        async function copyLayout(pluginId, layoutName) {
+        async function copyLayout(pluginId, layoutName, event) {
             try {
                 const response = await fetch(`/api/layout/${pluginId}/${layoutName}.html`);
                 if (!response.ok) throw new Error('Failed to fetch layout');
                 const layoutContent = await response.text();
                 await copyToClipboard(layoutContent);
                 
-                // Optional: Show feedback
+                // Update button text (keep this feedback too)
                 const button = event.target;
                 const originalText = button.textContent;
                 button.textContent = 'Copied!';
@@ -220,8 +234,11 @@
                 }, 2000);
             } catch (error) {
                 console.error('Error copying layout:', error);
-                // Optional: Show error feedback
+                showToast('Failed to copy layout', 'error');
+                
+                // Update button text
                 const button = event.target;
+                const originalText = button.textContent;
                 button.textContent = 'Error!';
                 setTimeout(() => {
                     button.textContent = originalText;
@@ -298,13 +315,13 @@
             layoutLinks.innerHTML = `
                 <h3>Layout Templates</h3>
                 <div class="layout-buttons">
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full')" 
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full', event)" 
                         data-tooltip="Copy the full screen (800x480) layout template to clipboard">Copy Full Layout</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-horizontal')" 
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-horizontal', event)" 
                         data-tooltip="Copy the half height (800x240) layout template to clipboard">Copy Half Horizontal</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-vertical')" 
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-vertical', event)" 
                         data-tooltip="Copy the half width (400x480) layout template to clipboard">Copy Half Vertical</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant-quarter')" 
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant-quarter', event)" 
                         data-tooltip="Copy the quarter size (400x240) layout template to clipboard">Copy Quadrant</button>
                 </div>
             `;
