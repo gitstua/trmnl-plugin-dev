@@ -90,9 +90,18 @@ app.get('/', async (req, res) => {
 });
 
 // Simplify the fetchLiveData function
-async function fetchLiveData(url, envVars) {
+async function fetchLiveData(url, headers) {
     try {
-        const response = await fetch(url);
+        let parsedHeaders = {};
+        if (headers) {
+            try {
+                parsedHeaders = typeof headers === 'string' ? JSON.parse(headers) : headers;
+            } catch (error) {
+                console.error('Error parsing headers:', error);
+            }
+        }
+
+        const response = await fetch(url, { headers: parsedHeaders });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -114,7 +123,23 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
             const pluginInfo = JSON.parse(
                 await fs.readFile(path.join(__dirname, plugin, 'plugin.json'), 'utf8')
             );
-            data = await fetchLiveData(pluginInfo.public_url);
+
+            //read the .env
+            const env = await fs.readFile(path.join(__dirname, plugin, '.env'), 'utf8');
+            const envVars = env.split('\n').reduce((acc, line) => {
+                const [key, value] = line.split('=');
+                acc[key] = value;
+                return acc;
+            }, {});
+
+            //if the additional_query_string_params is set, then add it to the public_url
+            if (envVars.additional_query_string_params) {
+                pluginInfo.public_url += envVars.additional_query_string_params;
+            }
+
+            headers = envVars.HEADERS;
+
+            data = await fetchLiveData(pluginInfo.public_url, headers);
         } else {
             data = JSON.parse(
                 await fs.readFile(`./${plugin}/sample.json`, 'utf8')

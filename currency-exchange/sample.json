@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "last_updated_at": "2025-01-31T23:59:59Z"
+  },
+  "data": {
+    "AUD": {
+      "code": "AUD",
+      "value": 1.6098402959
+    },
+    "USD": {
+      "code": "USD",
+      "value": 1
+    }
+  }
+} 

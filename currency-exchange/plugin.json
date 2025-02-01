@@ -1,0 +1,11 @@
+{
+  "name": "Currency Exchange Rates",
+  "description": "Display current exchange rates for AUD and USD",
+  "version": "1.0.0",
+  "author": "@gitstua",
+  "public_url": "https://api.currencyapi.com/v3/latest?currencies=AUD%2CUSD",
+  "requires_auth_headers": true,
+  "update_frequency": "1/day",
+  "data_source": "https://app.currencyapi.com/ JSON",
+  "tags": ["finance"]
+}
