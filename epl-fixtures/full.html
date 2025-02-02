@@ -14,8 +14,22 @@
         {% assign matches_sorted = matches | sort: "date" %}
         {% assign completed_counter = 0 %}
 
+<!-- calculate position of first match with no score -->
+        {% assign first_match_with_no_score_index = 0 %}
         {% for match in matches_sorted %}
-          {% if match.score.size > 0 and completed_counter < 5 %}
+          {% if match.score.size == 0 %}
+            {% assign first_match_with_no_score_index = forloop.index %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+
+        {% assign start_index = first_match_with_no_score_index | minus: 6 %}
+        {% if start_index < 0 %}
+          {% assign start_index = 0 %}
+        {% endif %}
+        {% for i in (start_index..first_match_with_no_score_index) %}
+          {% assign match = matches_sorted[i] %}
+          {% if match.score.size > 0 %}
             {% assign formatted_date = match.date | date: "%-d %b" %}
             <tr>
               <td><span class="title title--small">{{ formatted_date }}</span></td>
@@ -24,10 +38,10 @@
               <td><span class="title title--small">{{ match.team2 }}</span></td>
               <td><span class="title title--small">{{ match.score.ft[0] }} - {{ match.score.ft[1] }}</span></td>
             </tr>
-            {% assign completed_counter = completed_counter | plus: 1 %}
           {% endif %}
         {% endfor %}
 
+        
         {% for match in matches_sorted %}
           {% unless match.score.size > 0 %}
             {% assign formatted_date = match.date | date: "%-d %b" %}
