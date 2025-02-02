@@ -20,7 +20,7 @@ yarn-error.log*
 *.woff2
 *.eot
 design-system/fonts/*
-design-system/cdn-copy-*/fonts/*
+design-system/cdn-copy/fonts/*
 **/fonts/
 
 # System files
