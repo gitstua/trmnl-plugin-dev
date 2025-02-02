@@ -1,64 +1,51 @@
-<style>
-  .title--small {
-    font-size: 12px; /* Ensure small font for all titles */
-  }
-  .label--outline {
-    border: 1px solid #000; /* Outline the label */
-    padding: 2px 5px;
-    border-radius: 5px;
-    font-size: 12px;
-  }
-</style>
-
 <div class="view bg-white">
   <div class="layout layout--col gap--space-between">
-    <div class="columns">
-      <div class="column">
-        <table class="table">
-          <thead>
-            <tr>
-              <th><span class="title title--small">Date</span></th>
-              <th><span class="title title--small">Time</span></th>
-              <th><span class="title title--small">Home</span></th>
-              <th><span class="title title--small">Away</span></th>
-              <th><span class="title title--small">Score</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% assign counter = 0 %}
-            {% assign upcoming_matches = matches | sort: "date" %}
+    <table class="table table--condensed">
+      <thead>
+        <tr>
+          <th><span class="title title--small">Date</span></th>
+          <th><span class="title title--small">Time</span></th>
+          <th><span class="title title--small">Home</span></th>
+          <th><span class="title title--small">Away</span></th>
+          <th><span class="title title--small">Score</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% assign matches_sorted = matches | sort: "date" %}
+        {% assign completed_counter = 0 %}
 
-            {% for match in upcoming_matches %}
-              {% if match.score.size == 0 and counter < 8 %}
-                {% assign formatted_date = match.date | date: "%-d %b" %}
-                <tr>
-                  <td><span class="title title--small">{{ formatted_date }}</span></td>
-                  <td><span class="title title--small">{{ match.time }}</span></td>
-                  <td>
-                    <div class="flex gap gap--small" style="align-items: center">
-                      <span class="title title--small">{{ match.team1 }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="flex gap gap--small" style="align-items: center">
-                      <span class="title title--small">{{ match.team2 }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="title title--small">TBD</span>
-                  </td>
-                </tr>
-                {% assign counter = counter | plus: 1 %}
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
+        {% for match in matches_sorted %}
+          {% if match.score.size > 0 and completed_counter < 5 %}
+            {% assign formatted_date = match.date | date: "%-d %b" %}
+            <tr>
+              <td><span class="title title--small">{{ formatted_date }}</span></td>
+              <td><span class="title title--small">{{ match.time }}</span></td>
+              <td><span class="title title--small">{{ match.team1 }}</span></td>
+              <td><span class="title title--small">{{ match.team2 }}</span></td>
+              <td><span class="title title--small">{{ match.score.ft[0] }} - {{ match.score.ft[1] }}</span></td>
+            </tr>
+            {% assign completed_counter = completed_counter | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+
+        {% for match in matches_sorted %}
+          {% unless match.score.size > 0 %}
+            {% assign formatted_date = match.date | date: "%-d %b" %}
+            <tr>
+              <td><span class="title title--small">{{ formatted_date }}</span></td>
+              <td><span class="title title--small">{{ match.time }}</span></td>
+              <td><span class="title title--small">{{ match.team1 }}</span></td>
+              <td><span class="title title--small">{{ match.team2 }}</span></td>
+              <td><span class="title title--small"></span></td>
+            </tr>
+          {% endunless %}
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
   <div class="title_bar">
     <img class="image" src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" />
     <span class="title">Premier League</span>
-    <span class="instance">Next 8 Matches</span>
+    <span class="instance">Fixtures & Results</span>
   </div>
 </div>
