@@ -25,42 +25,27 @@
             </tr>
           </thead>
           <tbody>
-            {% assign today = "now" | date: "%Y-%m-%d" %}
             {% assign counter = 0 %}
-            {% assign upcoming_matches = matches | sort: "date" %} <!-- Sort matches in ascending order (next matches) -->
+            {% assign upcoming_matches = matches | sort: "date" %}
 
             {% for match in upcoming_matches %}
-              {% if match.date > today and counter < 8 %}
-                {% assign formatted_date = match.date | date: "%-d %b" %} <!-- Converts to '1 Jan' format -->
+              {% if match.score.size == 0 and counter < 8 %}
+                {% assign formatted_date = match.date | date: "%-d %b" %}
                 <tr>
                   <td><span class="title title--small">{{ formatted_date }}</span></td>
                   <td><span class="title title--small">{{ match.time }}</span></td>
                   <td>
                     <div class="flex gap gap--small" style="align-items: center">
-                      {% if match.score.ft[0] > match.score.ft[1] %}
-                        <span class="label label--outline">{{ match.team1 }}</span>
-                      {% else %}
-                        <span class="title title--small">{{ match.team1 }}</span>
-                      {% endif %}
+                      <span class="title title--small">{{ match.team1 }}</span>
                     </div>
                   </td>
                   <td>
                     <div class="flex gap gap--small" style="align-items: center">
-                      {% if match.score.ft[1] > match.score.ft[0] %}
-                        <span class="label label--outline">{{ match.team2 }}</span>
-                      {% else %}
-                        <span class="title title--small">{{ match.team2 }}</span>
-                      {% endif %}
+                      <span class="title title--small">{{ match.team2 }}</span>
                     </div>
                   </td>
                   <td>
-                    <span class="title title--small">
-                      {% if match.score.ft %}
-                        {{ match.score.ft[0] }} - {{ match.score.ft[1] }}
-                      {% else %}
-                        TBD
-                      {% endif %}
-                    </span>
+                    <span class="title title--small">TBD</span>
                   </td>
                 </tr>
                 {% assign counter = counter | plus: 1 %}
