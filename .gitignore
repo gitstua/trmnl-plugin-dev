@@ -23,6 +23,10 @@ design-system/fonts/*
 design-system/cdn-copy/fonts/*
 **/fonts/
 
+# exclude ./design-system/cdn-copy/ and everything under it
+design-system/cdn-copy/
+**/design-system/cdn-copy/
+
 # System files
 .DS_Store
 **/DS_Store

@@ -1,15 +1,31 @@
 #!/bin/bash
 
-# Check if npx is available
+# Check if required commands are available
 if ! command -v npx &> /dev/null; then
     echo "Error: npx is not installed. Please install Node.js which includes npx."
     echo "Visit https://nodejs.org/ to download and install Node.js"
     exit 1
 fi
 
-# Set the date for the folder name
-DATE=$(date +%Y%m%d)
-FOLDER_NAME="design-system/cdn-copy-$DATE"
+if ! command -v wget &> /dev/null; then
+    echo "Error: wget is not installed. Please install wget:"
+    echo "For macOS: brew install wget"
+    echo "For Ubuntu/Debian: sudo apt-get install wget"
+    echo "For CentOS/RHEL: sudo yum install wget"
+    exit 1
+fi
+
+if ! command -v pandoc &> /dev/null; then
+    echo "Error: pandoc is not installed. Please install pandoc:"
+    echo "For macOS: brew install pandoc"
+    echo "For Ubuntu/Debian: sudo apt-get install pandoc"
+    echo "For CentOS/RHEL: sudo yum install pandoc"
+    echo "For Windows: choco install pandoc"
+    exit 1
+fi
+
+# Set the folder name without date
+FOLDER_NAME="design-system/cdn-copy"
 
 # Create the folder if it doesn't exist
 mkdir -p "$FOLDER_NAME"
@@ -19,10 +35,10 @@ echo "Updating config.json with new paths..."
 CONFIG_FILE="config.json"
 TMP_FILE="config.tmp.json"
 
-# Use jq to update the paths
-jq --arg date "$DATE" '.designSystem.cssPath = "/design-system/cdn-copy-" + $date + "/plugins.css" | 
-    .designSystem.jsPath = "/design-system/cdn-copy-" + $date + "/plugins.js" |
-    .designSystem.imagesPath = "/design-system/cdn-copy-" + $date + "/images"' "$CONFIG_FILE" > "$TMP_FILE"
+# Use jq to update the paths without date
+jq '.designSystem.cssPath = "/design-system/cdn-copy/plugins.css" | 
+    .designSystem.jsPath = "/design-system/cdn-copy/plugins.js" |
+    .designSystem.imagesPath = "/design-system/cdn-copy/images"' "$CONFIG_FILE" > "$TMP_FILE"
 
 # Check if jq command was successful
 if [ $? -eq 0 ]; then
@@ -81,6 +97,31 @@ grep -o 'url([^)]*)' plugins.css | sed 's/url(//' | sed 's/)//' | sed 's/"//g' |
 done
 cd ../..
 
+# Download framework files
+echo "Downloading framework doc files..."
+FRAMEWORK_DIR="$FOLDER_NAME/framework"
+mkdir -p "$FRAMEWORK_DIR"
+
+wget --recursive \
+     --no-clobber \
+     --page-requisites \
+     --html-extension \
+     --convert-links \
+     --domains usetrmnl.com \
+     --no-parent \
+     --directory-prefix="$FRAMEWORK_DIR" \
+     "https://usetrmnl.com/framework/"
+
+echo "✓ Successfully downloaded framework files"
+
+# Convert HTML files to Markdown and delete original HTML files
+find "$FRAMEWORK_DIR" -name "*.html" | while read -r html_file; do
+    md_file="${html_file%.html}.md"
+    pandoc "$html_file" -f html -t gfm -o "$md_file"
+    echo "Converted $html_file to $md_file"
+    rm "$html_file"
+done
+
 # Download fonts
 echo "Downloading fonts..."
 
@@ -93,7 +134,7 @@ TRMNL_FONTS=(
 )
 
 for font in "${TRMNL_FONTS[@]}"; do
-    echo "Downloading TRMNL font: $font..."
+    echo "Downloading TRMNL font: $font... to $FONTS_DIR/$font"
     curl -s "https://usetrmnl.com/fonts/$font" > "$FONTS_DIR/$font"
     if [ $? -eq 0 ]; then
         echo "✓ Successfully downloaded $font"

@@ -1,8 +1,8 @@
 {
   "designSystem": {
-    "cssPath": "/design-system/cdn-copy-20250201/plugins.css",
-    "jsPath": "/design-system/cdn-copy-20250201/plugins.js",
-    "imagesPath": "/design-system/cdn-copy-20250201/images",
+    "cssPath": "/design-system/cdn-copy/plugins.css",
+    "jsPath": "/design-system/cdn-copy/plugins.js",
+    "imagesPath": "/design-system/cdn-copy/images",
     "fonts": {
       "path": "/fonts",
       "files": [
