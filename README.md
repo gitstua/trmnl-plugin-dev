@@ -2,6 +2,9 @@
 
 A development tool for testing TRMNL plugins.
 
+## Alternative
+Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please chekout that too as it may give better results.
+
 ## Getting Started
 
 ### Prerequisites
