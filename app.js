@@ -212,12 +212,12 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
     }
 });
 
-// Update the layout endpoint to handle the .liquid extension
+// Update the layout endpoint to handle the .liquid extension and views directory
 app.get('/api/layout/:pluginId/:layout', async (req, res) => {
     try {
         const layoutName = req.params.layout.replace('.html', '').replace('-', '_');
         const layoutContent = await fs.readFile(
-            path.join(__dirname, req.params.pluginId, `${layoutName}.liquid`),
+            path.join(__dirname, req.params.pluginId, 'views', `${layoutName}.liquid`),
             'utf8'
         );
         res.send(layoutContent);

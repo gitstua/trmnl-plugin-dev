@@ -265,7 +265,7 @@
 
         async function copyLayout(pluginId, layoutName, event) {
             try {
-                const response = await fetch(`/api/layout/${pluginId}/${layoutName}.liquid`);
+                const response = await fetch(`/api/layout/${pluginId}/${layoutName}`);
                 if (!response.ok) throw new Error('Failed to fetch layout');
                 const layoutContent = await response.text();
                 await copyToClipboard(layoutContent);
