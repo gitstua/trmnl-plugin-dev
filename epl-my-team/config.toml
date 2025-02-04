@@ -12,4 +12,9 @@ version = "1.0.0"
 author = "@gitstua"
 update_frequency = "2/day"
 data_source = "OpenFootball JSON"
-tags = ["sports", "football", "premier-league", "manchester-united"] 
+tags = ["sports", "football", "premier-league", "manchester-united"]
+
+# Polling headers (optional, for polling strategy)
+[polling_headers]
+authorization = "bearer 123"
+content-type = "application/json" 
