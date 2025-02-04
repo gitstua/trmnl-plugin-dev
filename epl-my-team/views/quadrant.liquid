@@ -18,7 +18,7 @@
                             {% assign all_matches = matches | sort: "date" | reverse %}
 
                             {% for match in all_matches %}
-                            {% if counter < 1 and match.score.ft and match.score.ft[0] !=null %} {% if
+                            {% if counter < 1 and match.score.ft and match.score.ft[0] != null %} {% if
                                 match.team1=="Manchester United FC" or match.team2=="Manchester United FC" %} {% assign
                                 match_date=match.date | date: "%-d %b" %} <tr>
                                 <td><span class="title title--small">{{ match_date }}</span></td>

@@ -34,3 +34,6 @@ Thumbs.db
 node_modules/.bin/aaaa
 .cursorignore
 .cursorrules
+
+# No cached files
+**/tmp/*
