@@ -12,4 +12,7 @@ version = "1.0.0"
 author = "@gitstua"
 update_frequency = "hourly"
 data_source = "Official Joke API"
-tags = ["entertainment", "humor"] 
+tags = ["entertainment", "humor"]
+
+# Polling headers (optional, for polling strategy)
+[polling_headers] 

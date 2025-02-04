@@ -37,7 +37,7 @@ async function loadSampleData() {
     return { eplFixtures, eplMyTeam };
 }
 
-// Update the getAvailablePlugins function to read from config.toml
+// Update the getAvailablePlugins function to correctly read metadata
 async function getAvailablePlugins() {
     const dirs = (await fs.readdir(__dirname, { withFileTypes: true }))
         .filter(dirent => dirent.isDirectory())
@@ -61,7 +61,7 @@ async function getAvailablePlugins() {
                 const pluginInfo = toml.parse(configContent);
                 return {
                     id: dir,
-                    name: pluginInfo.name,
+                    name: pluginInfo.name || 'Unnamed Plugin', // Provide a fallback name
                     public_url: pluginInfo.url
                 };
             } catch (error) {

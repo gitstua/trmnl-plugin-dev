@@ -5,11 +5,6 @@ strategy = "polling"
 # Poll URL (required for polling strategy)
 url = "https://api.currencyapi.com/v3/latest?currencies=AUD%2CUSD"
 
-# Polling headers (optional, for polling strategy)
-[polling_headers]
-authorization = "bearer 123"
-content-type = "application/json"
-
 # Plugin metadata
 name = "Currency Exchange Rates"
 description = "Display current exchange rates for AUD and USD"
@@ -18,4 +13,9 @@ author = "@gitstua"
 requires_auth_headers = true
 update_frequency = "1/day"
 data_source = "https://app.currencyapi.com/ JSON"
-tags = ["finance"] 
+tags = ["finance"]
+
+# Polling headers (optional, for polling strategy)
+[polling_headers]
+authorization = "bearer 123"
+content-type = "application/json" 

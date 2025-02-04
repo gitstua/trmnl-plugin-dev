@@ -336,10 +336,17 @@ body {
 /* Plugin wrapper layout */
 .preview-wrapper {
     display: flex;
-    gap: 20px;
-    max-width: 1440px;  /* Increased from 1300px to accommodate wider panel */
-    margin: 0 auto;
+    gap: 15px;
+    max-width: 1640px;
+    margin: 0 10px;  /* Reduced from auto to 10px */
     align-items: flex-start;
+}
+
+/* For larger screens, we can still center it */
+@media (min-width: 1460px) {  /* 1440px + 20px */
+    .preview-wrapper {
+        margin: 0 auto;
+    }
 }
 
 /* Left side - preview */
@@ -381,10 +388,13 @@ body {
 }
 
 /* Layout links section */
-.layout-links {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
+.layout-links, .layout-links h3 {
+    margin-top: 0;
+}
+
+/* Or more specifically if needed */
+.plugin-info-panel .layout-links {
+    margin-top: 0;
 }
 
 .layout-buttons {
