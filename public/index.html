@@ -15,9 +15,9 @@
         </select>
         <select id="layout">
             <option value="full">Full</option>
-            <option value="half-horizontal">Half Horizontal</option>
-            <option value="half-vertical">Half Vertical</option>
-            <option value="quadrant-quarter">Quadrant</option>
+            <option value="half_horizontal">Half Horizontal</option>
+            <option value="half_vertical">Half Vertical</option>
+            <option value="quadrant">Quadrant</option>
         </select>
         <button onclick="loadPreview()" data-tooltip="Loads the sample.json from the plugin folder">Load Preview</button>
         <button onclick="loadLiveData()" class="live-button" style="background: #28a745;" data-tooltip="Loads the json data from the public_url specified in your plugin.json file">Load Live Data</button>
@@ -79,18 +79,10 @@
                 `;
                 return;
             }
-            
-            // Update URL with new parameters
-            const params = new URLSearchParams(window.location.search);
-            params.set('plugin', pluginSelect.value);
-            params.set('layout', layout);
-            // Remove live parameter when loading preview
-            params.delete('live');
-            window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
-            
+
             // Clear existing content
             previewContainer.innerHTML = '';
-            
+
             if (pluginSelect.value === 'all') {
                 const response = await fetch('/api/plugins');
                 const plugins = await response.json();
@@ -100,7 +92,7 @@
                     const wrapper = createPreviewElement(plugin, layout);
                     previewContainer.appendChild(wrapper);
                 });
-            } else if (pluginSelect.value) {
+            } else {
                 const plugin = {
                     id: pluginSelect.value,
                     name: pluginSelect.options[pluginSelect.selectedIndex].text
@@ -108,9 +100,6 @@
                 const wrapper = createPreviewElement(plugin, layout);
                 previewContainer.appendChild(wrapper);
             }
-            
-            // Always show the preview container
-            previewContainer.style.display = 'block';
         }
 
         async function loadLiveData() {
@@ -118,16 +107,9 @@
             const layout = document.getElementById('layout').value;
             const previewContainer = document.querySelector('.preview');
             
-            // Update URL parameters
-            const params = new URLSearchParams(window.location.search);
-            params.set('plugin', pluginSelect.value);
-            params.set('layout', layout);
-            params.set('live', 'true');
-            window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
-            
             // Clear and rebuild the preview container
             previewContainer.innerHTML = '';
-            
+
             if (pluginSelect.value === 'all') {
                 const response = await fetch('/api/plugins');
                 const plugins = await response.json();
@@ -137,7 +119,7 @@
                     const wrapper = createPreviewElement(plugin, layout, true);
                     previewContainer.appendChild(wrapper);
                 });
-            } else if (pluginSelect.value) {
+            } else {
                 const plugin = {
                     id: pluginSelect.value,
                     name: pluginSelect.options[pluginSelect.selectedIndex].text
@@ -145,9 +127,83 @@
                 const wrapper = createPreviewElement(plugin, layout, true);
                 previewContainer.appendChild(wrapper);
             }
+        }
+
+        function createPreviewElement(plugin, layout, isLive = false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'preview-wrapper';
             
-            // Always show the preview container
-            previewContainer.style.display = 'block';
+            // Create left side with title and preview
+            const leftSide = document.createElement('div');
+            
+            // Create title
+            const title = document.createElement('h2');
+            title.className = 'plugin-title';
+            title.textContent = plugin.name;
+            leftSide.appendChild(title);
+            
+            // Create preview container with screen
+            const container = document.createElement('div');
+            container.className = 'preview-container';
+            
+            const screen = document.createElement('div');
+            screen.className = 'screen';
+            
+            // Create iframe for just the view
+            const iframe = document.createElement('iframe');
+            iframe.className = `view-frame ${layout}`;
+            iframe.src = `/preview/${plugin.id}/${layout}${isLive ? '?live=true' : ''}`;
+            screen.appendChild(iframe);
+            
+            container.appendChild(screen);
+            leftSide.appendChild(container);
+            wrapper.appendChild(leftSide);
+
+            // Add the info panel (right side)
+            const infoPanel = document.createElement('div');
+            infoPanel.className = 'plugin-info-panel';
+            
+            // Fetch and display raw TOML content
+            fetchRawToml(plugin.id).then(tomlContent => {
+                if (tomlContent) {
+                    const tomlPre = document.createElement('pre');
+                    tomlPre.style.whiteSpace = 'pre-wrap'; // Ensure text wraps correctly
+                    tomlPre.textContent = tomlContent;
+                    infoPanel.appendChild(tomlPre);
+                }
+            });
+
+            // Add layout links section
+            const layoutLinks = document.createElement('div');
+            layoutLinks.className = 'layout-links';
+            layoutLinks.innerHTML = `
+                <h3>Layout Templates</h3>
+                <div class="layout-buttons">
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full', event)" 
+                        data-tooltip="Copy the full screen (800x480) layout template to clipboard">Copy Full Layout</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half_horizontal', event)" 
+                        data-tooltip="Copy the half height (800x240) layout template to clipboard">Copy Half Horizontal</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half_vertical', event)" 
+                        data-tooltip="Copy the half width (400x480) layout template to clipboard">Copy Half Vertical</button>
+                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant', event)" 
+                        data-tooltip="Copy the quarter size (400x240) layout template to clipboard">Copy Quadrant</button>
+                </div>
+            `;
+            infoPanel.appendChild(layoutLinks);
+            
+            wrapper.appendChild(infoPanel);
+            return wrapper;
+        }
+
+        async function fetchRawToml(pluginId) {
+            try {
+                const response = await fetch(`/api/plugin-toml/${pluginId}`);
+                if (!response.ok) throw new Error('Failed to fetch config.toml');
+                return await response.text();
+            } catch (error) {
+                console.error('Error fetching config.toml:', error);
+                return null;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -187,17 +243,6 @@
             document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
         });
 
-        async function fetchPluginJson(pluginId) {
-            try {
-                const response = await fetch(`/api/plugin-json/${pluginId}`);
-                if (!response.ok) throw new Error('Failed to fetch plugin.json');
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching plugin.json:', error);
-                return null;
-            }
-        }
-
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -220,12 +265,11 @@
 
         async function copyLayout(pluginId, layoutName, event) {
             try {
-                const response = await fetch(`/api/layout/${pluginId}/${layoutName}.html`);
+                const response = await fetch(`/api/layout/${pluginId}/${layoutName}.liquid`);
                 if (!response.ok) throw new Error('Failed to fetch layout');
                 const layoutContent = await response.text();
                 await copyToClipboard(layoutContent);
                 
-                // Update button text (keep this feedback too)
                 const button = event.target;
                 const originalText = button.textContent;
                 button.textContent = 'Copied!';
@@ -236,7 +280,6 @@
                 console.error('Error copying layout:', error);
                 showToast('Failed to copy layout', 'error');
                 
-                // Update button text
                 const button = event.target;
                 const originalText = button.textContent;
                 button.textContent = 'Error!';
@@ -244,91 +287,6 @@
                     button.textContent = originalText;
                 }, 2000);
             }
-        }
-
-        function createPreviewElement(plugin, layout, isLive = false) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'preview-wrapper';
-            
-            // Create left side with title and preview
-            const leftSide = document.createElement('div');
-            
-            // Create title
-            const title = document.createElement('h2');
-            title.className = 'plugin-title';
-            title.textContent = plugin.name;
-            leftSide.appendChild(title);
-            
-            // Create preview container with screen
-            const container = document.createElement('div');
-            container.className = 'preview-container';
-            
-            const screen = document.createElement('div');
-            screen.className = 'screen';
-            
-            // Create iframe for just the view
-            const iframe = document.createElement('iframe');
-            iframe.className = `view-frame ${layout}`;
-            iframe.src = `/preview/${plugin.id}/${layout}${isLive ? '?live=true' : ''}`;
-            screen.appendChild(iframe);
-            
-            container.appendChild(screen);
-            leftSide.appendChild(container);
-            wrapper.appendChild(leftSide);
-
-            // Add the info panel (right side)
-            const infoPanel = document.createElement('div');
-            infoPanel.className = 'plugin-info-panel';
-            
-            // Add plugin.json section
-            fetchPluginJson(plugin.id).then(pluginJson => {
-                if (pluginJson) {
-                    const jsonHeader = document.createElement('div');
-                    jsonHeader.className = 'json-header';
-                    
-                    const h3 = document.createElement('h3');
-                    h3.textContent = 'plugin.json';
-                    jsonHeader.appendChild(h3);
-                    
-                    if (pluginJson.public_url) {
-                        const urlButton = document.createElement('button');
-                        urlButton.className = 'url-button';
-                        urlButton.textContent = 'Copy URL';
-                        urlButton.onclick = () => copyToClipboard(pluginJson.public_url);
-                        urlButton.setAttribute('data-tooltip', 'Copy this URL to paste into the TRMNL dashboard when creating your plugin');
-                        urlButton.style.position = 'relative';
-                        urlButton.style.zIndex = '2';
-                        jsonHeader.appendChild(urlButton);
-                    }
-                    
-                    infoPanel.appendChild(jsonHeader);
-
-                    const pre = document.createElement('pre');
-                    pre.textContent = JSON.stringify(pluginJson, null, 2);
-                    infoPanel.appendChild(pre);
-                }
-            });
-
-            // Add layout links section
-            const layoutLinks = document.createElement('div');
-            layoutLinks.className = 'layout-links';
-            layoutLinks.innerHTML = `
-                <h3>Layout Templates</h3>
-                <div class="layout-buttons">
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'full', event)" 
-                        data-tooltip="Copy the full screen (800x480) layout template to clipboard">Copy Full Layout</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-horizontal', event)" 
-                        data-tooltip="Copy the half height (800x240) layout template to clipboard">Copy Half Horizontal</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'half-vertical', event)" 
-                        data-tooltip="Copy the half width (400x480) layout template to clipboard">Copy Half Vertical</button>
-                    <button class="copy-button" onclick="copyLayout('${plugin.id}', 'quadrant-quarter', event)" 
-                        data-tooltip="Copy the quarter size (400x240) layout template to clipboard">Copy Quadrant</button>
-                </div>
-            `;
-            infoPanel.appendChild(layoutLinks);
-            
-            wrapper.appendChild(infoPanel);
-            return wrapper;
         }
 
         // Simplify welcome popup functions

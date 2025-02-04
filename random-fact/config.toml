@@ -1,0 +1,15 @@
+# strategy = "polling" ==> the data will be fetched once, at server start-up
+# strategy = "webhook" ==> POST new data to /webhook
+strategy = "polling"
+
+# Poll URL (required for polling strategy)
+url = "https://uselessfacts.jsph.pl/random.json?language=en"
+
+# Plugin metadata
+name = "Random Fact"
+description = "Displays a random fact"
+version = "1.0.0"
+author = "@gitstua"
+update_frequency = "hourly"
+data_source = "Useless Facts API"
+tags = ["random", "fact", "useless", "funny"] 

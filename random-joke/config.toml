@@ -1,0 +1,15 @@
+# strategy = "polling" ==> the data will be fetched once, at server start-up
+# strategy = "webhook" ==> POST new data to /webhook
+strategy = "polling"
+
+# Poll URL (required for polling strategy)
+url = "https://official-joke-api.appspot.com/random_joke"
+
+# Plugin metadata
+name = "Random Joke"
+description = "Displays a random joke with setup and punchline from the Official Joke API. Updates on each refresh to show a new joke."
+version = "1.0.0"
+author = "@gitstua"
+update_frequency = "hourly"
+data_source = "Official Joke API"
+tags = ["entertainment", "humor"] 

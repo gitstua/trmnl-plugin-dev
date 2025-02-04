@@ -7,6 +7,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const fetch = require('node-fetch');
 const config = require('./config.json');
+const toml = require('toml');
 
 const app = express();
 const port = 3000;
@@ -36,10 +37,8 @@ async function loadSampleData() {
     return { eplFixtures, eplMyTeam };
 }
 
-// Update the getAvailablePlugins function to include an "All" option
+// Update the getAvailablePlugins function to read from config.toml
 async function getAvailablePlugins() {
-    const fs = require('fs').promises;
-    const path = require('path');
     const dirs = (await fs.readdir(__dirname, { withFileTypes: true }))
         .filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name)
@@ -58,16 +57,15 @@ async function getAvailablePlugins() {
     const pluginInfos = await Promise.all(
         dirs.map(async (dir) => {
             try {
-                const pluginInfo = JSON.parse(
-                    await fs.readFile(path.join(__dirname, dir, 'plugin.json'), 'utf8')
-                );
+                const configContent = await fs.readFile(path.join(__dirname, dir, 'config.toml'), 'utf8');
+                const pluginInfo = toml.parse(configContent);
                 return {
                     id: dir,
                     name: pluginInfo.name,
-                    public_url: pluginInfo.public_url
+                    public_url: pluginInfo.url
                 };
             } catch (error) {
-                console.warn(`Warning: No plugin.json found for ${dir}`);
+                console.warn(`Warning: No config.toml found for ${dir}`);
                 return null;
             }
         })
@@ -112,7 +110,7 @@ async function fetchLiveData(url, headers) {
     }
 }
 
-// Update the preview route to include plugins.js and initialize it
+// Update the preview route to use config.toml
 app.get('/preview/:plugin/:layout', async (req, res) => {
     const { plugin, layout } = req.params;
     const { live } = req.query;
@@ -120,13 +118,11 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
     try {
         let data;
         if (live === 'true') {
-            const pluginInfo = JSON.parse(
-                await fs.readFile(path.join(__dirname, plugin, 'plugin.json'), 'utf8')
-            );
+            const configContent = await fs.readFile(path.join(__dirname, plugin, 'config.toml'), 'utf8');
+            const pluginInfo = toml.parse(configContent);
 
             let envVars = {};
             try {
-                // Try to read the .env file, but don't throw if it doesn't exist
                 const env = await fs.readFile(path.join(__dirname, plugin, '.env'), 'utf8');
                 envVars = env.split('\n').reduce((acc, line) => {
                     const [key, value] = line.split('=');
@@ -136,18 +132,15 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
                     return acc;
                 }, {});
             } catch (err) {
-                // Just log a warning if .env doesn't exist
                 console.warn(`Warning: No .env file found for plugin ${plugin}`);
             }
 
-            let publicUrl = pluginInfo.public_url;
-            //if the additional_query_string_params is set, then add it to the public_url
+            let publicUrl = pluginInfo.url;
             if (envVars.additional_query_string_params) {
-                publicUrl += envVars.additional_query_string_params;
+                publicUrl += `&${envVars.additional_query_string_params}`;
             }
 
-            const headers = envVars.HEADERS;
-
+            const headers = JSON.parse(envVars.HEADERS || '{}');
             data = await fetchLiveData(publicUrl, headers);
         } else {
             data = JSON.parse(
@@ -155,7 +148,7 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
             );
         }
 
-        const viewPath = path.join(plugin, layout);
+        const viewPath = path.join(plugin, 'views', layout.replace('-', '_') + '.liquid');
         const templateContent = await engine.renderFile(viewPath, data);
         
         const fontFaces = `
@@ -219,30 +212,32 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
     }
 });
 
-// Simplify the plugin.json endpoint to just serve the raw file
-app.get('/api/plugin-json/:pluginId', async (req, res) => {
-    try {
-        const pluginJson = await fs.readFile(path.join(__dirname, req.params.pluginId, 'plugin.json'), 'utf8');
-        res.type('application/json').send(pluginJson);
-    } catch (error) {
-        console.error('Error reading plugin.json:', error);
-        res.status(404).json({ error: 'Plugin configuration not found' });
-    }
-});
-
-// Update the layout endpoint to handle the .html extension
+// Update the layout endpoint to handle the .liquid extension
 app.get('/api/layout/:pluginId/:layout', async (req, res) => {
     try {
-        // Remove .html from the layout parameter if present
-        const layoutName = req.params.layout.replace('.html', '');
+        const layoutName = req.params.layout.replace('.html', '').replace('-', '_');
         const layoutContent = await fs.readFile(
-            path.join(__dirname, req.params.pluginId, `${layoutName}.html`),
+            path.join(__dirname, req.params.pluginId, `${layoutName}.liquid`),
             'utf8'
         );
         res.send(layoutContent);
     } catch (error) {
         console.error('Error reading layout template:', error);
         res.status(404).json({ error: 'Layout template not found' });
+    }
+});
+
+// Update the endpoint to serve the raw config.toml content
+app.get('/api/plugin-toml/:pluginId', async (req, res) => {
+    try {
+        const pluginId = req.params.pluginId;
+        const configPath = path.join(__dirname, pluginId, 'config.toml');
+        const configContent = await fs.readFile(configPath, 'utf8');
+        // Send the raw TOML content with text/plain content type
+        res.type('text/plain').send(configContent);
+    } catch (error) {
+        console.error(`Error reading config.toml for plugin ${req.params.pluginId}:`, error);
+        res.status(404).json({ error: 'Plugin configuration not found' });
     }
 });
 
