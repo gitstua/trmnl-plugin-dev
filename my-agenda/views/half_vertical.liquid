@@ -1,0 +1,86 @@
+<div class="content-center">
+    <div class="grid grid--cols-2 gap--[10px]">
+        {% assign items_per_column = 10 %}
+        {% assign items_before_wrap = items_per_column | minus: 1 %}
+        {% assign max_cols = 2 %}
+        
+        <div class="col">
+            {% assign item_count = 0 %}
+            {% assign current_col = 1 %}
+            {% for day in agenda %}
+                {% if item_count == items_before_wrap %}
+                    <div class="item"></div>
+                    {% assign item_count = items_per_column %}
+                {% endif %}
+
+                {% if item_count == items_per_column %}
+                    {% if current_col < max_cols %}
+                        </div><div class="col">
+                        {% assign current_col = current_col | plus: 1 %}
+                        {% assign item_count = 0 %}
+                    {% else %}
+                        {% break %}
+                    {% endif %}
+                {% endif %}
+
+                {% if item_count < items_before_wrap %}
+                    <div class="list">
+                        <div class="item" style="padding-bottom: 1px; padding-top: 7px;">
+                            <span class="label label--large">{{ day.date | date: "%A" }}, {{ day.date | date: "%-d%b" }}</span>
+                        </div>
+                        {% assign item_count = item_count | plus: 1 %}
+
+                        {% for event in day.events %}
+                            {% if item_count == items_per_column %}
+                                </div>
+                                {% if current_col < max_cols %}
+                                    </div><div class="col">
+                                    {% assign current_col = current_col | plus: 1 %}
+                                    {% assign item_count = 0 %}
+                                    <div class="list">
+                                {% else %}
+                                    {% break %}
+                                {% endif %}
+                            {% endif %}
+                            
+                            {% if item_count < items_per_column %}
+                                <div class="item">
+                                    <div class="meta">
+                                        <span class="index">{{ forloop.index }}</span>
+                                    </div>
+                                    <div class="content">
+                                        <div class="flex flex--row gap--small">
+                                            <span class="label {% if event.isFullDay %}label--inverted{% endif %}">{{ event.title }}</span>
+                                            {% if event.crossDay %}
+                                                <span class="label label--inverted">→</span>
+                                            {% endif %}
+                                        </div>
+                                        <span class="description">
+                                            {% if event.isFullDay %}
+                                                All Day
+                                            {% else %}
+                                                {{ event.start | date: "%I:%M %p" | timezone: timezone }} - {{ event.end | date: "%I:%M %p" | timezone: timezone }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% assign item_count = item_count | plus: 1 %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if item_count > 0 and item_count < items_per_column %}
+                {% assign remaining = items_per_column | minus: item_count %}
+                {% for i in (1..remaining) %}
+                    <div class="item"></div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="title_bar" style="position: absolute; bottom: 0; width: 100%;">
+    <span class="title">My Agenda</span>
+</div> 

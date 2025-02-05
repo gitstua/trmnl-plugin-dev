@@ -89,8 +89,8 @@ app.get('/', async (req, res) => {
 
 // Simplify the fetchLiveData function
 async function fetchLiveData(url, headers) {
+    let parsedHeaders = {};
     try {
-        let parsedHeaders = {};
         if (headers) {
             try {
                 parsedHeaders = typeof headers === 'string' ? JSON.parse(headers) : headers;
@@ -105,7 +105,8 @@ async function fetchLiveData(url, headers) {
         }
         return await response.json();
     } catch (error) {
-        console.error('Error fetching live data:', error);
+        console.error(`Error fetching live data from ${url}:`, error);
+        console.error('Headers:', parsedHeaders);
         throw error;
     }
 }
@@ -125,9 +126,14 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
             try {
                 const env = await fs.readFile(path.join(__dirname, plugin, '.env'), 'utf8');
                 envVars = env.split('\n').reduce((acc, line) => {
+                    if (!line.trim() || line.startsWith('#')) return acc;
                     const [key, value] = line.split('=');
                     if (key && value) {
-                        acc[key.trim()] = value.trim();
+                        // Store env vars in both original and uppercase for case-insensitive matching
+                        const trimmedKey = key.trim();
+                        const trimmedValue = value.trim();
+                        acc[trimmedKey] = trimmedValue;
+                        acc[trimmedKey.toUpperCase()] = trimmedValue;
                     }
                     return acc;
                 }, {});
@@ -135,12 +141,36 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
                 console.warn(`Warning: No .env file found for plugin ${plugin}`);
             }
 
+            // Replace any {placeholder} in the URL with environment variables
             let publicUrl = pluginInfo.url;
+            Object.entries(envVars).forEach(([key, value]) => {
+                const placeholder = `{${key}}`;
+                if (publicUrl.includes(placeholder)) {
+                    publicUrl = publicUrl.replace(placeholder, value);
+                }
+            });
+
+            // Add any additional query parameters
             if (envVars.additional_query_string_params) {
                 publicUrl += `&${envVars.additional_query_string_params}`;
             }
 
-            const headers = JSON.parse(envVars.HEADERS || '{}');
+            // Combine polling headers from config with any headers from .env
+            let headers = { ...pluginInfo.polling_headers };
+            
+            // Replace any {placeholder} in header values
+            Object.entries(headers).forEach(([headerKey, headerValue]) => {
+                if (typeof headerValue === 'string' && headerValue.startsWith('{') && headerValue.endsWith('}')) {
+                    const envKey = headerValue.slice(1, -1); // Remove { }
+                    headers[headerKey] = envVars[envKey] || envVars[envKey.toUpperCase()] || headerValue;
+                }
+            });
+
+            // Add any additional headers from .env
+            if (envVars.HEADERS) {
+                headers = { ...headers, ...JSON.parse(envVars.HEADERS) };
+            }
+
             data = await fetchLiveData(publicUrl, headers);
         } else {
             data = JSON.parse(
@@ -148,7 +178,7 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
             );
         }
 
-        const viewPath = path.join(plugin, 'views', layout.replace('-', '_') + '.liquid');
+        const viewPath = path.join(plugin, 'views', `${layout}.liquid`);
         const templateContent = await engine.renderFile(viewPath, data);
         
         const fontFaces = `

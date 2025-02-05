@@ -16,5 +16,5 @@ tags = ["random", "fact", "useless", "funny"]
 
 # Polling headers (optional, for polling strategy)
 [polling_headers]
-authorization = "bearer 123"
+# authorization = "{authorization}"
 content-type = "application/json" 

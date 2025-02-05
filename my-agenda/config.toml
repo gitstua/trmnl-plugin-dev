@@ -1,0 +1,27 @@
+# strategy = "polling" ==> the data will be fetched once, at server start-up
+# strategy = "webhook" ==> POST new data to /webhook
+strategy = "polling"
+
+# Poll URL (required for polling strategy)
+
+# Example google url for testing (add the real value in the .env file)
+#url = "https://stucal-92a1.stuey.workers.dev/?timezone=Australia/Sydney&url={private_gcal_url}"
+
+# sample for testing - static content from GitHub repo
+url = "https://stucal-92a1.stuey.workers.dev/?timezone=Australia/Sydney&url=https://raw.githubusercontent.com/gitstua/stu-calendar-wrangler-worker/refs/heads/main/examples/sample.ics&startFrom=2025-02-04&days=1000"
+
+
+# Plugin metadata
+name = "My Agenda"
+description = "Display your upcoming agenda"
+version = "1.0.0"
+author = "@gitstua"
+requires_auth_headers = true
+update_frequency = "1/day"
+data_source = "Google Calendar ICS"
+tags = ["calendar", "productivity"]
+
+# Polling headers (optional, for polling strategy)
+[polling_headers]
+X-API-Key = "{X_API_Key}"
+content-type = "application/json"
