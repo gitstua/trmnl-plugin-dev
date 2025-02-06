@@ -1,5 +1,3 @@
-dd
-
 # Home Assistant TRMNL Plugin
 
 Display your Home Assistant sensor data in TRMNL. This plugin shows temperature and other sensors in a clean, organized interface.
