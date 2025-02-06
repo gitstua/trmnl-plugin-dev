@@ -2,14 +2,13 @@
 
 A development tool for testing TRMNL plugins.
 
-## Alternative
-Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.
+![TRMNL Plugin Tester preview image](preview.png)
 
-You can also use this project to test your plugins before you add them to the TRMNL project. 
+### Usage
 
-Execute `/run-plugin.sh` to run the plugin with the TRMNL Preview Server by @schrockwell. 
+If you want to use this project to test your plugins before you add them to the TRMNL project, then jump to the [Sample plugins in this repo](#sample-plugins-in-this-repo) section.
 
-## Plugins in this repo
+## Sample plugins in this repo
 
 ### Home Assistant TRMNL Plugin
 <img src="home-assistant-trmnl/preview/full.png" width="600" alt="Home Assistant TRMNL">
@@ -64,6 +63,14 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **DATA:** https://official-joke-api.appspot.com/random_joke (Free)
 
 
+## Alternative
+Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.
+
+You can also use this project to test your plugins before you add them to the TRMNL project using the script `./scripts/serve-plugin.sh`. 
+
+Execute `./scripts/serve-plugin.sh` to run the plugin with the TRMNL Preview Server by @schrockwell. 
+
+
 ## Getting Started
 
 ### Prerequisites
@@ -85,3 +92,11 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 
 3. Start the development server:
    ```
+   There is a convenience script to start the server.
+   ```bash
+   ./scripts/start-server.sh
+   ```
+
+   This will start the server and provide the URL to open preview in your browser.
+   
+   
