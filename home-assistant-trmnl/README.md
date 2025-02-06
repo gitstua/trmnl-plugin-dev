@@ -21,11 +21,11 @@ Display your Home Assistant sensor data in TRMNL. This plugin shows temperature 
 Add the following to your `configuration.yaml`: (replace YOUR_WEBHOOK_URL with the webhook URL from the previous step)
 ```
 shell_command:
-send_sensor_data: >-
-curl "YOUR_WEBHOOK_URL" \
--H "Content-Type: application/json" \
--d '{"merge_variables":{"entities":[{% set entities = label_entities('TRMNL') %}{% for entity_id in entities %}{"id":"{{ entity_id }}","name":"{{ states[entity_id].name if states[entity_id].name else 'unknown' }}","state":"{{ states[entity_id].state }}","area":"{{ states[entity_id].attributes.area if 'area' in states[entity_id].attributes else 'unknown' }}","icon":"{{ states[entity_id].attributes.icon if 'icon' in states[entity_id].attributes else 'mdi:help-circle' }}","state_class":"{{ states[entity_id].attributes.state_class if 'state_class' in states[entity_id].attributes else 'unknown' }}","unit_of_measurement":"{{ states[entity_id].attributes.unit_of_measurement if 'unit_of_measurement' in states[entity_id].attributes else 'unknown' }}","device_class":"{{ states[entity_id].attributes.device_class if 'device_class' in states[entity_id].attributes else 'unknown' }}","friendly_name":"{{ states[entity_id].attributes.friendly_name if 'friendly_name' in states[entity_id].attributes else 'unknown' }}"}{% if not loop.last %},{% endif %}{% endfor %}]}}' \
--X POST
+  send_sensor_data: >-
+    curl "https://usetrmnl.com/api/custom_plugins/YOUR_WEBHOOK_URL" \
+      -H "Content-Type: application/json" \
+      -d '{"merge_variables":{"entities":[{% set entities = label_entities('TRMNL') %}{% for entity_id in entities %}{"id":"{{ entity_id }}","name":"{{ states[entity_id].name if states[entity_id].name else 'unknown' }}","state":"{{ states[entity_id].state }}","area":"{{ states[entity_id].attributes.area if 'area' in states[entity_id].attributes else 'unknown' }}","icon":"{{ states[entity_id].attributes.icon if 'icon' in states[entity_id].attributes else 'mdi:help-circle' }}","state_class":"{{ states[entity_id].attributes.state_class if 'state_class' in states[entity_id].attributes else 'unknown' }}","unit_of_measurement":"{{ states[entity_id].attributes.unit_of_measurement if 'unit_of_measurement' in states[entity_id].attributes else 'unknown' }}","device_class":"{{ states[entity_id].attributes.device_class if 'device_class' in states[entity_id].attributes else 'unknown' }}","friendly_name":"{{ states[entity_id].attributes.friendly_name if 'friendly_name' in states[entity_id].attributes else 'unknown' }}"}{% if not loop.last %},{% endif %}{% endfor %}]}}' \
+      -X POST
 ```
 
 ### 3. Restart Home Assistant
