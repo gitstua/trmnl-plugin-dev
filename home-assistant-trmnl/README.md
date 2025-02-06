@@ -58,14 +58,7 @@ automation:
     - service: shell_command.send_sensor_data
 ```
 
-### 6. Create a View in TRMNL
-
-1. Go to Views > Create View
-2. Select "Webhook" as the data source
-3. Select the webhook URL from the previous step
-4. Save the view
-
-### 7. Edit markup for the TRMNL plugin with the following:
+### 6. Edit markup for the TRMNL plugin with the following:
 - [full.liquid](./views/full.liquid)
 - [half-horizontal.liquid](./views/half-horizontal.liquid)
 - [half-vertical.liquid](./views/half-vertical.liquid)
