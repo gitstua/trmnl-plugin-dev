@@ -47,6 +47,9 @@ Settings > System > Restart
 ### 5. Create the Automation
 
 Add this automation to send data hourly:
+![create automation](./images/automation.png)
+
+
 ```
 automation:
 - alias: "Send Sensor Data to TRMNL"
