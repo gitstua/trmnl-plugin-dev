@@ -4,6 +4,13 @@ A development tool for testing TRMNL plugins.
 
 ![TRMNL Plugin Tester preview image](preview.png)
 
+## Features
+
+- Shows a list of plugins in this repo
+- Allows you to preview each plugin with full, half-horizontal, half-vertical layouts and quadrant layouts
+- supports working against local `plugin.json` files or calling your API
+- allows copying the layouts and any API url to the clipboard for easy pasting into the [useTRMNL.com](https://usetrmnl.com) plugin dashboard
+
 ### Usage
 
 If you want to use this project to test your plugins before you add them to the TRMNL project, then jump to the [Sample plugins in this repo](#sample-plugins-in-this-repo) section.
