@@ -11,6 +11,15 @@ Execute `/run-plugin.sh` to run the plugin with the TRMNL Preview Server by @sch
 
 ## Plugins in this repo
 
+### Home Assistant TRMNL Plugin
+<img src="home-assistant-trmnl/preview/full.png" width="600" alt="Home Assistant TRMNL">
+
+- Display your Home Assistant sensor data in TRMNL
+- Shows temperature and other sensors in a clean, organized interface
+- **DATA:** Home Assistant API
+
+See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full details.
+
 ### My Agenda
 <img src="my-agenda/preview/full.png" width="600" alt="My Agenda">
 

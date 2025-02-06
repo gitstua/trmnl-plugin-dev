@@ -1,0 +1,36 @@
+{
+  "movies": [
+    {
+      "id": "12345",
+      "title": "The Shawshank Redemption",
+      "rating": "9.3",
+      "year": "1994",
+      "duration": "142 minutes",
+      "image": "https://example.com/shawshank.jpg"
+    },
+    {
+      "id": "67890",
+      "title": "The Godfather",
+      "rating": "9.2",
+      "year": "1972",
+      "duration": "175 minutes",
+      "image": "https://example.com/godfather.jpg"
+    },
+    {
+      "id": "11223",
+      "title": "Pulp Fiction",
+      "rating": "8.9",
+      "year": "1994",
+      "duration": "154 minutes",
+      "image": "https://example.com/pulp-fiction.jpg"
+    },
+    {
+      "id": "44556",
+      "title": "The Dark Knight",
+      "rating": "9.0",
+      "year": "2008",
+      "duration": "152 minutes",
+      "image": null
+    }
+  ]
+} 

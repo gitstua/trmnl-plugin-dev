@@ -1,0 +1,28 @@
+<div class="plugin-container">
+  <div class="content-area">
+    {% for movie in movies %}
+      <div class="data-row">
+        {% if movie.image %}
+          <img src="{{ movie.image }}" alt="{{ movie.title }}" class="thumbnail" style="width: 50px; height: 75px; object-fit: cover;">
+        {% endif %}
+        
+        <div class="info-container">
+          <div class="primary-text">{{ movie.title }}</div>
+          <div class="secondary-text">
+            {{ movie.year }} • {{ movie.duration }}
+          </div>
+        </div>
+        
+        <div class="metric">
+          <span class="value">{{ movie.rating }}</span>
+          <span class="unit">★</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="title-bar">
+    <div class="title">Unwatched Movies</div>
+    <div class="subtitle">Sorted by rating</div>
+  </div>
+</div> 
