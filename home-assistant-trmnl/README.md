@@ -35,9 +35,13 @@ Settings > System > Restart
 1. In Home Assistant, go to Settings > Devices & Services
 2. Select "Entities"
 3. Click the checkbox icon next to filters to enable selection mode
+![checkbox mode](./images/checkboxes-mode.png)
+
 4. Select the entities you want to display in TRMNL
 5. Click "Add Label" in the top right
 6. Create a new label called "TRMNL"
+![create label](./images/add-label.png)
+
 7. Apply the label to your selected entities
 
 ### 5. Create the Automation
