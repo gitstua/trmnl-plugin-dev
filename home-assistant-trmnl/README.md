@@ -2,6 +2,9 @@
 
 Display your Home Assistant sensor data in TRMNL. This plugin shows temperature and other sensors in a clean, organized interface.
 
+- Uses Home Assistant shell_command to send data to TRMNL.
+- Uses a [Home Assistant Label](https://www.home-assistant.io/docs/organizing/labels/) `TRMNL` to identify the entities to send to TRMNL via the webhook.
+
 ![Preview - Full](./previews/full.png)
 
 ## Setup Instructions
