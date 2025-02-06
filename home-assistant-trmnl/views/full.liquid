@@ -1,0 +1,63 @@
+<style>
+@import url('https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css');
+</style>
+
+<div class="view bg-white">
+  <div class="layout layout--col gap--space-between">
+    <div class="columns">
+      <div class="column">
+        <div class="section">
+          <span class="title title--small"><i class="mdi mdi-thermometer"></i> Temperature Sensors</span>
+          <table class="table table--condensed">
+            <thead>
+              <tr>
+                <th><span class="title title--small">Location</span></th>
+                <th><span class="title title--small">Value</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entity in entities %}
+                {% if entity.device_class == "temperature" %}
+                <tr>
+                  <td><span class="title title--small">{{ entity.friendly_name }}</span></td>
+                  <td><span class="title title--small"><i class="mdi mdi-thermometer"></i> {{ entity.state }}{{ entity.unit_of_measurement }}</span></td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="section">
+          <span class="title title--small"><i class="mdi mdi-gauge"></i> Other Sensors</span>
+          <table class="table table--condensed">
+            <thead>
+              <tr>
+                <th><span class="title title--small">Sensor</span></th>
+                <th><span class="title title--small">Value</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entity in entities %}
+                {% if entity.device_class != "temperature" %}
+                <tr>
+                  <td><span class="title title--small">{{ entity.friendly_name }}</span></td>
+                  <td><span class="title title--small">{{ entity.state }}{{ entity.unit_of_measurement }}</span></td>
+                </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="title_bar">
+    <i class="mdi mdi-home-assistant"></i>
+    <span class="title">Home Assistant</span>
+    <span class="instance">Entities labelled TRMNL</span>
+  </div>
+</div> 
