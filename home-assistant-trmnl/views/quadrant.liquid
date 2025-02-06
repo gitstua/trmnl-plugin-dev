@@ -1,37 +1,43 @@
 <style>
-@import url('https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css');
-</style>
-
-<div class="view bg-white">
-  <div class="layout layout--grid gap--space-between">
-    <div class="column">
-      <div class="section">
-        <span class="title title--small"><i class="mdi mdi-thermometer"></i> Temperature Sensors</span>
-        <table class="table table--condensed">
-          <thead>
-            <tr>
-              <th><span class="title title--small">Location</span></th>
-              <th><span class="title title--small">Value</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for entity in entities %}
-              {% if entity.device_class == "temperature" %}
-              <tr>
-                <td><span class="title title--small">{{ entity.friendly_name }}</span></td>
-                <td><span class="title title--small"><i class="mdi mdi-thermometer"></i> {{ entity.state }}{{ entity.unit_of_measurement }}</span></td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
+  @import url('https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css');
+  .sensor-list {
+    max-height: calc(4 * 2.5em); /* Adjust based on row height */
+    overflow-y: auto;
+  }
+  </style>
+  
+  <div class="view bg-white">
+    <div class="layout layout--row gap--space-between">
+      <div class="column">
+        <div class="section">
+          
+          <div class="sensor-list">
+            <table class="table table--condensed">
+              <thead>
+                <tr>
+                  <th><span class="title title--tiny">Location</span></th>
+                  <th><span class="title title--tiny">Value</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for entity in entities  %}
+  <!--              {% if entity.device_class == "temperature" %} -->
+                <tr>
+                  <td><span class="title title--small">{{ entity.friendly_name }}</span></td>
+                  <td><span class="value--xxxsmall"> {{ entity.state }}{{ entity.unit_of_measurement }}</span></td>
+                </tr>
+  <!--              {% endif %}-->
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="title_bar">
-    <i class="mdi mdi-home-assistant"></i>
-    <span class="title">Home Assistant</span>
-    <span class="instance">Entities labelled TRMNL</span>
-  </div>
-</div> 
+  
+    <div class="title_bar">
+      <i class="mdi mdi-home-assistant"></i>
+      <span class="title title--tiny">Home Assistant</span>
+      <span class="instance title--tiny">Entities labelled TRMNL</span>
+    </div>
+  </div> 
