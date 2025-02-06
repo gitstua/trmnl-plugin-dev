@@ -2,7 +2,7 @@
 
 Display your Home Assistant sensor data in TRMNL. This plugin shows temperature and other sensors in a clean, organized interface.
 
-- Uses Home Assistant shell_command to send data to TRMNL.
+- Uses Home Assistant [shell_command](https://www.home-assistant.io/integrations/shell_command/) to send data to TRMNL.
 - Uses a [Home Assistant Label](https://www.home-assistant.io/docs/organizing/labels/) `TRMNL` to identify the entities to send to TRMNL via the webhook.
 
 ![Preview - Full](./previews/full.png)
@@ -13,7 +13,7 @@ Display your Home Assistant sensor data in TRMNL. This plugin shows temperature 
 
 1. Go to [https://usetrmnl.com](https://usetrmnl.com)
 2. Navigate to Plugins > Create Plugin
-3. Select "Webhook" as the data source
+3. Select "Webhook" as the Strategy
 4. Save the plugin and copy the webhook URL for the next step (webhook URL will be similar to https://usetrmnl.com/api/custom_plugins/AAAA-d000-4000-8000-000000000000)
 
 ### 2. Configure Home Assistant integration
