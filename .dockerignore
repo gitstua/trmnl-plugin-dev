@@ -30,6 +30,12 @@ README.md
 tmp/
 tmp/*
 
+# Preview folders
+**/preview/
+preview/
+**/preview/*
+preview/*
+
 # Scripts directory
 scripts/
 **/scripts/ 
