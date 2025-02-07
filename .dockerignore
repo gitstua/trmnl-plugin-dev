@@ -1,8 +1,17 @@
-# Environment files
+# Environment files (move these AFTER the .* patterns)
 .env
 .env.*
 **/.env
 **/.env.*
+
+# Any file beginning with a dot
+.*
+**/.*
+
+# Add this new pattern to explicitly protect plugin env files
+**/plugins/**/.env
+plugins/**/.env
+*/**/plugins/**/.env
 
 # Other common files to ignore
 .git
@@ -23,8 +32,4 @@ tmp/*
 
 # Scripts directory
 scripts/
-**/scripts/
-
-# Any file beginning with a dot
-.*
-**/.* 
+**/scripts/ 
