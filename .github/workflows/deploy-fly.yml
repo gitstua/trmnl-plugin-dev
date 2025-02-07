@@ -15,6 +15,3 @@ jobs:
       - run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      - name: Set deployment URL
-        run: echo "Deployment URL: "https://trmnl-plugins.fly.dev/"
-
