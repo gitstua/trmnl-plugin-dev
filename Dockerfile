@@ -6,7 +6,6 @@ WORKDIR /app
 RUN apk add --no-cache \
     wget \
     curl \
-    pandoc \
     jq \
     bash
 
