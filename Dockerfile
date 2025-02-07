@@ -5,6 +5,9 @@ WORKDIR /app
 # Create build timestamp at build time
 RUN mkdir -p /app/public && date -u +'%Y-%m-%d %H:%M:%S UTC' > /app/public/build.txt
 
+#echo the build timestamp
+RUN echo "Build timestamp: $(cat /app/public/build.txt)"
+
 # Install required dependencies using apt-get (since we're using node:slim which is Debian-based)
 RUN apt-get update && apt-get install -y \
     wget \
