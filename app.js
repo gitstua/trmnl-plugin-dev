@@ -9,6 +9,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 const config = require('./config.json');
 const toml = require('toml');
+const downloadAssets = require('./scripts/download-assets');
 
 const app = express();
 const port = 3000;
@@ -404,6 +405,20 @@ app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => 
     }
 });
 
-app.listen(port, () => {
-    console.log(`Test app running at http://localhost:${port}`);
-}); 
+async function startServer() {
+    try {
+        // Download required assets
+        await downloadAssets();
+        
+        // Start the server
+        app.listen(port, () => {
+            console.log(`Test app running at http://localhost:${port}`);
+        });
+        
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer(); 

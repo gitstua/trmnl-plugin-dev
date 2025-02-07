@@ -10,6 +10,8 @@
   "ext": "js,json,html,css",
   "ignore": [
     "node_modules/*",
-    "design-system/fonts/*"
+    "design-system/fonts/*",
+    "design-system/cdn-copy/*",
+    "*.test.js"
   ]
 } 
