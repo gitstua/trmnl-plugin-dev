@@ -2,7 +2,7 @@ name = "Stu Fractals"
 description = "Display beautiful fractal images"
 version = "1.0.0"
 author = "Stu"
-strategy = "polling"
+strategy = "static"
 # currently we must have a url to fetch the data from otherwise the preview does not work
 # this is just a placeholder url to make the preview work
-url = "https://official-joke-api.appspot.com/random_joke" 
+# url = "https://official-joke-api.appspot.com/random_joke" 
