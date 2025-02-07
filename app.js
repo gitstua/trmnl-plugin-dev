@@ -9,7 +9,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 const config = require('./config.json');
 const toml = require('toml');
-const downloadAssets = require('./scripts/download-assets');
+const downloadAssets = require('./download-assets');
 
 const app = express();
 const port = 3000;
