@@ -379,15 +379,27 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
 });
 
 // Update the endpoint to serve the raw config.toml content
-app.get('/api/plugin-toml/:pluginId', async (req, res) => {
+app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => {
     try {
-        const pluginId = req.params.pluginId;
-        const configPath = path.join(PLUGINS_PATH, pluginId, 'config.toml');
+        // If no pluginId provided, check if we're in single plugin mode
+        const pluginId = req.params.pluginId || (await isPluginDirectory(PLUGINS_PATH) ? '.' : null);
+        
+        if (!pluginId) {
+            return res.status(400).json({ 
+                error: 'Plugin ID required',
+                message: 'Please select a plugin to view its configuration'
+            });
+        }
+
+        const configPath = pluginId === '.' 
+            ? path.join(PLUGINS_PATH, 'config.toml')
+            : path.join(PLUGINS_PATH, pluginId, 'config.toml');
+            
         const configContent = await fs.readFile(configPath, 'utf8');
         // Send the raw TOML content with text/plain content type
         res.type('text/plain').send(configContent);
     } catch (error) {
-        console.error(`Error reading config.toml for plugin ${req.params.pluginId}:`, error);
+        console.error(`Error reading config.toml for plugin ${req.params.pluginId || 'unknown'}:`, error);
         res.status(404).json({ error: 'Plugin configuration not found' });
     }
 });

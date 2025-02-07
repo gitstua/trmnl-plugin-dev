@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Store the original directory
+ORIGINAL_DIR=$(pwd)
+
 # Navigate to the project root
 cd "$(dirname "$0")/.."
 
@@ -35,7 +38,7 @@ if [ ! -d "design-system/fonts" ] || [ -z "$(ls -A design-system/fonts)" ]; then
     exit 1
 fi
 
-# Start the development server
+# Start the development server with the original directory as PLUGINS_PATH
 echo "Starting TRMNL Plugin Tester..."
 echo "Access the tool at: http://localhost:3000"
-npm run dev 
+PLUGINS_PATH="$ORIGINAL_DIR" npm run dev 

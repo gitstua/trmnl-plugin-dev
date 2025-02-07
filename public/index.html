@@ -34,7 +34,7 @@
     </div>
 
     <div class="footer">
-        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.2
+        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.3
     </div>
 
     <!-- Add popup HTML -->
@@ -55,7 +55,7 @@
                 and <a href="https://github.com/gitstua/trmnl-plugin-dev/blob/main/LICENSE.md" target="_blank">license</a>.
             </p>
             <p style="margin-top: 20px; font-style: italic;">
-                Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.2
+                Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.3
             </p>
             <button onclick="closeWelcome()">Get Started</button>
         </div>
@@ -129,6 +129,22 @@
             }
         }
 
+        async function fetchRawToml(pluginId) {
+            try {
+                // Adjust endpoint based on single plugin mode
+                const endpoint = pluginId === '.' 
+                    ? '/api/plugin-toml/.'
+                    : `/api/plugin-toml/${pluginId}`;
+                    
+                const response = await fetch(endpoint);
+                if (!response.ok) throw new Error('Failed to fetch config.toml');
+                return await response.text();
+            } catch (error) {
+                console.error('Error fetching config.toml:', error);
+                return null;
+            }
+        }
+
         function createPreviewElement(plugin, layout, isLive = false) {
             const wrapper = document.createElement('div');
             wrapper.className = 'preview-wrapper';
@@ -167,7 +183,7 @@
             fetchRawToml(plugin.id).then(tomlContent => {
                 if (tomlContent) {
                     const tomlPre = document.createElement('pre');
-                    tomlPre.style.whiteSpace = 'pre-wrap'; // Ensure text wraps correctly
+                    tomlPre.style.whiteSpace = 'pre-wrap';
                     tomlPre.textContent = tomlContent;
                     infoPanel.appendChild(tomlPre);
                 }
@@ -195,17 +211,6 @@
             return wrapper;
         }
 
-        async function fetchRawToml(pluginId) {
-            try {
-                const response = await fetch(`/api/plugin-toml/${pluginId}`);
-                if (!response.ok) throw new Error('Failed to fetch config.toml');
-                return await response.text();
-            } catch (error) {
-                console.error('Error fetching config.toml:', error);
-                return null;
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             // Fetch available plugins
             const response = await fetch('/api/plugins');
@@ -221,25 +226,32 @@
                 select.appendChild(option);
             });
 
-            // Set initial values from URL params
-            const params = new URLSearchParams(window.location.search);
-            const selectedPlugin = params.get('plugin');
-            const selectedLayout = params.get('layout');
-            
-            if (selectedPlugin) {
-                select.value = selectedPlugin;
-            }
-            if (selectedLayout) {
-                document.getElementById('layout').value = selectedLayout;
-            }
-            
-            // Auto-load preview if we have parameters
-            if (selectedPlugin) {
+            // Auto-select if there's only one plugin
+            if (plugins.length === 1) {
+                select.value = plugins[0].id;
+                // Optionally, trigger the preview load
                 loadPreview();
+            } else {
+                // Set initial values from URL params
+                const params = new URLSearchParams(window.location.search);
+                const selectedPlugin = params.get('plugin');
+                const selectedLayout = params.get('layout');
+                
+                if (selectedPlugin) {
+                    select.value = selectedPlugin;
+                }
+                if (selectedLayout) {
+                    document.getElementById('layout').value = selectedLayout;
+                }
+                
+                // Auto-load preview if we have parameters
+                if (selectedPlugin) {
+                    loadPreview();
+                }
             }
 
             // Handle welcome popup display
-            const hasParams = Array.from(params.keys()).length > 0;
+            const hasParams = Array.from(new URLSearchParams(window.location.search).keys()).length > 0;
             document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
         });
 
@@ -267,7 +279,12 @@
 
         async function copyLayout(pluginId, layoutName, event) {
             try {
-                const response = await fetch(`/api/layout/${pluginId}/${layoutName}`);
+                // Adjust the API endpoint based on whether we're in single plugin mode
+                const endpoint = pluginId === '.' 
+                    ? `/api/layout/${layoutName}`
+                    : `/api/layout/${pluginId}/${layoutName}`;
+                    
+                const response = await fetch(endpoint);
                 if (!response.ok) throw new Error('Failed to fetch layout');
                 const layoutContent = await response.text();
                 await copyToClipboard(layoutContent);

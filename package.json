@@ -1,6 +1,6 @@
 {
   "name": "trmnl-plugin-dev",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Development tool for testing TRMNL plugins",
   "main": "app.js",
   "scripts": {
