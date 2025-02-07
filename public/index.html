@@ -35,6 +35,7 @@
 
     <div class="footer">
         Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.3
+        <span style="display: block; color: #666; font-size: 0.8em;" id="build-timestamp"></span>
     </div>
 
     <!-- Add popup HTML -->
@@ -253,6 +254,17 @@
             // Handle welcome popup display
             const hasParams = Array.from(new URLSearchParams(window.location.search).keys()).length > 0;
             document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
+
+            // Add this to the existing DOMContentLoaded event listener
+            try {
+                const response = await fetch('/build.txt');
+                if (response.ok) {
+                    const timestamp = await response.text();
+                    document.getElementById('build-timestamp').textContent = `Built at: ${timestamp}`;
+                }
+            } catch (error) {
+                console.error('Failed to load build timestamp:', error);
+            }
         });
 
         function showToast(message, type = 'error') {

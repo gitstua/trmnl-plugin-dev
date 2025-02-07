@@ -1,13 +1,16 @@
-FROM node:18-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install required dependencies
-RUN apk add --no-cache \
+# Create build timestamp at build time
+RUN mkdir -p /app/public && date -u +'%Y-%m-%d %H:%M:%S UTC' > /app/public/build.txt
+
+# Install required dependencies using apt-get (since we're using node:slim which is Debian-based)
+RUN apt-get update && apt-get install -y \
     wget \
     curl \
     jq \
-    bash
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
@@ -17,13 +20,6 @@ RUN npm install
 
 # Copy the rest of the application
 COPY . .
-
-# Make sure the script is copied into the container and is executable
-#COPY scripts/download-cached-cdn-files.sh /app/scripts/
-#RUN chmod +x /app/scripts/download-cached-cdn-files.sh
-
-# Then run the script
-#RUN /app/scripts/download-cached-cdn-files.sh
 
 # Expose the default port
 EXPOSE 3000
