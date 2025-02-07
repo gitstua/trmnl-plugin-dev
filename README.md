@@ -108,3 +108,36 @@ Execute `./scripts/serve-plugin.sh` to run the plugin with the TRMNL Preview Ser
    This will start the server and provide the URL to open preview in your browser.
    
    
+
+## Docker Support
+
+You can run the TRMNL Plugin Tester using Docker:
+
+### Using Docker Hub Image
+
+```bash
+# Pull and run the latest image
+docker run -p 3000:3000 gitstua/trmnl-plugin-tester:latest
+```
+
+### Building Locally
+
+```bash
+# Build the image
+docker build -t trmnl-plugin-tester .
+
+# Run the container
+docker run -p 3000:3000 trmnl-plugin-tester
+```
+
+### Using Shell Script
+
+```bash
+# Make the script executable
+chmod +x scripts/run-docker.sh
+
+# Run using the provided shell script
+./scripts/run-docker.sh
+```
+
+   

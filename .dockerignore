@@ -1,0 +1,30 @@
+# Environment files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Other common files to ignore
+.git
+.gitignore
+node_modules
+**/node_modules
+npm-debug.log
+README.md
+**/README.md
+.DS_Store
+**/.DS_Store
+
+# Temporary folders
+**/tmp/
+**/tmp/*
+tmp/
+tmp/*
+
+# Scripts directory
+scripts/
+**/scripts/
+
+# Any file beginning with a dot
+.*
+**/.* 

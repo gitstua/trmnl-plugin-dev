@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Check if required commands are available
 if ! command -v npx &> /dev/null; then
@@ -155,3 +156,12 @@ else
 fi
 
 echo "Done! Files have been saved to $FOLDER_NAME"
+
+# Create directories if they don't exist
+mkdir -p /app/cdn/js
+mkdir -p /app/cdn/css
+
+# Download required files
+# Add your wget or curl commands here to download the necessary files
+# For example:
+# wget -O /app/cdn/js/some-file.js https://example.com/some-file.js

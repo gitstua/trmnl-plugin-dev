@@ -122,6 +122,19 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
             const configContent = await fs.readFile(path.join(__dirname, plugin, 'config.toml'), 'utf8');
             const pluginInfo = toml.parse(configContent);
 
+            // Check if plugin requires auth headers but no .env file exists
+            if (pluginInfo.requires_auth_headers === true) {
+                try {
+                    await fs.access(path.join(__dirname, plugin, '.env'));
+                } catch (err) {
+                    return res.status(400).json({
+                        error: 'Authentication Required',
+                        message: 'This plugin requires authentication headers. Please create a .env file with the required credentials.',
+                        pluginName: pluginInfo.name
+                    });
+                }
+            }
+
             let envVars = {};
             try {
                 const env = await fs.readFile(path.join(__dirname, plugin, '.env'), 'utf8');
@@ -237,8 +250,8 @@ app.get('/preview/:plugin/:layout', async (req, res) => {
         `;
         res.send(htmlContent);
     } catch (error) {
-        console.error('Error rendering template:', error);
-        res.status(500).send(`Error: ${error.message}`);
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

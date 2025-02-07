@@ -243,14 +243,16 @@
             document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
         });
 
-        function showToast(message, type = 'success') {
+        function showToast(message, type = 'error') {
             const toast = document.getElementById('toast');
+            toast.className = `toast ${type}`;
             toast.textContent = message;
-            toast.className = `toast ${type} show`;
+            toast.style.display = 'block';
             
+            // Hide after 5 seconds
             setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
+                toast.style.display = 'none';
+            }, 5000);
         }
 
         async function copyToClipboard(text) {
