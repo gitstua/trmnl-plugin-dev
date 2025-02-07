@@ -252,9 +252,17 @@
                 }
             }
 
-            // Handle welcome popup display
+            // Handle welcome popup display - show only once per day
             const hasParams = Array.from(new URLSearchParams(window.location.search).keys()).length > 0;
-            document.getElementById('welcomeOverlay').style.display = hasParams ? 'none' : 'block';
+            const lastShown = localStorage.getItem('welcomeLastShown');
+            const today = new Date().toDateString();
+            
+            if (!hasParams && (!lastShown || lastShown !== today)) {
+                document.getElementById('welcomeOverlay').style.display = 'block';
+                localStorage.setItem('welcomeLastShown', today);
+            } else {
+                document.getElementById('welcomeOverlay').style.display = 'none';
+            }
 
             // Add this to the existing DOMContentLoaded event listener
             try {
@@ -321,9 +329,10 @@
             }
         }
 
-        // Simplify welcome popup functions
+        // Update the closeWelcome function
         function closeWelcome() {
             document.getElementById('welcomeOverlay').style.display = 'none';
+            localStorage.setItem('welcomeLastShown', new Date().toDateString());
         }
     </script>
 </body>
