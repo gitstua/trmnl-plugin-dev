@@ -1,0 +1,12 @@
+# strategy = "polling" ==> the data will be fetched once, at server start-up
+# strategy = "webhook" ==> POST new data to /webhook
+strategy = "webhook"
+
+# Plugin metadata
+name = "TRMNL Broadcast"
+description = "Displays a static text message in a terminal-style interface"
+version = "1.0.0"
+author = "@gitstua"
+update_frequency = "hourly"
+data_source = "Static"
+tags = ["utility", "message"] 

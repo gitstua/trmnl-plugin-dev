@@ -23,7 +23,7 @@ To develop a plugin, you need to run this locally either by building the Docker 
 ## Sample plugins in this repo
 
 ### Home Assistant TRMNL Plugin
-<img src="home-assistant-trmnl/preview/full.png" width="600" alt="Home Assistant TRMNL">
+<img src="_plugins/home-assistant-trmnl/preview/full.png" width="600" alt="Home Assistant TRMNL">
 
 - Display your Home Assistant sensor data in TRMNL
 - Shows temperature and other sensors in a clean, organized interface
@@ -33,21 +33,21 @@ To develop a plugin, you need to run this locally either by building the Docker 
 See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full details.
 
 ### My Agenda
-<img src="my-agenda/preview/full.png" width="600" alt="My Agenda">
+<img src="_plugins/my-agenda/preview/full.png" width="600" alt="My Agenda">
 
 - Shows upcoming events in an agenda view
 - **DATA:** A custom API which converts ICAL to JSON I built and host on Cloudflare Workers. You can choose to self-host or reach out to me for an API key. See [Source Code for API Service](https://github.com/gitstua/stu-calendar-wrangler-worker#ical-to-json-converter-worker)
 - **SOURCE:** [_plugins/my-agenda](_plugins/my-agenda)
 
 ### Currency Exchange
-<img src="currency-exchange/preview/full.png" width="600" alt="Currency Exchange">
+<img src="_plugins/currency-exchange/preview/full.png" width="600" alt="Currency Exchange">
 
 - Shows the current exchange rate for a currency pair
 - **DATA:** API from [currencyapi.com](https://currencyapi.com/) which gets the exchange rate. Free with rate limit.
 - **SOURCE:** [_plugins/currency-exchange](_plugins/currency-exchange)
 
 ### EPL Fixtures
-<img src="epl-fixtures/preview/full.png" width="600" alt="EPL Fixtures">
+<img src="_plugins/epl-fixtures/preview/full.png" width="600" alt="EPL Fixtures">
 
 - Shows upcoming English Premier League fixtures
 - Displays match dates, teams, and scores in a compact format
@@ -56,7 +56,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **SOURCE:** [_plugins/epl-fixtures](_plugins/epl-fixtures)
 
 ### EPL My Team
-<img src="epl-my-team/preview/full.png" width="600" alt="EPL My Team">
+<img src="_plugins/epl-my-team/preview/full.png" width="600" alt="EPL My Team">
 
 - Focused view of a specific team's EPL matches (currently only supports Manchester United FC)
 - Shows recent results and upcoming fixtures
@@ -65,7 +65,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **SOURCE:** [_plugins/epl-my-team](_plugins/epl-my-team)
 
 ### Random Fact
-<img src="random-fact/preview/full.png" width="600" alt="Random Fact">
+<img src="_plugins/random-fact/preview/full.png" width="600" alt="Random Fact">
 
 - Displays interesting random facts
 - Simple, clean interface for easy reading
@@ -73,7 +73,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **SOURCE:** [_plugins/random-fact](_plugins/random-fact)
 
 ### Random Joke
-<img src="random-joke/preview/full.png" width="600" alt="Random Joke">
+<img src="_plugins/random-joke/preview/full.png" width="600" alt="Random Joke">
 
 - Shows setup and punchline of random jokes
 - Optimized for smaller display formats
@@ -82,7 +82,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **SOURCE:** [_plugins/random-joke](_plugins/random-joke)
 
 ### Wind Speed & Direction
-<img src="wind-speed-direction/preview/full.png" width="600" alt="Wind Speed & Direction">
+<img src="_plugins/wind-speed-direction/preview/full.png" width="600" alt="Wind Speed & Direction">
 
 - Displays hourly wind speed, direction, and gusts data
 - Shows forecast for configurable location

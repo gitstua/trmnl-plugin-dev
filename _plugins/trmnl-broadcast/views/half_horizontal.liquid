@@ -1,0 +1,35 @@
+<style>
+    @import url('https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css');
+
+      .instance i { font-size: x-large;}
+</style>
+    
+<div class="content-center" style="padding: 20px;">
+
+    <!-- if the length of the text is greater than 150, then show the text smaller -->
+    {% if text.size < 15  %}
+        <span class="value value--xxxlarge text--center">{{ text }}</span>
+    {% elsif text.size < 30  %}
+        <span class="value value--xxlarge text--center">{{ text }}</span>
+    {% elsif text.size < 55  %}
+        <span class="value value--xlarge text--center">{{ text }}</span>
+    {% elsif text.size < 90  %}
+        <span class="value value--large text--center">{{ text }}</span>
+    {% elsif text.size < 120 %}
+        <span class="value value--medium text--center">{{ text }}</span>
+    {% else %}
+        <span class="value value--small text--center">{{ text }}</span>
+    {% endif %}
+</div>
+
+<div class="title_bar" style="position: absolute; bottom: 0; width: 100%;">
+    <span class="title"><i class="mdi mdi-broadcast"></i>TRMNL Broadcast</span>
+    <span class="instance" style="margin-right: 10px;"> 
+      {% if  trmnl.device.percent_charged > 60 %}
+      <i class="mdi mdi-battery"></i> 
+    {% elsif trmnl.device.percent_charged > 40 %}
+      <i class="mdi mdi-battery-50"></i> 
+    {% else %}
+      <i class="mdi mdi-battery-low"></i> 
+    {% endif %}
+</div> 
