@@ -40,11 +40,9 @@ ENV USE_CACHE=false
 # Create a volume for persistent cache
 VOLUME /data/cache
 
-# Debug mode is disabled by default
+# Set production mode
+ENV NODE_ENV=production
 ENV DEBUG_MODE=false
-
-# To enable debug mode, uncomment the next line:
-# ENV DEBUG_MODE=true
 
 # Add this with other environment variables
 ENV MAX_REQUESTS_PER_5_MIN=400

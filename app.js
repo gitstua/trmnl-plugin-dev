@@ -601,13 +601,13 @@ app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => 
     }
 });
 
-// Add near your other routes
+// Update the debug endpoint to be more secure
 app.get('/debug', async (req, res) => {
-    // Check if DEBUG_MODE is enabled
-    if (!process.env.DEBUG_MODE) {
+    // Only allow debug endpoint in development
+    if (process.env.DEBUG_MODE !== 'true') {
         return res.status(403).json({
-            error: 'Debug mode is disabled',
-            message: 'Set DEBUG_MODE environment variable to enable debug endpoint'
+            error: 'Debug endpoint disabled',
+            message: 'Debug endpoint is only available in development mode with DEBUG_MODE=true'
         });
     }
 
@@ -618,6 +618,7 @@ app.get('/debug', async (req, res) => {
                 CACHE_PATH: process.env.CACHE_PATH,
                 PLUGINS_PATH: process.env.PLUGINS_PATH,
                 DEBUG_MODE: process.env.DEBUG_MODE,
+                NODE_ENV: process.env.NODE_ENV,
                 // Add other relevant env vars but exclude sensitive ones
             },
             docker: {
