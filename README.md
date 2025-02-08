@@ -14,7 +14,13 @@ A development tool for testing TRMNL plugins.
 
 ### Usage
 
-If you want to use this project to test your plugins before you add them to the TRMNL project, then jump to the [Sample plugins in this repo](#sample-plugins-in-this-repo) section.
+If you want to use this project to test your plugins before you add them to the TRMNL project, then jump to the [Getting Started](#getting-started) section.
+
+### Example online
+I am deploying the Docker version of this project to [trmnl-plugins.fly.dev](https://trmnl-plugins.fly.dev/) so you can try it out without having to install anything. This version is limited to the plugins in this repo. Any API which needs an API key will not work in the online version so use the Load Preview button to see the plugin in action with sample data.
+
+To develop a plugin, you need to run this locally either by building the Docker image or running the Node.js server.
+
 
 ## Sample plugins in this repo
 
@@ -24,6 +30,7 @@ If you want to use this project to test your plugins before you add them to the 
 - Display your Home Assistant sensor data in TRMNL
 - Shows temperature and other sensors in a clean, organized interface
 - **DATA:** Home Assistant API
+- **SOURCE:** [home-assistant-trmnl](home-assistant-trmnl)
 
 See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full details.
 
@@ -32,12 +39,14 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 
 - Shows upcoming events in an agenda view
 - **DATA:** A custom API which converts ICAL to JSON I built and host on Cloudflare Workers.  You can choose to self-host or reach out to me for an API key. See [Source Code for API Service](https://github.com/gitstua/stu-calendar-wrangler-worker#ical-to-json-converter-worker)
+- **SOURCE:** [my-agenda](my-agenda)
 
 ### Currency Exchange
 <img src="currency-exchange/preview/full.png" width="600" alt="Currency Exchange">
 
 - Shows the current exchange rate for a currency pair
 - **DATA:** API from [currencyapi.com](https://currencyapi.com/) which gets the exchange rate. Free with rate limit.
+- **SOURCE:** [currency-exchange](currency-exchange)
 
 ### EPL Fixtures
 <img src="epl-fixtures/preview/full.png" width="600" alt="EPL Fixtures">
@@ -46,6 +55,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Displays match dates, teams, and scores in a compact format
 - Supports different layouts for various screen sizes
 - **DATA:** Connects to a raw file in a GitHub repo. https://github.com/openfootball
+- **SOURCE:** [epl-fixtures](epl-fixtures)
 
 ### EPL My Team
 <img src="epl-my-team/preview/full.png" width="600" alt="EPL My Team">
@@ -54,6 +64,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Shows recent results and upcoming fixtures
 - Highlights wins with outlined team names
 - **DATA:** Connects to a raw file in a GitHub repo. https://github.com/openfootball
+- **SOURCE:** [epl-my-team](epl-my-team)
 
 ### Random Fact
 <img src="random-fact/preview/full.png" width="600" alt="Random Fact">
@@ -61,6 +72,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Displays interesting random facts
 - Simple, clean interface for easy reading
 - **DATA:** https://uselessfacts.jsph.pl (Free)
+- **SOURCE:** [random-fact](random-fact)
 
 ### Random Joke
 <img src="random-joke/preview/full.png" width="600" alt="Random Joke">
@@ -69,6 +81,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Optimized for smaller display formats
 - Great for adding humor to your dashboard
 - **DATA:** https://official-joke-api.appspot.com/random_joke (Free)
+- **SOURCE:** [random-joke](random-joke)
 
 ### Wind Speed & Direction
 <img src="wind-speed-direction/preview/full.png" width="600" alt="Wind Speed & Direction">
@@ -77,6 +90,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Shows forecast for configurable location
 - Supports different layouts with varying detail levels
 - **DATA:** Open-Meteo API (Free, no API key required)
+- **SOURCE:** [wind-speed-direction](wind-speed-direction)
 
 
 ## Alternative
@@ -100,52 +114,28 @@ Execute `./scripts/serve-plugin.sh` to run the plugin with the TRMNL Preview Ser
    cd trmnl-plugin-dev
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ./scripts/download-cached-cdn-files.sh
-   ```
 
-3. Start the development server:
+2. Start the development server:
    ```
    There is a convenience script to start the server.
    ```bash
-   ./scripts/start-server.sh
+   ./scripts/run.sh
    ```
 
    This will start the server and provide the URL to open preview in your browser.
    
-   
-
 ## Docker Support
 
 You can run the TRMNL Plugin Tester using Docker:
 
 ### Using Docker Hub Image
 
+To build and run the image, use the following command:
 ```bash
-# Pull and run the latest image
-docker run -p 3000:3000 gitstua/trmnl-plugin-tester:latest
-```
 
-### Building Locally
-
-```bash
-# Build the image
-docker build -t trmnl-plugin-tester .
-
-# Run the container
-docker run -p 3000:3000 trmnl-plugin-tester
-```
-
-### Using Shell Script
-
-```bash
-# Make the script executable
-chmod +x scripts/run-docker.sh
-
-# Run using the provided shell script
 ./scripts/run-docker.sh
 ```
+
+I have not pushed the image to Docker Hub yet, so you need to build it locally.
 
    
