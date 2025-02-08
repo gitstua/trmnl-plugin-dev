@@ -30,13 +30,6 @@ if [ ! -d "node_modules" ]; then
     fi
 fi
 
-# Check if fonts directory exists
-if [ ! -d "design-system/fonts" ] || [ -z "$(ls -A design-system/fonts)" ]; then
-    echo "Error: Fonts directory is missing or empty."
-    echo "Please run: ./scripts/download-cached-cdn-files.sh"
-    echo "This will download required fonts and other CDN assets."
-    exit 1
-fi
 
 # Start the development server with the original directory as PLUGINS_PATH
 echo "Starting TRMNL Plugin Tester..."

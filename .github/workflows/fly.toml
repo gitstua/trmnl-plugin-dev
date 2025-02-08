@@ -19,3 +19,7 @@ primary_region = 'syd'
 
 [[vm]]
   size = 'shared-cpu-1x'
+
+[mounts]
+  source="trmnl_cache"
+  destination="/data/cache"

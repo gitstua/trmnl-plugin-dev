@@ -19,13 +19,9 @@ yarn-error.log*
 *.woff
 *.woff2
 *.eot
-design-system/fonts/*
-design-system/cdn-copy/fonts/*
+cache/fonts/*
 **/fonts/
 
-# exclude ./design-system/cdn-copy/ and everything under it
-design-system/cdn-copy/
-**/design-system/cdn-copy/
 
 # System files
 .DS_Store
@@ -37,3 +33,7 @@ node_modules/.bin/aaaa
 
 # No cached files
 **/tmp/*
+
+# Cache directory
+/cache
+/docker_cache

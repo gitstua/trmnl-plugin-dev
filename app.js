@@ -10,12 +10,25 @@ const fetch = require('node-fetch');
 const config = require('./config.json');
 const toml = require('toml');
 const downloadAssets = require('./download-assets');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+require('dotenv').config();
 
 const app = express();
 const port = 3000;
 
 // Add near the top of the file
 const PLUGINS_PATH = process.env.PLUGINS_PATH || process.cwd();
+const CACHE_PATH = process.env.CACHE_PATH || path.join(process.cwd(), 'cache');
+const FONTS_PATH = path.join(CACHE_PATH, 'fonts');
+
+// Create required directories synchronously at startup
+if (!fsSync.existsSync(CACHE_PATH)) {
+    fsSync.mkdirSync(CACHE_PATH, { recursive: true });
+}
+if (!fsSync.existsSync(FONTS_PATH)) {
+    fsSync.mkdirSync(FONTS_PATH, { recursive: true });
+}
 
 // Function to initialize the liquid engine synchronously
 function setupLiquidEngine() {
@@ -48,10 +61,54 @@ app.set('view engine', 'html');
 app.set('views', PLUGINS_PATH);  // Change this to use PLUGINS_PATH
 
 // Serve static files
-app.use(express.static('public'));
-app.use('/design-system', express.static('design-system'));
-app.use('/fonts', express.static('design-system/fonts'));  // Serve fonts at /fonts
-app.use('/images', express.static(path.join(__dirname, config.designSystem.imagesPath)));
+app.use(express.static('public', {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
+
+// Serve cached CDN files
+app.use('/fonts', express.static(path.join(CACHE_PATH, 'fonts'), {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
+app.use('/images', express.static(path.join(CACHE_PATH, 'images'), {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
+
+const CDN_BASE = 'https://usetrmnl.com';
+
+// Serve static files based on USE_CACHE setting
+if (process.env.USE_CACHE === 'true') {
+    // Serve from cache
+    app.use('/css/latest', express.static(path.join(CACHE_PATH, 'css/latest')));
+    app.use('/js/latest', express.static(path.join(CACHE_PATH, 'js/latest')));
+    app.use('/fonts', express.static(path.join(CACHE_PATH, 'fonts')));
+    app.use('/images', express.static(path.join(CACHE_PATH, 'images')));
+} else {
+    // Proxy to CDN - maintain exact same paths
+    app.use(['/css/latest', '/js/latest', '/fonts', '/images'], async (req, res) => {
+        try {
+            const response = await fetch(`${CDN_BASE}${req.originalUrl}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.buffer();
+            res.type(response.headers.get('content-type'));
+            res.send(data);
+        } catch (error) {
+            console.error('Proxy error:', error);
+            res.status(500).send('Error proxying to CDN');
+        }
+    });
+}
 
 // Load sample data
 async function loadSampleData() {
@@ -405,8 +462,100 @@ app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => 
     }
 });
 
+// Add near your other routes
+app.get('/debug', async (req, res) => {
+    // Check if DEBUG_MODE is enabled
+    if (!process.env.DEBUG_MODE) {
+        return res.status(403).json({
+            error: 'Debug mode is disabled',
+            message: 'Set DEBUG_MODE environment variable to enable debug endpoint'
+        });
+    }
+
+    try {
+        const debug = {
+            environment: {
+                NODE_ENV: process.env.NODE_ENV,
+                CACHE_PATH: process.env.CACHE_PATH,
+                PLUGINS_PATH: process.env.PLUGINS_PATH,
+                DEBUG_MODE: process.env.DEBUG_MODE,
+                // Add other relevant env vars but exclude sensitive ones
+            },
+            docker: {
+                isDocker: false,
+                mounts: []
+            },
+            filesystem: {
+                cache: {},
+                app: {}
+            }
+        };
+
+        // Check if running in Docker
+        try {
+            await fs.access('/.dockerenv');
+            debug.docker.isDocker = true;
+            
+            // Get Docker mounts
+            const { stdout: dfOutput } = await exec('df -h');
+            debug.docker.mounts = dfOutput
+                .split('\n')
+                .filter(line => line.includes('/data/cache'))
+                .map(line => {
+                    const parts = line.split(/\s+/);
+                    return {
+                        filesystem: parts[0],
+                        size: parts[1],
+                        used: parts[2],
+                        available: parts[3],
+                        mountpoint: parts[5]
+                    };
+                });
+        } catch (e) {
+            // Not running in Docker
+        }
+
+        // Function to get directory structure with file sizes
+        async function getDirectoryStructure(dir) {
+            const structure = {};
+            try {
+                const items = await fs.readdir(dir);
+                for (const item of items) {
+                    const fullPath = path.join(dir, item);
+                    const stats = await fs.stat(fullPath);
+                    if (stats.isDirectory()) {
+                        structure[item] = await getDirectoryStructure(fullPath);
+                    } else {
+                        structure[item] = {
+                            size: stats.size,
+                            sizeHuman: `${(stats.size / 1024).toFixed(2)} KB`,
+                            modified: stats.mtime
+                        };
+                    }
+                }
+            } catch (error) {
+                structure['error'] = error.message;
+            }
+            return structure;
+        }
+
+        // Get file system structure
+        debug.filesystem.cache = await getDirectoryStructure(CACHE_PATH);
+        debug.filesystem.app = await getDirectoryStructure(process.cwd());
+
+        res.json(debug);
+    } catch (error) {
+        res.status(500).json({
+            error: 'Failed to get debug information',
+            details: error.message
+        });
+    }
+});
+
 async function startServer() {
     try {
+        console.log('Using cache directory:', CACHE_PATH);
+        
         // Download required assets
         await downloadAssets();
         

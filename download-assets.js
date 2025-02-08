@@ -8,51 +8,58 @@ const readFile = promisify(fs.readFile);
 const stat = promisify(fs.stat);
 
 const CDN_BASE = 'https://usetrmnl.com';
-const DESIGN_SYSTEM_DIR = path.join(__dirname, '../design-system');
-const CACHE_FILE = path.join(DESIGN_SYSTEM_DIR, 'cdn-copy', '.cache');
+const CACHE_PATH = process.env.CACHE_PATH || path.join(process.cwd(), 'cache');
+const CACHE_FILE = path.join(CACHE_PATH, 'cdn-assets.cache');
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
+const SOURCE_PATH = path.join(__dirname, 'design-system');  // Path to source files
 
+// Create cache directory if it doesn't exist
+if (!fs.existsSync(CACHE_PATH)) {
+    fs.mkdirSync(CACHE_PATH, { recursive: true });
+}
+
+// assets to download {localname: remotename}
 const assets = {
     css: {
-        'cdn-copy/plugins.css': '/css/latest/plugins.css'
+        'css/latest/plugins.css': '/css/latest/plugins.css'  // Store in same structure as CDN
     },
     js: {
-        'cdn-copy/plugins.js': '/js/latest/plugins.js'
+        'js/latest/plugins.js': '/js/latest/plugins.js'     // Store in same structure as CDN
     },
     fonts: {
-        'fonts/BlockKie.ttf': '/fonts/BlockKie.ttf',
-        'fonts/NicoBold-Regular.ttf': '/fonts/NicoBold-Regular.ttf',
         'fonts/NicoClean-Regular.ttf': '/fonts/NicoClean-Regular.ttf',
+        'fonts/NicoBold-Regular.ttf': '/fonts/NicoBold-Regular.ttf',
+        'fonts/BlockKie.ttf': '/fonts/BlockKie.ttf',
         'fonts/NicoPups-Regular.ttf': '/fonts/NicoPups-Regular.ttf',
         'fonts/inter.css': 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap'
     },
     images: {
         // Border images
-        'cdn-copy/images/borders/1.png': '/images/borders/1.png',
-        'cdn-copy/images/borders/2.png': '/images/borders/2.png',
-        'cdn-copy/images/borders/3.png': '/images/borders/3.png',
-        'cdn-copy/images/borders/4.png': '/images/borders/4.png',
-        'cdn-copy/images/borders/5.png': '/images/borders/5.png',
-        'cdn-copy/images/borders/6.png': '/images/borders/6.png',
-        'cdn-copy/images/borders/7.png': '/images/borders/7.png',
+        'images/borders/1.png': '/images/borders/1.png',
+        'images/borders/2.png': '/images/borders/2.png',
+        'images/borders/3.png': '/images/borders/3.png',
+        'images/borders/4.png': '/images/borders/4.png',
+        'images/borders/5.png': '/images/borders/5.png',
+        'images/borders/6.png': '/images/borders/6.png',
+        'images/borders/7.png': '/images/borders/7.png',
         // Grayscale images
-        'cdn-copy/images/grayscale/gray-1.png': '/images/grayscale/gray-1.png',
-        'cdn-copy/images/grayscale/gray-2.png': '/images/grayscale/gray-2.png',
-        'cdn-copy/images/grayscale/gray-3.png': '/images/grayscale/gray-3.png',
-        'cdn-copy/images/grayscale/gray-4.png': '/images/grayscale/gray-4.png',
-        'cdn-copy/images/grayscale/gray-5.png': '/images/grayscale/gray-5.png',
-        'cdn-copy/images/grayscale/gray-6.png': '/images/grayscale/gray-6.png',
-        'cdn-copy/images/grayscale/gray-7.png': '/images/grayscale/gray-7.png',
-        'cdn-copy/images/grayscale/gray-out.png': '/images/grayscale/gray-out.png',
+        'images/grayscale/gray-1.png': '/images/grayscale/gray-1.png',
+        'images/grayscale/gray-2.png': '/images/grayscale/gray-2.png',
+        'images/grayscale/gray-3.png': '/images/grayscale/gray-3.png',
+        'images/grayscale/gray-4.png': '/images/grayscale/gray-4.png',
+        'images/grayscale/gray-5.png': '/images/grayscale/gray-5.png',
+        'images/grayscale/gray-6.png': '/images/grayscale/gray-6.png',
+        'images/grayscale/gray-7.png': '/images/grayscale/gray-7.png',
+        'images/grayscale/gray-out.png': '/images/grayscale/gray-out.png',
         // Layout images
-        'cdn-copy/images/layout/full--title_bar-v2.png': '/images/layout/full--title_bar-v2.png',
-        'cdn-copy/images/layout/full--title_bar.png': '/images/layout/full--title_bar.png',
-        'cdn-copy/images/layout/half_horizontal--title_bar.png': '/images/layout/half_horizontal--title_bar.png',
-        'cdn-copy/images/layout/half_horizontal.png': '/images/layout/half_horizontal.png',
-        'cdn-copy/images/layout/half_vertical--title_bar.png': '/images/layout/half_vertical--title_bar.png',
-        'cdn-copy/images/layout/half_vertical.png': '/images/layout/half_vertical.png',
-        'cdn-copy/images/layout/quadrant--title_bar.png': '/images/layout/quadrant--title_bar.png',
-        'cdn-copy/images/layout/quadrant.png': '/images/layout/quadrant.png'
+        'images/layout/full--title_bar-v2.png': '/images/layout/full--title_bar-v2.png',
+        'images/layout/full--title_bar.png': '/images/layout/full--title_bar.png',
+        'images/layout/half_horizontal--title_bar.png': '/images/layout/half_horizontal--title_bar.png',
+        'images/layout/half_horizontal.png': '/images/layout/half_horizontal.png',
+        'images/layout/half_vertical--title_bar.png': '/images/layout/half_vertical--title_bar.png',
+        'images/layout/half_vertical.png': '/images/layout/half_vertical.png',
+        'images/layout/quadrant--title_bar.png': '/images/layout/quadrant--title_bar.png',
+        'images/layout/quadrant.png': '/images/layout/quadrant.png'
     }
 };
 
@@ -117,7 +124,7 @@ async function extractAndDownloadImages(cssPath) {
             const relativePath = url.startsWith('http') 
                 ? new URL(url).pathname 
                 : url;
-            const outputPath = path.join(DESIGN_SYSTEM_DIR, 'cdn-copy', relativePath.replace(/^\//, ''));
+            const outputPath = path.join(CACHE_PATH, relativePath.replace(/^\//, ''));
 
             await downloadFile(fullUrl, outputPath);
         }
@@ -127,8 +134,37 @@ async function extractAndDownloadImages(cssPath) {
     }
 }
 
+async function copyDirectory(src, dest) {
+    try {
+        await mkdir(dest, { recursive: true });
+        const entries = await fs.readdir(src, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const srcPath = path.join(src, entry.name);
+            const destPath = path.join(dest, entry.name);
+
+            if (entry.isDirectory()) {
+                await copyDirectory(srcPath, destPath);
+            } else {
+                await fs.copyFile(srcPath, destPath);
+                console.log(`Copied ${srcPath} to ${destPath}`);
+            }
+        }
+    } catch (error) {
+        console.warn(`Warning: Could not copy directory ${src}, error:`, error.message);
+    }
+}
+
 async function downloadAssets() {
     try {
+        // If USE_CACHE is false, skip downloading and just use CDN directly
+        if (process.env.USE_CACHE !== 'true') {
+            console.log('Cache disabled, using CDN directly:', CDN_BASE);
+            return;
+        }
+
+        console.log('Cache enabled, using directory:', CACHE_PATH);
+        
         // Check cache first
         if (await isCacheValid()) {
             console.log('Using cached CDN files since less than 10 minutes have passed');
@@ -137,26 +173,20 @@ async function downloadAssets() {
 
         console.log('Cache expired or not found, downloading assets...');
         
-        // Download all assets
+        // Download all assets maintaining CDN structure
         for (const [type, files] of Object.entries(assets)) {
             for (const [outputFile, urlPath] of Object.entries(files)) {
                 const url = urlPath.startsWith('http') ? urlPath : `${CDN_BASE}${urlPath}`;
-                const outputPath = path.join(DESIGN_SYSTEM_DIR, outputFile);
+                const outputPath = path.join(CACHE_PATH, outputFile);
                 await downloadFile(url, outputPath);
-
-                // After downloading CSS, extract and download its images
-                if (outputFile.endsWith('plugins.css')) {
-                    console.log('Extracting and downloading images from CSS...');
-                    await extractAndDownloadImages(outputPath);
-                }
             }
         }
 
-        // Update cache timestamp after successful download
+        // Update cache timestamp
         await updateCacheTimestamp();
-        console.log('All assets downloaded successfully');
+        console.log('All assets downloaded successfully to cache');
     } catch (error) {
-        console.error('Error downloading assets:', error);
+        console.error('Error handling assets:', error);
         process.exit(1);
     }
 }

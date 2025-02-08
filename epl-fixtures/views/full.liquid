@@ -1,65 +1,75 @@
+<style>
+  .title--small {
+    font-size: 12px; /* Ensure small font for all titles */
+  }
+  .label--outline {
+    border: 1px solid #000; /* Outline the label */
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+</style>
+
 <div class="view bg-white">
-  <div class="layout layout--col gap--space-between">
-    <table class="table table--condensed">
-      <thead>
-        <tr>
-          <th><span class="title title--small">Date</span></th>
-          <th><span class="title title--small">Time</span></th>
-          <th><span class="title title--small">Home</span></th>
-          <th><span class="title title--small">Away</span></th>
-          <th><span class="title title--small">Score</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% assign matches_sorted = matches | sort: "date" %}
-        {% assign completed_counter = 0 %}
-
-<!-- calculate position of first match with no score -->
-        {% assign first_match_with_no_score_index = 0 %}
-        {% for match in matches_sorted %}
-          {% if match.score.size == 0 %}
-            {% assign first_match_with_no_score_index = forloop.index %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-
-        {% assign start_index = first_match_with_no_score_index | minus: 6 %}
-        {% if start_index < 0 %}
-          {% assign start_index = 0 %}
-        {% endif %}
-        {% for i in (start_index..first_match_with_no_score_index) %}
-          {% assign match = matches_sorted[i] %}
-          {% if match.score.size > 0 %}
-            {% assign formatted_date = match.date | date: "%-d %b" %}
+  <div class="layout">
+    
+        <table class="table table--striped">
+          <thead>
             <tr>
-              <td><span class="title title--small">{{ formatted_date }}</span></td>
-              <td><span class="title title--small">{{ match.time }}</span></td>
-              <td><span class="title title--small">{{ match.team1 }}</span></td>
-              <td><span class="title title--small">{{ match.team2 }}</span></td>
-              <td><span class="title title--small">{{ match.score.ft[0] }} - {{ match.score.ft[1] }}</span></td>
+              <th><span class="title text--left title--small">Date</span></th>
+              <th><span class="title text--left title--small">Time</span></th>
+              <th><span class="title text--left title--small">Home</span></th>
+              <th><span class="title text--left title--small">Away</span></th>
+              
             </tr>
-          {% endif %}
-        {% endfor %}
+          </thead>
+          <tbody>
+            {% assign today = "now" | date: "%Y-%m-%d" %}
+            {% assign counter = 0 %}
+            {% assign upcoming_matches = matches | sort: "date" %} <!-- Sort matches in ascending order (next matches) -->
 
-        
-        {% for match in matches_sorted %}
-          {% unless match.score.size > 0 %}
-            {% assign formatted_date = match.date | date: "%-d %b" %}
-            <tr>
-              <td><span class="title title--small">{{ formatted_date }}</span></td>
-              <td><span class="title title--small">{{ match.time }}</span></td>
-              <td><span class="title title--small">{{ match.team1 }}</span></td>
-              <td><span class="title title--small">{{ match.team2 }}</span></td>
-              <td><span class="title title--small"></span></td>
-            </tr>
-          {% endunless %}
-        {% endfor %}
-      </tbody>
-    </table>
+            {% for match in upcoming_matches %}
+              {% if match.date > today and counter < 9 %}
+                {% assign formatted_date = match.date | date: "%-d %b" %} <!-- Converts to '1 Jan' format -->
+                <tr>
+                  <td><span class="title title--small">{{ formatted_date }}</span></td>
+                  <td><span class="title title--small">{{ match.time }}</span></td>
+                  <td>
+                    <div class="flex gap gap--small" style="align-items: center">
+                      {% if match.score.ft[0] > match.score.ft[1] %}
+                        <span class="label label--outline">{{ match.team1 }}</span>
+                      {% else %}
+                        <span class="title title--small">{{ match.team1 }}</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex gap gap--small" style="align-items: center">
+                      {% if match.score.ft[1] > match.score.ft[0] %}
+                        <span class="label label--outline">{{ match.team2 }}</span>
+                      {% else %}
+                        <span class="title title--small">{{ match.team2 }}</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="title title--small">
+                      {% if match.score.ft %}
+                        {{ match.score.ft[0] }} - {{ match.score.ft[1] }}
+                      {% endif %}
+                    </span>
+                  </td>
+                </tr>
+                {% assign counter = counter | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+     
   </div>
   <div class="title_bar">
     <img class="image" src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" />
     <span class="title">Premier League</span>
-    <span class="instance">Fixtures & Results</span>
+    <span class="instance">Upcoming Fixtures</span>
   </div>
 </div>
