@@ -22,6 +22,11 @@ const PLUGINS_PATH = process.env.PLUGINS_PATH || process.cwd();
 const CACHE_PATH = process.env.CACHE_PATH || path.join(process.cwd(), 'cache');
 const FONTS_PATH = path.join(CACHE_PATH, 'fonts');
 
+// Add near other constants
+const MAX_REQUESTS_PER_5_MIN = process.env.MAX_REQUESTS_PER_5_MIN || 400;
+let requestCount = 0;
+let lastResetTime = Date.now();
+
 // Create required directories synchronously at startup
 if (!fsSync.existsSync(CACHE_PATH)) {
     fsSync.mkdirSync(CACHE_PATH, { recursive: true });
@@ -226,10 +231,34 @@ app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Simplify the fetchLiveData function
+// Simplify rate limit check to track all requests
+function checkRateLimit() {
+    const now = Date.now();
+    const fiveMinutesMs = 5 * 60 * 1000;
+    
+    // Reset counter if 5 minutes have passed
+    if (now - lastResetTime > fiveMinutesMs) {
+        requestCount = 0;
+        lastResetTime = now;
+    }
+    
+    // Increment and check
+    requestCount++;
+    return requestCount <= MAX_REQUESTS_PER_5_MIN;
+}
+
+// Update the fetchLiveData function
 async function fetchLiveData(url, headers) {
     let parsedHeaders = {};
     try {
+        // Check global rate limit before making request
+        if (!checkRateLimit()) {
+            const error = new Error('Too Many Requests');
+            error.status = 429;
+            error.retryAfter = Math.ceil((lastResetTime + 5 * 60 * 1000 - Date.now()) / 1000);
+            throw error;
+        }
+
         if (headers) {
             try {
                 parsedHeaders = typeof headers === 'string' ? JSON.parse(headers) : headers;
@@ -245,7 +274,14 @@ async function fetchLiveData(url, headers) {
         return await response.json();
     } catch (error) {
         console.error(`Error fetching live data from ${url}:`, error);
-        console.error('Headers:', parsedHeaders);
+        if (error.status === 429) {
+            throw {
+                status: 429,
+                error: 'Too Many Requests',
+                message: 'Rate limit exceeded. Please try again later.',
+                retryAfter: error.retryAfter
+            };
+        }
         throw error;
     }
 }
@@ -486,7 +522,17 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
         res.send(htmlContent);
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ error: error.message });
+        if (error.status === 429) {
+            res.status(429)
+                .set('Retry-After', error.retryAfter)
+                .json({
+                    error: 'Too Many Requests',
+                    message: 'Rate limit exceeded. Please try again later.',
+                    retryAfter: error.retryAfter
+                });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 
@@ -648,6 +694,7 @@ app.get('/debug', async (req, res) => {
 async function startServer() {
     try {
         console.log('Cache directory set to:', CACHE_PATH);
+        console.log('Rate limit set to:', MAX_REQUESTS_PER_5_MIN, 'requests per 5 minutes');
         
         // Add plugin mode detection and logging
         const isSinglePluginMode = await isPluginDirectory(PLUGINS_PATH);
