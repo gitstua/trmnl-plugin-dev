@@ -17,3 +17,5 @@ jobs:
       - run: flyctl deploy --remote-only --config fly.toml -a trmnl-plugins
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - run: echo "url=https://trmnl-plugins.fly.dev/" >> $GITHUB_OUTPUT
+  
