@@ -57,7 +57,6 @@
     <div class="plugin-info" style="display: none;">
         <span class="description"></span>
     </div>
-    <div style="height: 100px;"></div>
 
     <div class="footer">
         Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.3
@@ -128,6 +127,12 @@
                 const wrapper = createPreviewElement(plugin, layout);
                 previewContainer.appendChild(wrapper);
             }
+
+            // append a spacer div to the preview container
+            const spacer = document.createElement('div');
+            spacer.id = 'spacer';
+            spacer.style.height = '200px';
+            previewContainer.appendChild(spacer);
         }
 
         async function loadLiveData() {
