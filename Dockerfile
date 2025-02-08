@@ -41,7 +41,7 @@ ENV USE_CACHE=false
 VOLUME /data/cache
 
 # Debug mode is disabled by default
-ENV DEBUG_MODE=
+ENV DEBUG_MODE=false
 
 # To enable debug mode, uncomment the next line:
 # ENV DEBUG_MODE=true

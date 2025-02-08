@@ -42,5 +42,5 @@ docker run -p 3000:3000 \
     -v "$(pwd)/docker_cache:/data/cache" \
     -e CACHE_PATH="/data/cache" \
     -e DEBUG_MODE=true \
-    -e USE_CACHE=true \
+    -e USE_CACHE=false \
     ${IMAGE_NAME}:latest 
