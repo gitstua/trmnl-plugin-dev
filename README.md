@@ -11,7 +11,6 @@ A development tool for testing TRMNL plugins.
 
 ![TRMNL Plugin Tester preview image](preview.png)
 
-
 ### Usage
 
 If you want to use this project to test your plugins before you add them to the TRMNL project, then jump to the [Getting Started](#getting-started) section.
@@ -20,7 +19,6 @@ If you want to use this project to test your plugins before you add them to the 
 I am deploying the Docker version of this project to [trmnl-plugins.fly.dev](https://trmnl-plugins.fly.dev/) so you can try it out without having to install anything. This version is limited to the plugins in this repo. Any API which needs an API key will not work in the online version so use the Load Preview button to see the plugin in action with sample data.
 
 To develop a plugin, you need to run this locally either by building the Docker image or running the Node.js server.
-
 
 ## Sample plugins in this repo
 
@@ -38,7 +36,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 <img src="my-agenda/preview/full.png" width="600" alt="My Agenda">
 
 - Shows upcoming events in an agenda view
-- **DATA:** A custom API which converts ICAL to JSON I built and host on Cloudflare Workers.  You can choose to self-host or reach out to me for an API key. See [Source Code for API Service](https://github.com/gitstua/stu-calendar-wrangler-worker#ical-to-json-converter-worker)
+- **DATA:** A custom API which converts ICAL to JSON I built and host on Cloudflare Workers. You can choose to self-host or reach out to me for an API key. See [Source Code for API Service](https://github.com/gitstua/stu-calendar-wrangler-worker#ical-to-json-converter-worker)
 - **SOURCE:** [my-agenda](my-agenda)
 
 ### Currency Exchange
@@ -92,14 +90,12 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **DATA:** Open-Meteo API (Free, no API key required)
 - **SOURCE:** [wind-speed-direction](wind-speed-direction)
 
-
 ## Alternative
 Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.
 
 You can also use this project to test your plugins before you add them to the TRMNL project using the script `./scripts/serve-plugin.sh`. 
 
 Execute `./scripts/serve-plugin.sh` to run the plugin with the TRMNL Preview Server by @schrockwell. 
-
 
 ## Getting Started
 
@@ -109,21 +105,18 @@ Execute `./scripts/serve-plugin.sh` to run the plugin with the TRMNL Preview Ser
 
 ### Installation
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/gitstua/trmnl-plugin-dev.git
-   cd trmnl-plugin-dev
-   ```
-
+```bash
+git clone https://github.com/gitstua/trmnl-plugin-dev.git
+cd trmnl-plugin-dev
+```
 
 2. Start the development server:
-   ```
-   There is a convenience script to start the server.
-   ```bash
-   ./scripts/run.sh
-   ```
+```bash
+./scripts/run.sh
+```
 
-   This will start the server and provide the URL to open preview in your browser.
-   
+This will start the server and provide the URL to open preview in your browser.
+
 ## Docker Support
 
 You can run the TRMNL Plugin Tester using Docker:
@@ -132,7 +125,6 @@ You can run the TRMNL Plugin Tester using Docker:
 
 To build and run the image, use the following command:
 ```bash
-
 ./scripts/run-docker.sh
 ```
 
