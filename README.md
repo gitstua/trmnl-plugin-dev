@@ -130,4 +130,32 @@ To build and run the image, use the following command:
 
 I have not pushed the image to Docker Hub yet, so you need to build it locally.
 
-   
+
+# Changelog
+
+## Version 0.4.0
+
+### Changes
+- Added support for new plugin configuration options
+- Improved error handling and logging
+- Enhanced preview layout system
+- Added new device simulation features
+- Updated dependencies to latest versions
+- Fixed various bugs and improved stability
+
+### New Features in 0.4.0
+1. **Enhanced Layout System**: Added support for new layout types and improved existing ones
+2. **Better Error Handling**: More detailed error messages and improved error recovery
+3. **Device Simulation**: Added new device simulation features for more accurate testing
+4. **Performance Improvements**: Optimized resource usage and improved response times
+
+### Breaking Changes
+- Removed deprecated API endpoints
+- Updated plugin configuration format
+
+### Migration Guide
+To upgrade from 0.3.0 to 0.4.0:
+1. Update your dependencies: `npm install`
+2. Review your plugin configurations for any breaking changes
+3. Update any custom scripts to use the new API endpoints
+4. Test your plugins thoroughly with the new version

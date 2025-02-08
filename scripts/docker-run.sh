@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 
 # Set variables
 IMAGE_NAME="gitstua/trmnl-plugin-tester"
-VERSION=$(node -p "require('./package.json').version")
+VERSION="0.4.0"
 
 # Build the Docker image
 echo "Building Docker image..."

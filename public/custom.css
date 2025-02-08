@@ -20,10 +20,11 @@ body {
     flex: 1 1 auto;
     min-height: 0;
     padding-bottom: 60px; /* Add space for footer */
-    margin: 20px auto;
-    max-width: 800px;
-    padding: 0;
+    margin: 0;  /* Remove margin */
+    padding: 0; /* Remove padding */
     position: relative;
+    width: 100%; /* Changed to 100% to fill available space */
+    max-width: 900px; /* Set max-width instead of fixed width */
 }
 
 .footer {
@@ -85,12 +86,6 @@ body {
 }
 
 /* Preview section */
-.preview {
-    margin: 20px auto;
-    max-width: 800px;
-    padding: 0;
-    position: relative;
-}
 
 .preview-frame {
     border: none;
@@ -255,19 +250,22 @@ body {
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-sizing: inherit;
 }
 
 /* Layout styles - keep at end of file */
 .trmnl .screen {
-    width: 800px;
+    width: 100%;
+    max-width: 800px;
     height: 480px;
     background: white;
-    margin: 0;
+    margin: 0 auto;
     padding: 0;
     overflow: hidden;
     position: relative;
     border: 1px solid #ccc;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-sizing: border-box;
 }
 
 /* View should fill screen by default */
@@ -314,14 +312,15 @@ body {
 
 /* Preview container and title */
 .preview-container {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
     width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 16px;
+    box-sizing: border-box;
+    flex: 0 0 100%;
 }
 
 .preview-container h2 {
@@ -341,28 +340,26 @@ body {
 .preview-wrapper {
     display: flex;
     gap: 15px;
-    max-width: 1640px;
-    margin: 0 10px;  /* Reduced from auto to 10px */
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
     align-items: flex-start;
-}
-
-/* For larger screens, we can still center it */
-@media (min-width: 1460px) {  /* 1440px + 20px */
-    .preview-wrapper {
-        margin: 0 auto;
-    }
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 /* Left side - preview */
 .preview-container {
-    flex: 0 0 800px;  /* Fixed width for preview */
+    flex: 0 0 100%;
+    max-width: 900px;
+    box-sizing: border-box;
 }
 
 /* Right side - plugin info */
 .plugin-info-panel {
     flex: 1;
-    min-width: 500px;
-    max-width: 600px;
+    min-width: 700px;
+    max-width: 800px;
     background: white;
     border-radius: 8px;
     padding: 20px;
@@ -496,13 +493,8 @@ select {
 
 /* Screen and view layout */
 .screen {
-    width: 800px;
-    height: 480px;
-    background: white;
     position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    margin: 0 auto; /* Center the screen */
 }
 
 .view-frame {
