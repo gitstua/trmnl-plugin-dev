@@ -90,6 +90,15 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **DATA:** Open-Meteo API (Free, no API key required)
 - **SOURCE:** [_plugins/wind-speed-direction](_plugins/wind-speed-direction)
 
+### TRMNL Broadcast
+<img src="_plugins/trmnl-broadcast/preview/full.png" width="600" alt="TRMNL Broadcast">
+
+- Display custom messages and announcements on your TRMNL display
+- Supports multiple layouts for different screen sizes
+- Perfect for office announcements or personal reminders
+- **DATA:** Static JSON or custom webhook endpoint which is pushed from Home Assistant, your browser or any other script you want
+- **SOURCE:** [_plugins/trmnl-broadcast](_plugins/trmnl-broadcast)
+
 ## Alternative
 Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.
 
