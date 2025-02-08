@@ -70,6 +70,14 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Great for adding humor to your dashboard
 - **DATA:** https://official-joke-api.appspot.com/random_joke (Free)
 
+### Wind Speed & Direction
+<img src="wind-speed-direction/preview/full.png" width="600" alt="Wind Speed & Direction">
+
+- Displays hourly wind speed, direction, and gusts data
+- Shows forecast for configurable location
+- Supports different layouts with varying detail levels
+- **DATA:** Open-Meteo API (Free, no API key required)
+
 
 ## Alternative
 Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.
