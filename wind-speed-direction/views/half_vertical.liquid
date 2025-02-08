@@ -1,0 +1,29 @@
+{% assign current_hour = "now" | date: "%H" | plus: 0 %}
+
+<div class="layout">
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Wind</th>
+          <th>Gusts</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in (current_hour..current_hour | plus: 8) %}
+          {% assign time = hourly.time[i] | date: "%H:%M" %}
+          <tr>
+            <td>{{ time }}</td>
+            <td>{{ hourly.wind_speed_10m[i] }} {{ hourly_units.wind_speed_10m }} {{ hourly.wind_direction_10m[i] }}°</td>
+            <td>{{ hourly.wind_gusts_10m[i] }} {{ hourly_units.wind_gusts_10m }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="title_bar">
+  <div class="title">Wind Forecast</div>
+</div> 

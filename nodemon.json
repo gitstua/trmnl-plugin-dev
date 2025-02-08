@@ -3,8 +3,10 @@
     "app.js",
     "config.json",
     "**/*.html", 
+    "**/*.toml", 
     "public/**/*",  
-    "**/plugin.json"  
+    "**/plugin.json",
+    "device.json"
   ],
   "ext": "js,json,html,css",
   "ignore": [

@@ -1,0 +1,17 @@
+{
+  "user": {
+    "first_name": "Hermione",
+    "last_name": "Granger",
+    "locale": "en",
+    "time_zone": "Sydney",
+    "utc_offset": 39600
+  },
+  "device": {
+    "friendly_id": "AAA0A",
+    "percent_charged": 94.7,
+    "wifi_strength": 92
+  },
+  "system": {
+    "timestamp_utc": 1738998185
+  }
+} 

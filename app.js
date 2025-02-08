@@ -30,6 +30,9 @@ if (!fsSync.existsSync(FONTS_PATH)) {
     fsSync.mkdirSync(FONTS_PATH, { recursive: true });
 }
 
+// Add near the top with other global constants
+let globalDeviceData = {};
+
 // Function to initialize the liquid engine synchronously
 function setupLiquidEngine() {
     try {
@@ -135,11 +138,23 @@ async function getAvailablePlugins() {
         const pluginName = path.basename(PLUGINS_PATH);
         try {
             const configContent = await fs.readFile(path.join(PLUGINS_PATH, 'config.toml'), 'utf8');
-            const pluginInfo = toml.parse(configContent);
+            const rawPluginInfo = toml.parse(configContent);
+
+            // Nest everything under trmnl.plugin_settings
+            const pluginInfo = {
+                trmnl: {
+                    plugin_settings: {
+                        ...rawPluginInfo,
+                        // Correctly reference the custom_fields_values from the TOML
+                        custom_fields_values: rawPluginInfo.custom_fields_values || {}
+                    }
+                }
+            };
+
             return [{
                 id: '.',  // Use '.' to indicate current directory
-                name: pluginInfo.name || pluginName,
-                public_url: pluginInfo.url
+                name: pluginInfo.trmnl.plugin_settings.name || pluginName,
+                public_url: pluginInfo.trmnl.plugin_settings.url
             }];
         } catch (error) {
             console.warn(`Warning: Error reading config.toml in ${PLUGINS_PATH}`);
@@ -168,11 +183,23 @@ async function getAvailablePlugins() {
             if (await isPluginDirectory(path.join(PLUGINS_PATH, dir))) {
                 try {
                     const configContent = await fs.readFile(path.join(PLUGINS_PATH, dir, 'config.toml'), 'utf8');
-                    const pluginInfo = toml.parse(configContent);
+                    const rawPluginInfo = toml.parse(configContent);
+
+                    // Nest everything under trmnl.plugin_settings
+                    const pluginInfo = {
+                        trmnl: {
+                            plugin_settings: {
+                                ...rawPluginInfo,
+                                // Correctly reference the custom_fields_values from the TOML
+                                custom_fields_values: rawPluginInfo.custom_fields_values || {}
+                            }
+                        }
+                    };
+
                     return {
                         id: dir,
-                        name: pluginInfo.name || dir,
-                        public_url: pluginInfo.url
+                        name: pluginInfo.trmnl.plugin_settings.name || dir,
+                        public_url: pluginInfo.trmnl.plugin_settings.url
                     };
                 } catch (error) {
                     console.warn(`Warning: Error reading config.toml in ${dir}`);
@@ -223,6 +250,17 @@ async function fetchLiveData(url, headers) {
     }
 }
 
+// Add after the other startup initialization code
+async function initializeDeviceData() {
+    try {
+        globalDeviceData = JSON.parse(
+            await fs.readFile(path.join(process.cwd(), 'device.json'), 'utf8')
+        );
+    } catch (err) {
+        console.warn('Warning: No device.json found, using empty device data');
+    }
+}
+
 // Update the preview route to handle both single and multi-plugin modes
 app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
     // Extract layout and plugin parameters correctly
@@ -252,21 +290,37 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
         }
 
         let data;
+        let pluginInfo;
+
+        // Read and parse the plugin config first
+        const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
+        const configContent = await fs.readFile(path.join(pluginPath, 'config.toml'), 'utf8');
+        const rawPluginInfo = toml.parse(configContent);
+
+        // Structure the plugin info
+        pluginInfo = {
+            trmnl: {
+                plugin_settings: {
+                    ...rawPluginInfo
+                    //,
+                    //custom_fields_values: rawPluginInfo.custom_fields_values || {}
+                }
+            }
+        };
+
         if (live === 'true') {
             // Handle '.' plugin ID for single plugin mode
-            const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
-            const configContent = await fs.readFile(path.join(pluginPath, 'config.toml'), 'utf8');
-            const pluginInfo = toml.parse(configContent);
+            let publicUrl = pluginInfo.trmnl.plugin_settings.url;
 
             // Check if plugin requires auth headers but no .env file exists
-            if (pluginInfo.requires_auth_headers === true) {
+            if (pluginInfo.trmnl.plugin_settings.requires_auth_headers === true) {
                 try {
                     await fs.access(path.join(pluginPath, '.env'));
                 } catch (err) {
                     return res.status(400).json({
                         error: 'Authentication Required',
                         message: 'This plugin requires authentication headers. Please create a .env file with the required credentials.',
-                        pluginName: pluginInfo.name
+                        pluginName: pluginInfo.trmnl.plugin_settings.name
                     });
                 }
             }
@@ -290,13 +344,40 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
                 console.warn(`Warning: No .env file found for plugin ${plugin}`);
             }
 
-            // Replace any {placeholder} in the URL with environment variables
-            let publicUrl = pluginInfo.url;
+            // Replace any {placeholder} in the URL with environment variables first
             Object.entries(envVars).forEach(([key, value]) => {
                 const placeholder = `{${key}}`;
                 if (publicUrl.includes(placeholder)) {
                     publicUrl = publicUrl.replace(placeholder, value);
                 }
+            });
+
+            // Function to get nested value from an object using dot notation
+            const getNestedValue = (obj, path) => {
+                return path.split('.').reduce((current, key) => {
+                    return current && current[key];
+                }, obj);
+            };
+
+            // Replace tokens with fully qualified paths
+            const tokenRegex = /{([^}]+)}/g;
+            publicUrl = publicUrl.replace(tokenRegex, (match, path) => {
+                // Check env vars first (already done above, this handles any remaining tokens)
+                if (envVars[path]) return envVars[path];
+                
+                // Try to get value from plugin settings or device data
+                const data = {
+                    trmnl: {
+                        plugin_settings: {
+                            ...rawPluginInfo,
+                            custom_fields_values: rawPluginInfo.custom_fields_values || {}
+                        },
+                        ...globalDeviceData
+                    }
+                };
+                
+                const value = getNestedValue(data, path);
+                return value !== undefined ? value : match; // Keep original token if path not found
             });
 
             // Add any additional query parameters
@@ -305,7 +386,7 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             }
 
             // Combine polling headers from config with any headers from .env
-            let headers = { ...pluginInfo.polling_headers };
+            let headers = { ...pluginInfo.trmnl.plugin_settings.polling_headers };
             
             // Replace any {placeholder} in header values
             Object.entries(headers).forEach(([headerKey, headerValue]) => {
@@ -322,14 +403,26 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
 
             data = await fetchLiveData(publicUrl, headers);
         } else {
-            const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
+            // Fix the path to include the plugin directory
+            const samplePath = pluginId === '.' 
+                ? path.join(PLUGINS_PATH, 'sample.json')
+                : path.join(PLUGINS_PATH, pluginId, 'sample.json');
+                
             data = JSON.parse(
-                await fs.readFile(path.join(pluginPath, 'sample.json'), 'utf8')
+                await fs.readFile(samplePath, 'utf8')
             );
         }
 
+        // Merge the plugin settings with the data
+        data = {
+            ...data,
+            trmnl: {
+                ...pluginInfo.trmnl,
+                ...globalDeviceData
+            }
+        };
+
         // Update the view path to use pluginPath
-        const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
         const viewPath = pluginId === '.' 
             ? path.join('views', `${layout}.liquid`)
             : path.join(pluginId, 'views', `${layout}.liquid`);
@@ -554,12 +647,21 @@ app.get('/debug', async (req, res) => {
 
 async function startServer() {
     try {
-        console.log('Using cache directory:', CACHE_PATH);
+        console.log('Cache directory set to:', CACHE_PATH);
         
-        // Download required assets
+        // Add plugin mode detection and logging
+        const isSinglePluginMode = await isPluginDirectory(PLUGINS_PATH);
+        if (isSinglePluginMode) {
+            console.log('🔌 Running in single plugin mode since config.toml file was found in the folder');
+            console.log(`📂 Plugin folder: ${path.basename(PLUGINS_PATH)}`);
+        } else {
+            console.log('🔌 Running in multi-plugin mode since no config.toml file was found in the folder');
+            console.log(`📂 Plugins directory: ${PLUGINS_PATH}`);
+        }
+        
         await downloadAssets();
+        await initializeDeviceData();
         
-        // Start the server
         app.listen(port, () => {
             console.log(`Test app running at http://localhost:${port}`);
         });

@@ -1,0 +1,42 @@
+{% assign lat = trmnl.plugin_settings.custom_fields_values.latitude  | default: 41.7128 %}
+{% assign long = trmnl.plugin_settings.custom_fields_values.longitude | default: -74.0060 %}
+{% assign tz = trmnl.plugin_settings.custom_fields_values.timezone | default: "America/New_York" %}
+
+{% assign start_time_hour = 8 %}
+{% assign end_time_hour = 15 %}  # Reduced hours for smaller view
+
+<div class="layout">
+  <div class="description">
+    <div class="title">Wind Conditions for {{ lat }}, {{ long }}</div>
+    <div class="label">Timezone: {{ tz }}</div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Speed</th>
+          <th>Dir</th>
+          <th>Gusts</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in (start_time_hour..end_time_hour) %}
+          {% assign time = hourly.time[i] | date: "%H:%M" %}
+          <tr>
+            <td>{{ time }}</td>
+            <td>{{ hourly.wind_speed_10m[i] }}</td>
+            <td>{{ hourly.wind_direction_10m[i] }}°</td>
+            <td>{{ hourly.wind_gusts_10m[i] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="title_bar">
+  <div class="title">Wind Speed & Direction</div>
+  <div class="instance">Data from Open-Meteo</div>
+</div> 

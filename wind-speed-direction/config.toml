@@ -1,0 +1,21 @@
+strategy = "polling"
+
+# Poll URL
+url = "https://api.open-meteo.com/v1/forecast?latitude={trmnl.plugin_settings.custom_fields_values.latitude}&longitude={trmnl.plugin_settings.custom_fields_values.longitude}&timezone={trmnl.plugin_settings.custom_fields_values.timezone}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=mph&forecast_days=1"
+
+# Plugin metadata
+name = "Wind Speed & Direction"
+description = "Displays hourly wind speed, direction, and gusts data from Open-Meteo API"
+version = "1.0.0"
+author = "@gitstua"
+update_frequency = "hourly"
+data_source = "Open-Meteo API"
+tags = ["weather", "wind", "forecast"] 
+
+
+# Defined by Form Fields in the plugin settings page, enter values
+# Learn how to build form fields here: https://help.usetrmnl.com/en/articles/10513740-custom-plugin-form-builder
+[custom_fields_values]
+latitude = 40.7128
+longitude = -74.0060
+timezone = "America/New_York"
