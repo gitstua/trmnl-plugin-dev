@@ -18,7 +18,7 @@ const app = express();
 const port = 3000;
 
 // Add near the top of the file
-const PLUGINS_PATH = process.env.PLUGINS_PATH || process.cwd();
+const PLUGINS_PATH = process.env.PLUGINS_PATH || path.join(process.cwd(), '_plugins');
 const CACHE_PATH = process.env.CACHE_PATH || path.join(process.cwd(), 'cache');
 const FONTS_PATH = path.join(CACHE_PATH, 'fonts');
 
@@ -338,14 +338,23 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             trmnl: {
                 plugin_settings: {
                     ...rawPluginInfo
-                    //,
-                    //custom_fields_values: rawPluginInfo.custom_fields_values || {}
                 }
             }
         };
 
-        if (live === 'true') {
-            // Handle '.' plugin ID for single plugin mode
+        // Check if strategy is static or webhook - always load from sample.json
+        if (pluginInfo.trmnl.plugin_settings.strategy === 'static' || 
+            pluginInfo.trmnl.plugin_settings.strategy === 'webhook') {
+            // Always load from sample.json for static and webhook strategies
+            const samplePath = pluginId === '.' 
+                ? path.join(PLUGINS_PATH, 'sample.json')
+                : path.join(PLUGINS_PATH, pluginId, 'sample.json');
+                
+            data = JSON.parse(
+                await fs.readFile(samplePath, 'utf8')
+            );
+        } else if (live === 'true') {
+            // Handle live data fetching for polling strategy only
             let publicUrl = pluginInfo.trmnl.plugin_settings.url;
 
             // Check if plugin requires auth headers but no .env file exists
@@ -439,7 +448,7 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
 
             data = await fetchLiveData(publicUrl, headers);
         } else {
-            // Fix the path to include the plugin directory
+            // Load from sample.json for preview
             const samplePath = pluginId === '.' 
                 ? path.join(PLUGINS_PATH, 'sample.json')
                 : path.join(PLUGINS_PATH, pluginId, 'sample.json');

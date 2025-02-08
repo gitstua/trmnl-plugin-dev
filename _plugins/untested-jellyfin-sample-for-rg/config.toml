@@ -1,6 +1,6 @@
 # strategy = "polling" ==> the data will be fetched once, at server start-up
 # strategy = "webhook" ==> POST new data to /webhook
-strategy = "polling"
+strategy = "static"
 
 # Poll URL (required for polling strategy)
 url = "https://example.com/api/movies"

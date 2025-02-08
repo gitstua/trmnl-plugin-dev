@@ -37,7 +37,7 @@ echo "Running container..."
 docker run -p 3000:3000 \
     --init \
     --rm \
-    -v "$(pwd):/plugins" \
+    -v "$(pwd)/_plugins:/plugins" \
     -e PLUGINS_PATH="/plugins" \
     -v "$(pwd)/docker_cache:/data/cache" \
     -e CACHE_PATH="/data/cache" \

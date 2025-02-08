@@ -28,7 +28,7 @@ To develop a plugin, you need to run this locally either by building the Docker 
 - Display your Home Assistant sensor data in TRMNL
 - Shows temperature and other sensors in a clean, organized interface
 - **DATA:** Home Assistant API
-- **SOURCE:** [home-assistant-trmnl](home-assistant-trmnl)
+- **SOURCE:** [_plugins/home-assistant-trmnl](_plugins/home-assistant-trmnl)
 
 See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full details.
 
@@ -37,14 +37,14 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 
 - Shows upcoming events in an agenda view
 - **DATA:** A custom API which converts ICAL to JSON I built and host on Cloudflare Workers. You can choose to self-host or reach out to me for an API key. See [Source Code for API Service](https://github.com/gitstua/stu-calendar-wrangler-worker#ical-to-json-converter-worker)
-- **SOURCE:** [my-agenda](my-agenda)
+- **SOURCE:** [_plugins/my-agenda](_plugins/my-agenda)
 
 ### Currency Exchange
 <img src="currency-exchange/preview/full.png" width="600" alt="Currency Exchange">
 
 - Shows the current exchange rate for a currency pair
 - **DATA:** API from [currencyapi.com](https://currencyapi.com/) which gets the exchange rate. Free with rate limit.
-- **SOURCE:** [currency-exchange](currency-exchange)
+- **SOURCE:** [_plugins/currency-exchange](_plugins/currency-exchange)
 
 ### EPL Fixtures
 <img src="epl-fixtures/preview/full.png" width="600" alt="EPL Fixtures">
@@ -53,7 +53,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Displays match dates, teams, and scores in a compact format
 - Supports different layouts for various screen sizes
 - **DATA:** Connects to a raw file in a GitHub repo. https://github.com/openfootball
-- **SOURCE:** [epl-fixtures](epl-fixtures)
+- **SOURCE:** [_plugins/epl-fixtures](_plugins/epl-fixtures)
 
 ### EPL My Team
 <img src="epl-my-team/preview/full.png" width="600" alt="EPL My Team">
@@ -62,7 +62,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Shows recent results and upcoming fixtures
 - Highlights wins with outlined team names
 - **DATA:** Connects to a raw file in a GitHub repo. https://github.com/openfootball
-- **SOURCE:** [epl-my-team](epl-my-team)
+- **SOURCE:** [_plugins/epl-my-team](_plugins/epl-my-team)
 
 ### Random Fact
 <img src="random-fact/preview/full.png" width="600" alt="Random Fact">
@@ -70,7 +70,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Displays interesting random facts
 - Simple, clean interface for easy reading
 - **DATA:** https://uselessfacts.jsph.pl (Free)
-- **SOURCE:** [random-fact](random-fact)
+- **SOURCE:** [_plugins/random-fact](_plugins/random-fact)
 
 ### Random Joke
 <img src="random-joke/preview/full.png" width="600" alt="Random Joke">
@@ -79,7 +79,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Optimized for smaller display formats
 - Great for adding humor to your dashboard
 - **DATA:** https://official-joke-api.appspot.com/random_joke (Free)
-- **SOURCE:** [random-joke](random-joke)
+- **SOURCE:** [_plugins/random-joke](_plugins/random-joke)
 
 ### Wind Speed & Direction
 <img src="wind-speed-direction/preview/full.png" width="600" alt="Wind Speed & Direction">
@@ -88,7 +88,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - Shows forecast for configurable location
 - Supports different layouts with varying detail levels
 - **DATA:** Open-Meteo API (Free, no API key required)
-- **SOURCE:** [wind-speed-direction](wind-speed-direction)
+- **SOURCE:** [_plugins/wind-speed-direction](_plugins/wind-speed-direction)
 
 ## Alternative
 Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.

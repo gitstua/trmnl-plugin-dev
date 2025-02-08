@@ -2,10 +2,10 @@
   "watch": [
     "app.js",
     "config.json",
-    "**/*.html", 
-    "**/*.toml", 
+    "_plugins/**/*.html", 
+    "_plugins/**/*.toml", 
     "public/**/*",  
-    "**/plugin.json",
+    "_plugins/**/plugin.json",
     "device.json"
   ],
   "ext": "js,json,html,css",
