@@ -1,46 +1,38 @@
 #!/bin/bash
 
-# store the current directory
-CURRENT_DIR=$(pwd)
+# Check if port 3000 is in use and capture the details
+port_info=$(netstat -an | grep LISTEN | grep 3000)
 
-# Ensure we're running from the project root for the build
-cd "$(dirname "$0")/.."
+if [[ -n "$port_info" ]]; then
+  echo "Error: Port 3000 is already in use. Details:"
+  echo "$port_info"
+  exit 1
+fi
 
-# Set variables
-IMAGE_NAME="gitstua/trmnl-plugin-tester"
-VERSION="0.4.0"
+# Determine the host architecture
+ARCH=$(uname -m)
+case $ARCH in
+    arm64|aarch64)
+        PLATFORM="linux/arm64"
+        ;;
+    x86_64|amd64)
+        PLATFORM="linux/amd64"
+        ;;
+    *)
+        echo "Unsupported architecture: $ARCH"
+        exit 1
+        ;;
+esac
 
-# Build the Docker image
-echo "Building Docker image..."
-docker build -t ${IMAGE_NAME}:${VERSION} .
-docker tag ${IMAGE_NAME}:${VERSION} ${IMAGE_NAME}:latest
 
-# change back to the current directory
-cd "${CURRENT_DIR}"
+# Build the image using the shell script
+./scripts/docker-build.sh
 
-# ensure $(pwd)/docker_cache exists
-mkdir -p "$(pwd)/docker_cache"
+echo "Running container for platform: $PLATFORM"
 
-# Function to cleanup Docker container on script exit
-cleanup() {
-    echo
-    echo "Shutting down Docker container..."
-    docker stop $(docker ps -q --filter ancestor=${IMAGE_NAME}:latest) 2>/dev/null
-    exit
-}
-
-# Set up trap for cleanup
-trap cleanup INT TERM
-
-# Run the container with plugins directory mounted
-echo "Running container..."
-docker run -p 3000:3000 \
-    --init \
-    --rm \
-    -v "$(pwd)/_plugins:/plugins" \
-    -e PLUGINS_PATH="/plugins" \
-    -v "$(pwd)/docker_cache:/data/cache" \
-    -e CACHE_PATH="/data/cache" \
-    -e DEBUG_MODE=true \
-    -e USE_CACHE=false \
-    ${IMAGE_NAME}:latest 
+# Run the container with the correct platform
+docker run --platform $PLATFORM \
+    -p 3000:3000 \
+    -v "$(pwd)/_plugins:/app/_plugins" \
+    -v "$(pwd)/cache:/data/cache" \
+    trmnl-plugin-tester:latest 

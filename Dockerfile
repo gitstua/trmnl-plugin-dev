@@ -1,51 +1,51 @@
-FROM node:20-slim
+# Use Alpine for a lightweight, multi-arch base image
+FROM --platform=$BUILDPLATFORM node:18-alpine AS base
 
+# write the platform to the log
+RUN echo "BUILDPLATFORM: $BUILDPLATFORM"
+
+# Install necessary packages
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    imagemagick
+
+# Set environment variables for Puppeteer
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV NODE_ENV=production
+
+# Set up working directory
 WORKDIR /app
 
-# Create cache directory
-RUN mkdir -p /data/cache
-
-# Install required dependencies using apt-get (since we're using node:slim which is Debian-based)
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    jq \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy package files
+# Copy package files and install dependencies
 COPY package*.json ./
-
-# Install dependencies
-RUN npm install
+RUN npm install --omit=dev
 
 # Copy the rest of the application
 COPY . .
 
-# Create public directory
-RUN mkdir -p /app/public
+# Create cache directory and public directory
+RUN mkdir -p /data/cache /app/public /tmp
 
 # Expose the default port
 EXPOSE 3000
 
-# Create build timestamp at the end to avoid caching
-RUN date -u +'%Y-%m-%d %H:%M:%S UTC' > /app/public/build.txt && \
-    echo "Build timestamp: $(cat /app/public/build.txt)"
+# Build timestamp
+RUN date -u +'%Y-%m-%d %H:%M:%S UTC' > /app/public/build.txt
 
-# Set cache path environment variable
+# Set environment variables
 ENV CACHE_PATH=/data/cache
-
-# set to not use cache
 ENV USE_CACHE=false
-
-# Create a volume for persistent cache
-VOLUME /data/cache
-
-# Set production mode
-ENV NODE_ENV=production
 ENV DEBUG_MODE=false
-
-# Add this with other environment variables
 ENV MAX_REQUESTS_PER_5_MIN=400
 
+# Persistent cache volume
+VOLUME /data/cache
+
 # Start the application
-CMD ["npm", "start"] 
+CMD ["npm", "start"]

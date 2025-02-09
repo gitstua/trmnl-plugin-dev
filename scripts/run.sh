@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Check if port 3000 is in use and capture the details
+port_info=$(netstat -an | grep LISTEN | grep 3000)
+
+if [[ -n "$port_info" ]]; then
+  echo "Error: Port 3000 is already in use. Details:"
+  echo "$port_info"
+  exit 1
+fi
+
+# Set debug mode
+export DEBUG=true
+
 # Store the original directory
 ORIGINAL_DIR=$(pwd)
 
@@ -30,8 +42,10 @@ if [ ! -d "node_modules" ]; then
     fi
 fi
 
-
 # Start the development server with the original directory as PLUGINS_PATH
 echo "Starting TRMNL Plugin Tester..."
 echo "Access the tool at: http://localhost:3000"
-PLUGINS_PATH="$ORIGINAL_DIR/_plugins" npm run dev 
+PLUGINS_PATH="$ORIGINAL_DIR/_plugins" npm run dev
+
+# Start the server
+node app.js 

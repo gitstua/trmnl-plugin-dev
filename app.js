@@ -12,6 +12,7 @@ const toml = require('toml');
 const downloadAssets = require('./download-assets');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const puppeteer = require('puppeteer');
 require('dotenv').config();
 
 const app = express();
@@ -698,6 +699,96 @@ app.get('/debug', async (req, res) => {
             error: 'Failed to get debug information',
             details: error.message
         });
+    }
+});
+
+// Add helper function for delay
+async function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Update the Puppeteer launch configuration
+const BROWSER_LAUNCH_CONFIG = {
+    puppeteer: {
+        executablePath: '/usr/bin/chromium',  // Use system Chromium
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',  // Docker specific
+            '--disable-gpu'  // Optional: helps in certain environments
+        ]
+    }
+};
+
+// Add display endpoint
+app.get('/display', async (req, res) => {
+    try {
+        const engine = req.query.engine || 'puppeteer';
+        const pluginId = req.query.plugin;
+        const layout = req.query.layout || 'full';
+        
+        if (!pluginId) {
+            return res.status(400).send('Plugin ID is required');
+        }
+
+        const pluginUrl = `http://localhost:${port}/preview/${pluginId}/${layout}`;
+        let screenshotBuffer;
+
+        try {
+            const browser = await puppeteer.launch(BROWSER_LAUNCH_CONFIG.puppeteer);
+            const page = await browser.newPage();
+            await page.goto(pluginUrl, { waitUntil: 'networkidle0' });
+            await page.setViewport({ width: 800, height: 480 });
+            
+            // Write out the version number of puppeteer
+            console.log('Puppeteer version:', require('puppeteer/package.json').version);
+
+            // Replace waitForTimeout with our delay function
+            await delay(1000);
+            
+            screenshotBuffer = await page.screenshot();
+            await browser.close();
+        } catch (error) {
+            console.error('Puppeteer error:', error);
+            if (process.env.DEBUG_MODE === 'true') {
+                throw error;
+            }
+            throw new Error('Failed to launch Puppeteer browser. See logs for more details.');
+        }
+        
+
+        // Convert to BMP using ImageMagick
+        const tempPng = path.join(process.cwd(), 'tmp', 'temp.png');
+        const tempBmp = path.join(process.cwd(), 'tmp', 'output.bmp');
+        
+        // Create tmp directory if it doesn't exist
+        await fs.mkdir(path.dirname(tempPng), { recursive: true });
+        
+        // Save screenshot to temp file
+        await fs.writeFile(tempPng, screenshotBuffer);
+        
+        // Convert to BMP using ImageMagick
+        await new Promise((resolve, reject) => {
+            exec(`convert ${tempPng} -depth 8 ${tempBmp}`, (err) => {
+                if (err) return reject(err);
+                resolve();
+            });
+        });
+        
+        // Read the BMP file
+        const bmpBuffer = await fs.readFile(tempBmp);
+        
+        // Clean up temp files
+        await fs.unlink(tempPng).catch(() => {});
+        await fs.unlink(tempBmp).catch(() => {});
+        
+        res.setHeader('Content-Type', 'image/bmp');
+        res.setHeader('Content-Disposition', `attachment; filename=${pluginId}-${layout}.bmp`);
+        res.send(bmpBuffer);
+
+    } catch (error) {
+        console.error('Error generating display:', error);
+        res.status(500).send('Error generating display: ' + error.message);
     }
 });
 
