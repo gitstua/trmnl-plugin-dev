@@ -115,16 +115,16 @@
                 const plugins = await response.json();
                 const actualPlugins = plugins.filter(p => p.id !== 'all');
                 
-                actualPlugins.forEach(plugin => {
-                    const wrapper = createPreviewElement(plugin, layout);
+                for (const plugin of actualPlugins) {
+                    const wrapper = await createPreviewElement(plugin, layout);
                     previewContainer.appendChild(wrapper);
-                });
+                }
             } else {
                 const plugin = {
                     id: pluginSelect.value,
                     name: pluginSelect.options[pluginSelect.selectedIndex].text
                 };
-                const wrapper = createPreviewElement(plugin, layout);
+                const wrapper = await createPreviewElement(plugin, layout);
                 previewContainer.appendChild(wrapper);
             }
 
@@ -148,16 +148,16 @@
                 const plugins = await response.json();
                 const actualPlugins = plugins.filter(p => p.id !== 'all');
                 
-                actualPlugins.forEach(plugin => {
-                    const wrapper = createPreviewElement(plugin, layout, true);
+                for (const plugin of actualPlugins) {
+                    const wrapper = await createPreviewElement(plugin, layout, true);
                     previewContainer.appendChild(wrapper);
-                });
+                }
             } else {
                 const plugin = {
                     id: pluginSelect.value,
                     name: pluginSelect.options[pluginSelect.selectedIndex].text
                 };
-                const wrapper = createPreviewElement(plugin, layout, true);
+                const wrapper = await createPreviewElement(plugin, layout, true);
                 previewContainer.appendChild(wrapper);
             }
         }
@@ -178,7 +178,7 @@
             }
         }
 
-        function createPreviewElement(plugin, layout, isLive = false) {
+        async function createPreviewElement(plugin, layout, isLive = false) {
             const wrapper = document.createElement('div');
             wrapper.className = 'preview-wrapper';
             
@@ -216,6 +216,7 @@
             };
             
             titleContainer.appendChild(title);
+            
             // Only append BMP button if image generation is enabled
             let imageGenerationEnabled = true; // Default value
             try {
