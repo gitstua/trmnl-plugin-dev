@@ -4,10 +4,11 @@
 const express = require('express');
 const { Liquid } = require('liquidjs');
 const fs = require('fs').promises;
+exports.fs = fs;
 const fsSync = require('fs');  // Add this for sync operations
 const path = require('path');
 const fetch = require('node-fetch');
-const config = require('./config.json');
+const config = require('./config');
 const toml = require('toml');
 const downloadAssets = require('./download-assets');
 const util = require('util');
@@ -15,28 +16,22 @@ const exec = util.promisify(require('child_process').exec);
 const puppeteer = require('puppeteer');
 require('dotenv').config();
 const { version } = require('./package.json');
+const apiRoutes = require('./routes/api');
+const { getAvailablePlugins } = require('./config');
 
 const app = express();
-const port = 3000;
 
-// Add near the top of the file
-const PLUGINS_PATH = process.env.PLUGINS_PATH || path.join(process.cwd(), '_plugins');
-const CACHE_PATH = process.env.CACHE_PATH || path.join(process.cwd(), 'cache');
-const FONTS_PATH = path.join(CACHE_PATH, 'fonts');
-
-// Add near other constants
-const MAX_REQUESTS_PER_5_MIN = process.env.MAX_REQUESTS_PER_5_MIN || 400;
+// All configuration values are now imported via config.js
 let requestCount = 0;
 let lastResetTime = Date.now();
-const ENABLE_IMAGE_GENERATION = process.env.ENABLE_IMAGE_GENERATION !== 'false';  // Default to true if not set
 
 // Create required directories synchronously at startup
-if (!fsSync.existsSync(CACHE_PATH)) {
-    fsSync.mkdirSync(CACHE_PATH, { recursive: true });
-}
-if (!fsSync.existsSync(FONTS_PATH)) {
-    fsSync.mkdirSync(FONTS_PATH, { recursive: true });
-}
+//if (!fsSync.existsSync(config.CACHE_PATH)) {
+//    fsSync.mkdirSync(config.CACHE_PATH, { recursive: true });
+//}
+//if (!fsSync.existsSync(config.FONTS_PATH)) {
+//    fsSync.mkdirSync(config.FONTS_PATH, { recursive: true });
+//}
 
 // Add near the top with other global constants
 let globalDeviceData = {};
@@ -44,20 +39,20 @@ let globalDeviceData = {};
 // Function to initialize the liquid engine synchronously
 function setupLiquidEngine() {
     try {
-        // Synchronously check for config.toml
-        fsSync.accessSync(path.join(PLUGINS_PATH, 'config.toml'));
+        // Synchronously check for config.toml in the plugins directory
+        fsSync.accessSync(path.join(config.PLUGINS_PATH, 'config.toml'));
         // Single plugin mode
         return new Liquid({
-            root: PLUGINS_PATH,
+            root: config.PLUGINS_PATH,
             extname: '.liquid',
-            lookupRoot: PLUGINS_PATH  // Add this to ensure proper template lookup
+            lookupRoot: config.PLUGINS_PATH
         });
     } catch {
         // Multi-plugin mode
         return new Liquid({
-            root: PLUGINS_PATH,  // Change this to PLUGINS_PATH
+            root: config.PLUGINS_PATH,
             extname: '.liquid',
-            lookupRoot: PLUGINS_PATH  // Add this to ensure proper template lookup
+            lookupRoot: config.PLUGINS_PATH
         });
     }
 }
@@ -69,7 +64,7 @@ app.engine('html', engine.express());
 app.set('view engine', 'html');
 
 // Set the views directory to the root directory
-app.set('views', PLUGINS_PATH);  // Change this to use PLUGINS_PATH
+app.set('views', config.PLUGINS_PATH);  // Change this to use PLUGINS_PATH
 
 // Serve static files
 app.use(express.static('public', {
@@ -81,14 +76,14 @@ app.use(express.static('public', {
 }));
 
 // Serve cached CDN files
-app.use('/fonts', express.static(path.join(CACHE_PATH, 'fonts'), {
+app.use('/fonts', express.static(path.join(config.CACHE_PATH, 'fonts'), {
     setHeaders: (res) => {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
     }
 }));
-app.use('/images', express.static(path.join(CACHE_PATH, 'images'), {
+app.use('/images', express.static(path.join(config.CACHE_PATH, 'images'), {
     setHeaders: (res) => {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
@@ -99,12 +94,12 @@ app.use('/images', express.static(path.join(CACHE_PATH, 'images'), {
 const CDN_BASE = 'https://usetrmnl.com';
 
 // Serve static files based on USE_CACHE setting
-if (process.env.USE_CACHE === 'true') {
+if (config.USE_CACHE === 'true') {
     // Serve from cache
-    app.use('/css/latest', express.static(path.join(CACHE_PATH, 'css/latest')));
-    app.use('/js/latest', express.static(path.join(CACHE_PATH, 'js/latest')));
-    app.use('/fonts', express.static(path.join(CACHE_PATH, 'fonts')));
-    app.use('/images', express.static(path.join(CACHE_PATH, 'images')));
+    app.use('/css/latest', express.static(path.join(config.CACHE_PATH, 'css/latest')));
+    app.use('/js/latest', express.static(path.join(config.CACHE_PATH, 'js/latest')));
+    app.use('/fonts', express.static(path.join(config.CACHE_PATH, 'fonts')));
+    app.use('/images', express.static(path.join(config.CACHE_PATH, 'images')));
 } else {
     // Proxy to CDN - maintain exact same paths
     app.use(['/css/latest', '/js/latest', '/fonts', '/images'], async (req, res) => {
@@ -121,107 +116,6 @@ if (process.env.USE_CACHE === 'true') {
     });
 }
 
-// Load sample data
-async function loadSampleData() {
-    const eplFixtures = JSON.parse(await fs.readFile('./epl-fixtures/sample.json', 'utf8'));
-    const eplMyTeam = JSON.parse(await fs.readFile('./epl-my-team/sample.json', 'utf8'));
-    return { eplFixtures, eplMyTeam };
-}
-
-// Helper function to check if a directory is a plugin directory
-async function isPluginDirectory(dirPath) {
-    try {
-        await fs.access(path.join(dirPath, 'config.toml'));
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-// Update the getAvailablePlugins function
-async function getAvailablePlugins() {
-    // First check if PLUGINS_PATH itself is a plugin directory
-    if (await isPluginDirectory(PLUGINS_PATH)) {
-        // Single plugin mode
-        const pluginName = path.basename(PLUGINS_PATH);
-        try {
-            const configContent = await fs.readFile(path.join(PLUGINS_PATH, 'config.toml'), 'utf8');
-            const rawPluginInfo = toml.parse(configContent);
-
-            // Nest everything under trmnl.plugin_settings
-            const pluginInfo = {
-                trmnl: {
-                    plugin_settings: {
-                        ...rawPluginInfo,
-                        // Correctly reference the custom_fields_values from the TOML
-                        custom_fields_values: rawPluginInfo.custom_fields_values || {}
-                    }
-                }
-            };
-
-            return [{
-                id: '.',  // Use '.' to indicate current directory
-                name: pluginInfo.trmnl.plugin_settings.name || pluginName,
-                public_url: pluginInfo.trmnl.plugin_settings.url
-            }];
-        } catch (error) {
-            console.warn(`Warning: Error reading config.toml in ${PLUGINS_PATH}`);
-            return [];
-        }
-    }
-
-    // Multiple plugins mode
-    const dirs = (await fs.readdir(PLUGINS_PATH, { withFileTypes: true }))
-        .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name)
-        .filter(name => 
-            !['node_modules', 'public', 'design-system', 'scripts'].includes(name) && 
-            !name.startsWith('.')
-        );
-
-    // Add the "All" option as the first plugin only if we have multiple plugins
-    const plugins = dirs.length > 1 ? [{
-        id: 'all',
-        name: 'All Plugins'
-    }] : [];
-
-    // Get plugin info for each directory
-    const pluginInfos = await Promise.all(
-        dirs.map(async (dir) => {
-            if (await isPluginDirectory(path.join(PLUGINS_PATH, dir))) {
-                try {
-                    const configContent = await fs.readFile(path.join(PLUGINS_PATH, dir, 'config.toml'), 'utf8');
-                    const rawPluginInfo = toml.parse(configContent);
-
-                    // Nest everything under trmnl.plugin_settings
-                    const pluginInfo = {
-                        trmnl: {
-                            plugin_settings: {
-                                ...rawPluginInfo,
-                                // Correctly reference the custom_fields_values from the TOML
-                                custom_fields_values: rawPluginInfo.custom_fields_values || {}
-                            }
-                        }
-                    };
-
-                    return {
-                        id: dir,
-                        name: pluginInfo.trmnl.plugin_settings.name || dir,
-                        public_url: pluginInfo.trmnl.plugin_settings.url
-                    };
-                } catch (error) {
-                    console.warn(`Warning: Error reading config.toml in ${dir}`);
-                    return null;
-                }
-            }
-            return null;
-        })
-    );
-
-    // Add the valid plugins after the "All" option
-    plugins.push(...pluginInfos.filter(plugin => plugin !== null));
-    return plugins;
-}
 
 // Add this new endpoint
 app.get('/api/plugins', async (req, res) => {
@@ -319,7 +213,7 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
     
     try {
         // If no plugin specified and in single plugin mode, use '.'
-        const pluginId = plugin || (await isPluginDirectory(PLUGINS_PATH) ? '.' : null);
+        const pluginId = plugin || (await config.isPluginDirectory(config.PLUGINS_PATH) ? '.' : null);
         
         if (!pluginId) {
             return res.status(400).json({ 
@@ -332,7 +226,7 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
         let pluginInfo;
 
         // Read and parse the plugin config first
-        const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
+        const pluginPath = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
         const configContent = await fs.readFile(path.join(pluginPath, 'config.toml'), 'utf8');
         const rawPluginInfo = toml.parse(configContent);
 
@@ -350,8 +244,8 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             pluginInfo.trmnl.plugin_settings.strategy === 'webhook') {
             // Always load from sample.json for static and webhook strategies
             const samplePath = pluginId === '.' 
-                ? path.join(PLUGINS_PATH, 'sample.json')
-                : path.join(PLUGINS_PATH, pluginId, 'sample.json');
+                ? path.join(config.PLUGINS_PATH, 'sample.json')
+                : path.join(config.PLUGINS_PATH, pluginId, 'sample.json');
                 
             data = JSON.parse(
                 await fs.readFile(samplePath, 'utf8')
@@ -453,8 +347,8 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
         } else {
             // Load from sample.json for preview
             const samplePath = pluginId === '.' 
-                ? path.join(PLUGINS_PATH, 'sample.json')
-                : path.join(PLUGINS_PATH, pluginId, 'sample.json');
+                ? path.join(config.PLUGINS_PATH, 'sample.json')
+                : path.join(config.PLUGINS_PATH, pluginId, 'sample.json');
                 
             data = JSON.parse(
                 await fs.readFile(samplePath, 'utf8')
@@ -480,34 +374,34 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
         const fontFaces = `
             @font-face {
                 font-family: 'NicoClean';
-                src: url('${config.designSystem.fonts.path}/NicoClean-Regular.ttf') format('truetype');
+                src: url('${config.FONTS_PATH}/NicoClean-Regular.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
                 font-display: swap;
             }
             @font-face {
                 font-family: 'NicoBold';
-                src: url('${config.designSystem.fonts.path}/NicoBold-Regular.ttf') format('truetype');
+                src: url('${config.FONTS_PATH}/NicoBold-Regular.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
                 font-display: swap;
             }
             @font-face {
                 font-family: 'NicoPups';
-                src: url('${config.designSystem.fonts.path}/NicoPups-Regular.ttf') format('truetype');
+                src: url('${config.FONTS_PATH}/NicoPups-Regular.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
                 font-display: swap;
             }
             @font-face {
                 font-family: 'BlockKie';
-                src: url('${config.designSystem.fonts.path}/BlockKie.ttf') format('truetype');
+                src: url('${config.FONTS_PATH}/BlockKie.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
                 font-display: swap;
             }
             /* Include Inter font */
-            @import url('${config.designSystem.fonts.path}/inter.css');
+            @import url('${config.FONTS_PATH}/inter.css');
         `;
 
         const htmlContent = `
@@ -515,12 +409,12 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             <html>
             <head>
                 <style>${fontFaces}</style>
-                <link rel="stylesheet" href="${config.designSystem.cssPath}">
+                <link rel="stylesheet" href="${config.CDN_PATH}/css/latest/plugins.css">
                 <link rel="stylesheet" href="/custom.css">
             </head>
             <body class="trmnl view-only" style="padding:0;margin:0;background:white;">
                 ${templateContent}
-                <script src="${config.designSystem.jsPath}"></script>
+                <script src="${config.CDN_PATH}/js/latest/plugins.js"></script>
                 <script>
                     window.addEventListener('load', function() {
                         if (typeof terminalize === 'function') {
@@ -566,7 +460,7 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
         layoutName = layoutName.replace('.html', '').replace('-', '_');
         
         // If no plugin specified and in single plugin mode, use '.'
-        const effectivePluginId = pluginId || (await isPluginDirectory(PLUGINS_PATH) ? '.' : null);
+        const effectivePluginId = pluginId || (await config.isPluginDirectory(config.PLUGINS_PATH) ? '.' : null);
         
         if (!effectivePluginId) {
             return res.status(400).json({ 
@@ -575,7 +469,7 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
             });
         }
 
-        const pluginPath = effectivePluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, effectivePluginId);
+        const pluginPath = effectivePluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, effectivePluginId);
         const layoutContent = await fs.readFile(
             path.join(pluginPath, 'views', `${layoutName}.liquid`),
             'utf8'
@@ -591,7 +485,7 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
 app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => {
     try {
         // If no pluginId provided, check if we're in single plugin mode
-        const pluginId = req.params.pluginId || (await isPluginDirectory(PLUGINS_PATH) ? '.' : null);
+        const pluginId = req.params.pluginId || (await config.isPluginDirectory(config.PLUGINS_PATH) ? '.' : null);
         
         if (!pluginId) {
             return res.status(400).json({ 
@@ -601,8 +495,8 @@ app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => 
         }
 
         const configPath = pluginId === '.' 
-            ? path.join(PLUGINS_PATH, 'config.toml')
-            : path.join(PLUGINS_PATH, pluginId, 'config.toml');
+            ? path.join(config.PLUGINS_PATH, 'config.toml')
+            : path.join(config.PLUGINS_PATH, pluginId, 'config.toml');
             
         const configContent = await fs.readFile(configPath, 'utf8');
         // Send the raw TOML content with text/plain content type
@@ -616,7 +510,7 @@ app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => 
 // Update the debug endpoint to be more secure
 app.get('/debug', async (req, res) => {
     // Only allow debug endpoint in development
-    if (process.env.DEBUG_MODE !== 'true') {
+    if (config.DEBUG_MODE !== 'true') {
         return res.status(403).json({
             error: 'Debug endpoint disabled',
             message: 'Debug endpoint is only available in development mode with DEBUG_MODE=true'
@@ -692,7 +586,7 @@ app.get('/debug', async (req, res) => {
         }
 
         // Get file system structure
-        debug.filesystem.cache = await getDirectoryStructure(CACHE_PATH);
+        debug.filesystem.cache = await getDirectoryStructure(config.CACHE_PATH);
         debug.filesystem.app = await getDirectoryStructure(process.cwd());
 
         res.json(debug);
@@ -709,21 +603,9 @@ async function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Update the Puppeteer launch configuration
-const BROWSER_LAUNCH_CONFIG = {
-    puppeteer: {
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',  // Docker specific
-            '--disable-gpu'  // Optional: helps in certain environments
-        ]
-    }
-};
-
 // Add display endpoint with feature flag check
 const handleDisplay = async (req, res) => {
-    if (!ENABLE_IMAGE_GENERATION) {
+    if (!config.ENABLE_IMAGE_GENERATION) {
         return res.status(403).json({
             error: 'Image generation disabled',
             message: 'Image generation is disabled in this environment'
@@ -738,8 +620,8 @@ const handleDisplay = async (req, res) => {
             return res.status(400).send('Plugin ID is required');
         }
 
-        // Determine plugin path and create tmp directory
-        const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
+        // Determine plugin path and create tmp directory using the helper function
+        const pluginPath = config.getPluginPath(pluginId);
         const pluginTmpDir = path.join(pluginPath, 'tmp');
         const pluginPreviewDir = path.join(pluginPath, 'Preview');
         
@@ -747,26 +629,26 @@ const handleDisplay = async (req, res) => {
         await fs.mkdir(pluginTmpDir, { recursive: true });
         await fs.mkdir(pluginPreviewDir, { recursive: true });
 
-        const pluginUrl = `http://localhost:${port}/preview/${pluginId}/${layout}`;
+        const pluginUrl = `http://localhost:${config.PORT}/preview/${pluginId}/${layout}`;
         let screenshotBuffer;
 
         try {
-            const browser = await puppeteer.launch(BROWSER_LAUNCH_CONFIG.puppeteer);
+            const browser = await puppeteer.launch(config.BROWSER_LAUNCH_CONFIG.puppeteer);
             const page = await browser.newPage();
             await page.goto(pluginUrl, { waitUntil: 'networkidle0' });
-            await page.setViewport({ width: 800, height: 480 });
+            await page.setViewport({ width: config.DISPLAY.width, height: config.DISPLAY.height });
             
             // Write out the version number of puppeteer
             console.log('Puppeteer version:', require('puppeteer/package.json').version);
 
-            // Replace waitForTimeout with our delay function
-            await delay(1000);
+            // Wait for the configured screenshot delay
+            await delay(config.DISPLAY.delay);
             
             screenshotBuffer = await page.screenshot();
             await browser.close();
         } catch (error) {
             console.error('Puppeteer error:', error);
-            if (process.env.DEBUG_MODE === 'true') {
+            if (config.DEBUG_MODE === 'true') {
                 throw error;
             }
             throw new Error('Failed to launch Puppeteer browser. See logs for more details.');
@@ -806,48 +688,32 @@ const handleDisplay = async (req, res) => {
     }
 };
 
-// Remove the duplicate endpoint and just keep /api/display
-app.get('/api/display', handleDisplay);
+// Mount API routes
+app.use('/api', apiRoutes);
 
-// Update the version endpoint to include the feature flag
-app.get('/api/version', (req, res) => {
-    res.json({ 
-        version,
-        imageGenerationEnabled: ENABLE_IMAGE_GENERATION 
-    });
-});
-
-// Add device endpoint with feature flag check
-app.get('/device', (req, res) => {
-    if (!ENABLE_IMAGE_GENERATION) {
-        return res.status(403).json({
-            error: 'Device features disabled',
-            message: 'Device features are disabled in this environment'
-        });
-    }
-    // ... rest of device endpoint code ...
-});
+// Keep existing display endpoint for BMP generation
+app.get('/display', handleDisplay);
 
 async function startServer() {
     try {
-        console.log('Cache directory set to:', CACHE_PATH);
-        console.log('Rate limit set to:', MAX_REQUESTS_PER_5_MIN, 'requests per 5 minutes');
+        console.log('Cache directory set to:', config.CACHE_PATH);
+        console.log('Rate limit set to:', config.MAX_REQUESTS_PER_5_MIN, 'requests per 5 minutes');
         
         // Add plugin mode detection and logging
-        const isSinglePluginMode = await isPluginDirectory(PLUGINS_PATH);
+        const isSinglePluginMode = await config.isPluginDirectory(config.PLUGINS_PATH);
         if (isSinglePluginMode) {
             console.log('🔌 Running in single plugin mode since config.toml file was found in the folder');
-            console.log(`📂 Plugin folder: ${path.basename(PLUGINS_PATH)}`);
+            console.log(`📂 Plugin folder: ${path.basename(config.PLUGINS_PATH)}`);
         } else {
             console.log('🔌 Running in multi-plugin mode since no config.toml file was found in the folder');
-            console.log(`📂 Plugins directory: ${PLUGINS_PATH}`);
+            console.log(`📂 Plugins directory: ${config.PLUGINS_PATH}`);
         }
         
         await downloadAssets();
         await initializeDeviceData();
         
-        app.listen(port, () => {
-            console.log(`Test app running at http://localhost:${port}`);
+        app.listen(config.PORT, () => {
+            console.log(`Test app running at http://localhost:${config.PORT}`);
         });
         
     } catch (error) {

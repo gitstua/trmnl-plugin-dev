@@ -65,8 +65,8 @@
             // Add timestamp to prevent caching
             params.set('_t', Date.now());
             
-            // Update to use /api/display instead of /display
-            img.src = '/api/display?' + params.toString();
+            // Change back to /display
+            img.src = '/display?' + params.toString();
         }
 
         // Initial load
