@@ -663,7 +663,7 @@ const handleDisplay = async (req, res) => {
         
         // Convert to BMP using ImageMagick
         await new Promise((resolve, reject) => {
-            exec(`convert ${tempPng} -depth 8 ${tempBmp}`, (err) => {
+            exec(`convert ${tempPng} -depth 1 ${tempBmp}`, (err) => {
                 if (err) return reject(err);
                 resolve();
             });
