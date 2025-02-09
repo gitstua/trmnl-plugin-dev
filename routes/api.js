@@ -13,7 +13,8 @@ const { getAvailablePlugins } = require('../config');
  */
 router.get('/display', async (req, res) => {
     // generate a random plugin id from the list of plugins
-
+    console.log("Display request received");
+    
     // call getAvailablePlugins
     const plugins = await getAvailablePlugins();
     const pluginId = plugins[Math.floor(Math.random() * plugins.length)].id;
@@ -23,7 +24,7 @@ router.get('/display', async (req, res) => {
     const image_url = `http://${hostname}:${config.PORT}/display?plugin=${pluginId}&layout=${layout}`;
 
     res.json({
-        status: 200,
+        status: 0,
         image_url: image_url,
         filename: 'trmnl-display.bmp',
         update_firmware: false,
@@ -52,6 +53,8 @@ router.get('/version', (req, res) => {
 router.get('/setup', (req, res) => {
     // Get MAC address from headers
     const deviceId = req.headers['id'];
+
+    console.log("Setup request received for device: ", deviceId);
 
     // Mock validation - consider XX:XX:XX:XX:XX as valid MAC address
     if (true || deviceId === 'XX:XX:XX:XX:XX') {
