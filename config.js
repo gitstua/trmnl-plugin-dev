@@ -72,6 +72,10 @@ const config = {
         width: 800,
         height: 480,
         delay: 1000  // delay in ms before taking screenshot
+    },
+
+    get PLUGINS() {
+        return getAvailablePlugins();
     }
 };
 
