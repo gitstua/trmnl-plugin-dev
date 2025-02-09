@@ -62,13 +62,11 @@
             //clear the image
             img.src = '';
 
-            // hide the image
             // Add timestamp to prevent caching
             params.set('_t', Date.now());
             
-            // Update the image source
-            img.src = '/display?' + params.toString();
-            // show the image
+            // Update to use /api/display instead of /display
+            img.src = '/api/display?' + params.toString();
         }
 
         // Initial load

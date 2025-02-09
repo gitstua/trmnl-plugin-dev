@@ -722,7 +722,7 @@ const BROWSER_LAUNCH_CONFIG = {
 };
 
 // Add display endpoint with feature flag check
-app.get('/display', async (req, res) => {
+const handleDisplay = async (req, res) => {
     if (!ENABLE_IMAGE_GENERATION) {
         return res.status(403).json({
             error: 'Image generation disabled',
@@ -804,7 +804,10 @@ app.get('/display', async (req, res) => {
         console.error('Error generating display:', error);
         res.status(500).send('Error generating display: ' + error.message);
     }
-});
+};
+
+// Remove the duplicate endpoint and just keep /api/display
+app.get('/api/display', handleDisplay);
 
 // Update the version endpoint to include the feature flag
 app.get('/api/version', (req, res) => {
