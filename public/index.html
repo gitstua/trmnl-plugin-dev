@@ -59,7 +59,7 @@
     </div>
 
     <div class="footer">
-        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.3
+        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V<span id="version">...</span>
         <span style="display: block; color: #666; font-size: 0.8em;" id="build-timestamp"></span>
     </div>
 
@@ -81,7 +81,7 @@
                 and <a href="https://github.com/gitstua/trmnl-plugin-dev/blob/main/LICENSE.md" target="_blank">license</a>.
             </p>
             <p style="margin-top: 20px; font-style: italic;">
-                Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V0.3
+                Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V<span class="version">...</span>
             </p>
             <button onclick="closeWelcome()">Get Started</button>
         </div>
@@ -185,11 +185,53 @@
             // Create left side with title and preview
             const leftSide = document.createElement('div');
             
-            // Create title
+            // Create title container with BMP button
+            const titleContainer = document.createElement('div');
+            titleContainer.style.display = 'flex';
+            titleContainer.style.justifyContent = 'space-between';
+            titleContainer.style.alignItems = 'center';
+            titleContainer.style.marginBottom = '10px';
+            
+            // Add title
             const title = document.createElement('h2');
             title.className = 'plugin-title';
             title.textContent = plugin.name;
-            leftSide.appendChild(title);
+            
+            // Add BMP button
+            const bmpButton = document.createElement('button');
+            bmpButton.textContent = 'BMP';
+            bmpButton.style.background = '#666';
+            bmpButton.style.padding = '4px 8px';
+            bmpButton.setAttribute('data-tooltip', 'Open preview in new window as BMP - slow but high quality (800x480)');
+            bmpButton.setAttribute('data-pixel-processed', 'true');
+            
+            // Add click handler
+            bmpButton.onclick = (e) => {
+                e.preventDefault();
+                const params = new URLSearchParams();
+                params.set('plugin', plugin.id);
+                params.set('layout', layout);
+                if (isLive) params.set('live', 'true');
+                window.open(`/display-preview.html?${params.toString()}`, '_blank');
+            };
+            
+            titleContainer.appendChild(title);
+            // Only append BMP button if image generation is enabled
+            let imageGenerationEnabled = true; // Default value
+            try {
+                const response = await fetch('/api/version');
+                if (response.ok) {
+                    const data = await response.json();
+                    imageGenerationEnabled = data.imageGenerationEnabled;
+                }
+            } catch (error) {
+                console.error('Failed to check image generation:', error);
+            }
+            if (imageGenerationEnabled) {
+                titleContainer.appendChild(bmpButton);
+            }
+            
+            leftSide.appendChild(titleContainer);
             
             // Create preview container with screen
             const container = document.createElement('div');
@@ -304,6 +346,19 @@
                 }
             } catch (error) {
                 console.error('Failed to load build timestamp:', error);
+            }
+
+            // Fetch version
+            try {
+                const response = await fetch('/api/version');
+                if (response.ok) {
+                    const { version } = await response.json();
+                    document.querySelectorAll('#version, .version').forEach(el => {
+                        el.textContent = version;
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load version:', error);
             }
         });
 

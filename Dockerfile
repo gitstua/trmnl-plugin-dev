@@ -44,6 +44,9 @@ ENV USE_CACHE=false
 ENV DEBUG_MODE=false
 ENV MAX_REQUESTS_PER_5_MIN=400
 
+# Disable image generation in Docker by default
+ENV ENABLE_IMAGE_GENERATION=false
+
 # Persistent cache volume
 VOLUME /data/cache
 

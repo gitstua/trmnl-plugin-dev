@@ -14,6 +14,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const puppeteer = require('puppeteer');
 require('dotenv').config();
+const { version } = require('./package.json');
 
 const app = express();
 const port = 3000;
@@ -27,6 +28,7 @@ const FONTS_PATH = path.join(CACHE_PATH, 'fonts');
 const MAX_REQUESTS_PER_5_MIN = process.env.MAX_REQUESTS_PER_5_MIN || 400;
 let requestCount = 0;
 let lastResetTime = Date.now();
+const ENABLE_IMAGE_GENERATION = process.env.ENABLE_IMAGE_GENERATION !== 'false';  // Default to true if not set
 
 // Create required directories synchronously at startup
 if (!fsSync.existsSync(CACHE_PATH)) {
@@ -710,7 +712,6 @@ async function delay(ms) {
 // Update the Puppeteer launch configuration
 const BROWSER_LAUNCH_CONFIG = {
     puppeteer: {
-        executablePath: '/usr/bin/chromium',  // Use system Chromium
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -720,8 +721,14 @@ const BROWSER_LAUNCH_CONFIG = {
     }
 };
 
-// Add display endpoint
+// Add display endpoint with feature flag check
 app.get('/display', async (req, res) => {
+    if (!ENABLE_IMAGE_GENERATION) {
+        return res.status(403).json({
+            error: 'Image generation disabled',
+            message: 'Image generation is disabled in this environment'
+        });
+    }
     try {
         const engine = req.query.engine || 'puppeteer';
         const pluginId = req.query.plugin;
@@ -730,6 +737,15 @@ app.get('/display', async (req, res) => {
         if (!pluginId) {
             return res.status(400).send('Plugin ID is required');
         }
+
+        // Determine plugin path and create tmp directory
+        const pluginPath = pluginId === '.' ? PLUGINS_PATH : path.join(PLUGINS_PATH, pluginId);
+        const pluginTmpDir = path.join(pluginPath, 'tmp');
+        const pluginPreviewDir = path.join(pluginPath, 'Preview');
+        
+        // Create plugin's tmp and preview directory if it doesn't exist
+        await fs.mkdir(pluginTmpDir, { recursive: true });
+        await fs.mkdir(pluginPreviewDir, { recursive: true });
 
         const pluginUrl = `http://localhost:${port}/preview/${pluginId}/${layout}`;
         let screenshotBuffer;
@@ -755,14 +771,10 @@ app.get('/display', async (req, res) => {
             }
             throw new Error('Failed to launch Puppeteer browser. See logs for more details.');
         }
-        
 
-        // Convert to BMP using ImageMagick
-        const tempPng = path.join(process.cwd(), 'tmp', 'temp.png');
-        const tempBmp = path.join(process.cwd(), 'tmp', 'output.bmp');
-        
-        // Create tmp directory if it doesn't exist
-        await fs.mkdir(path.dirname(tempPng), { recursive: true });
+        // Use plugin's tmp directory for temporary files
+        const tempPng = path.join(pluginPreviewDir, `${layout}.png`);
+        const tempBmp = path.join(pluginTmpDir, `${layout}.bmp`);
         
         // Save screenshot to temp file
         await fs.writeFile(tempPng, screenshotBuffer);
@@ -778,18 +790,39 @@ app.get('/display', async (req, res) => {
         // Read the BMP file
         const bmpBuffer = await fs.readFile(tempBmp);
         
-        // Clean up temp files
-        await fs.unlink(tempPng).catch(() => {});
-        await fs.unlink(tempBmp).catch(() => {});
         
         res.setHeader('Content-Type', 'image/bmp');
-        res.setHeader('Content-Disposition', `attachment; filename=${pluginId}-${layout}.bmp`);
+        // Update Content-Disposition to include both plugin ID and layout
+        const downloadFilename = `${pluginId === '.' ? 'plugin' : pluginId}-${layout}.bmp`;
+        res.setHeader('Content-Disposition', `attachment; filename=${downloadFilename}`);
         res.send(bmpBuffer);
 
+        // Clean up temp BMP file but keep the PNG in preview directory
+        await fs.unlink(tempBmp).catch(() => {});
+        
     } catch (error) {
         console.error('Error generating display:', error);
         res.status(500).send('Error generating display: ' + error.message);
     }
+});
+
+// Update the version endpoint to include the feature flag
+app.get('/api/version', (req, res) => {
+    res.json({ 
+        version,
+        imageGenerationEnabled: ENABLE_IMAGE_GENERATION 
+    });
+});
+
+// Add device endpoint with feature flag check
+app.get('/device', (req, res) => {
+    if (!ENABLE_IMAGE_GENERATION) {
+        return res.status(403).json({
+            error: 'Device features disabled',
+            message: 'Device features are disabled in this environment'
+        });
+    }
+    // ... rest of device endpoint code ...
 });
 
 async function startServer() {

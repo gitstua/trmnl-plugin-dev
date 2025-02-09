@@ -24,15 +24,31 @@ case $ARCH in
         ;;
 esac
 
-
 # Build the image using the shell script
-./scripts/docker-build.sh
+echo "Building for platform: $PLATFORM"
 
-echo "Running container for platform: $PLATFORM"
+# Build the image for the detected platform
+# Check if no-cache parameter was passed
+if [[ "$1" == "no-cache" ]]; then
+    echo "Building with no-cache"
+    docker build --platform $PLATFORM \
+        --no-cache \
+        -t trmnl-plugin-tester:latest \
+        --build-arg BUILDPLATFORM=$PLATFORM .
+else
+    echo "Building with cache (add no-cache if you want to force a rebuild)"
+    docker build --platform $PLATFORM \
+        -t trmnl-plugin-tester:latest \
+        --build-arg BUILDPLATFORM=$PLATFORM .
+fi
 
 # Run the container with the correct platform
+echo "Running container for platform: $PLATFORM"
+
 docker run --platform $PLATFORM \
     -p 3000:3000 \
     -v "$(pwd)/_plugins:/app/_plugins" \
     -v "$(pwd)/cache:/data/cache" \
-    trmnl-plugin-tester:latest 
+    -e DEBUG_MODE=true \
+    -e ENABLE_IMAGE_GENERATION=true \
+    trmnl-plugin-tester:latest
