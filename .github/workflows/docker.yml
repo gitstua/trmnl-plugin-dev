@@ -32,6 +32,6 @@ jobs:
         with:
           push: true
           tags: |
-            stegg/${{ github.repository }}:${{ env.VERSION }}
-            stegg/${{ github.repository }}:latest
+            stegg/${{ github.event.repository.name }}:${{ env.VERSION }}
+            stegg/${{ github.event.repository.name }}:latest
           platforms: linux/amd64,linux/arm64
