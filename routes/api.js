@@ -23,13 +23,14 @@ router.get('/display', async (req, res) => {
     const image_url = `http://${hostname}:${config.PORT}/display?plugin=${pluginId}&layout=${layout}`;
 
     res.json({
-        status: 0,
+        status: 200,
         image_url: image_url,
         filename: 'trmnl-display.bmp',
         update_firmware: false,
         firmware_url: 'https://trmnl.s3.us-east-2.amazonaws.com/path-to-firmware.bin',
         refresh_rate: '30',
-        reset_firmware: false
+        reset_firmware: false,
+        special_function: 'sleep'
     });
 });
 
@@ -59,7 +60,8 @@ router.get('/setup', (req, res) => {
             api_key: "8n--JkLmRtWxYzVqNpd3Q", //NOT A REAL API KEY
             friendly_id: "1A2B3C", 
             image_url: "https://usetrmnl.com/images/setup/setup-logo.bmp",
-            filename: "empty_state"
+            filename: "empty_state",
+            message: "Welcome to TRMNL BYOS by Stu"
         });
     } else {
         res.json({
