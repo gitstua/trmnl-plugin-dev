@@ -1,6 +1,6 @@
 {% assign lat = latitude | default: "UNKNOWN" %}
 {% assign long = longitude | default: "UNKNOWN" %}
-{% assign tz = timezone | default: "UNKNOWN" %}
+{% assign tz = trmnl.user.time_zone_iana | default: "UNKNOWN" %}
 
 {% assign start_time_hour = 8 %}
 {% assign end_time_hour = 19 %}

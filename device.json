@@ -4,6 +4,7 @@
     "last_name": "Granger",
     "locale": "en",
     "time_zone": "Sydney",
+    "time_zone_iana": "Australia/Sydney",
     "utc_offset": 39600
   },
   "device": {
