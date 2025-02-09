@@ -168,3 +168,12 @@ To upgrade from 0.3.0 to 0.4.0:
 2. Review your plugin configurations for any breaking changes
 3. Update any custom scripts to use the new API endpoints
 4. Test your plugins thoroughly with the new version
+
+## Credits / Acknowledgements
+
+This project would not have been possible without 
+- The invaluable work the [TRMNL](https://usetrmnl.com/) project—especially its [Framwork / Design System](https://usetrmnl.com/framework/) and [firmware](https://github.com/usetrmnl/firmware). 
+- Special thanks to [@schrockwell](https://github.com/schrockwell) for his work on the [TRMNL Preview](https://github.com/schrockwell/trmnl_preview)
+- [LiquidJS](https://liquidjs.com) for the templating engine
+- [ImageMagick](https://imagemagick.org/) for the image conversion
+- Many more open source projects and libraries that make this project possible

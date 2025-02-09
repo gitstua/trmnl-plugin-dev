@@ -657,17 +657,28 @@ const handleDisplay = async (req, res) => {
         // Use plugin's tmp directory for temporary files
         const tempPng = path.join(pluginPreviewDir, `${layout}.png`);
         const tempBmp = path.join(pluginTmpDir, `${layout}.bmp`);
-        
+
         // Save screenshot to temp file
         await fs.writeFile(tempPng, screenshotBuffer);
         
-        // Convert to BMP using ImageMagick
+        //Output the version number of ImageMagick
+        console.log('🎨🎨🎨 ImageMagick wrapper version:', require('imagemagick/package.json').version);
+        
+        //Output the version number of ImageMagick using convert --version
+        exec('convert --version', (err, stdout, stderr) => {
+            console.log('ImageMagick version:', stdout);
+        });
+
+        console.log('🎨🎨🎨 ImageMagick switches:', config.IMAGE_MAGICK_SWICTHES);
+
+        // Convert to BMP using ImageMagick - thanks to https://github.com/schrockwell/
         await new Promise((resolve, reject) => {
-            exec(`convert ${tempPng} -depth 1 ${tempBmp}`, (err) => {
+            exec(`convert ${tempPng} ${config.IMAGE_MAGICK_SWICTHES} ${tempBmp}`, (err) => {
                 if (err) return reject(err);
                 resolve();
             });
         });
+
         
         // Read the BMP file
         const bmpBuffer = await fs.readFile(tempBmp);
@@ -696,8 +707,7 @@ app.get('/display', handleDisplay);
 
 async function startServer() {
     try {
-        console.log('Cache directory set to:', config.CACHE_PATH);
-        console.log('Rate limit set to:', config.MAX_REQUESTS_PER_5_MIN, 'requests per 5 minutes');
+        console.log('🚦 Rate limit set to:', config.MAX_REQUESTS_PER_5_MIN, 'requests per 5 minutes');
         
         // Add plugin mode detection and logging
         const isSinglePluginMode = await config.isPluginDirectory(config.PLUGINS_PATH);
@@ -708,7 +718,8 @@ async function startServer() {
             console.log('🔌 Running in multi-plugin mode since no config.toml file was found in the folder');
             console.log(`📂 Plugins directory: ${config.PLUGINS_PATH}`);
         }
-        
+        console.log('💾 Cache directory set to:', config.CACHE_PATH);
+
         await downloadAssets();
         await initializeDeviceData();
         

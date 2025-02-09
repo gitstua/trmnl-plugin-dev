@@ -159,19 +159,19 @@ async function downloadAssets() {
     try {
         // If USE_CACHE is false, skip downloading and just use CDN directly
         if (process.env.USE_CACHE !== 'true') {
-            console.log('Cache disabled, using CDN directly:', CDN_BASE);
+            console.log('💾 Cache disabled, using CDN directly:', CDN_BASE);
             return;
         }
 
-        console.log('Cache enabled, using directory:', CACHE_PATH);
+        console.log('💾 Cache enabled, using directory:', CACHE_PATH);
         
         // Check cache first
         if (await isCacheValid()) {
-            console.log('Using cached CDN files since less than 10 minutes have passed');
+            console.log('💾 Using cached CDN files since less than 10 minutes have passed');
             return;
         }
 
-        console.log('Cache expired or not found, downloading assets...');
+        console.log('💾 Cache expired or not found, downloading assets...');
         
         // Download all assets maintaining CDN structure
         for (const [type, files] of Object.entries(assets)) {
@@ -184,9 +184,9 @@ async function downloadAssets() {
 
         // Update cache timestamp
         await updateCacheTimestamp();
-        console.log('All assets downloaded successfully to cache');
+        console.log('💾 All assets downloaded successfully to cache');
     } catch (error) {
-        console.error('Error handling assets:', error);
+        console.error('💾 Error handling assets:', error);
         process.exit(1);
     }
 }

@@ -22,7 +22,7 @@ const config = {
     ENABLE_IMAGE_GENERATION: process.env.ENABLE_IMAGE_GENERATION !== 'false', // Default to false
     DEBUG_MODE: process.env.DEBUG_MODE === 'true',
     USE_CACHE: process.env.USE_CACHE === 'true' || false,
-    
+
     // Rate limiting
     MAX_REQUESTS_PER_5_MIN: parseInt(process.env.MAX_REQUESTS_PER_5_MIN || '400', 10),
     
@@ -73,6 +73,9 @@ const config = {
         height: 480,
         delay: 1000  // delay in ms before taking screenshot
     },
+
+    // Image generation options
+    IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -depth 1 -strip',
 
     get PLUGINS() {
         return getAvailablePlugins();
