@@ -32,6 +32,6 @@ jobs:
         with:
           push: true
           tags: |
-            yourusername/${{ github.repository }}:${{ env.VERSION }}
-            yourusername/${{ github.repository }}:latest
+            stegg/${{ github.repository }}:${{ env.VERSION }}
+            stegg/${{ github.repository }}:latest
           platforms: linux/amd64,linux/arm64
