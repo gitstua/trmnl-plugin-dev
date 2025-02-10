@@ -9,7 +9,10 @@
 
 This plugin integrates with the ntfy service to display real-time alerts directly on your dashboard. It fetches notifications (alerts) and renders them using the TRMNL Design System, ensuring a consistent and clean interface across your application.
 
-![ntfy plugin screenshot](./preview/full.png)
+<kbd>
+  <img src="Preview/full.png" width="600" alt="NTFY Plugin">
+</kbd>
+
 
 ### Key Features
 
