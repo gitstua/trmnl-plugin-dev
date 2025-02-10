@@ -76,7 +76,8 @@ const config = {
     },
 
     // Image generation options
-    IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -depth 1 -strip',
+    //IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -depth 1 -strip',
+    IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -threshold 50% -depth 1 -type bilevel -strip -compress RLE -define bmp:format=bmp3',
 
     get PLUGINS() {
         return getAvailablePlugins();
