@@ -59,7 +59,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 <img src="_plugins/epl-fixtures/preview/full.png" width="600" alt="EPL Fixtures">
 </kbd>
 <a href="https://usetrmnl.com/recipes/13395/install" target="_blank">
-  <img src="https://img.shields.io/badge/Add_Recipe_to_TRMNL-FF8C00?style=for-the-badge" alt="Add Recipe to TRMNL"/>
+  <img src="https://img.shields.io/badge/Add_Recipe_to_MY_TRMNL-FF8C00?style=for-the-badge" alt="Add Recipe to TRMNL"/>
 </a>
 
 
