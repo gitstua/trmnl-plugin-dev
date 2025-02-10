@@ -8,7 +8,7 @@
 Because anyone can connect to your topic you should use a unique topic name and not use it for sensitive information. If you are technical you can self-host ntfy and use a private topic with username/password.
 
 
-![ntfy website](./ntfy.sh.png)
+  <img src="ntfy.sh.png" width="550" alt="ntfy website">
 
 ## What is the NTFY Plugin?
 
