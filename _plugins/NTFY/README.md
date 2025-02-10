@@ -1,9 +1,14 @@
 
-# NTFY Plugin
+# NTFY Plugin for TRMNL
 
 ## What is ntfy?
 
 [ntfy](https://ntfy.sh/) is a lightweight, open-source push notification service that allows you to send messages to mobile devices, desktops, or servers in real-time. It is designed for simplicity and efficiency, making it easy to set up and integrate with your systems to receive notifications as events occur.
+
+Because anyone can connect to your topic you should use a unique topic name and not use it for sensitive information. If you are technical you can self-host ntfy and use a private topic with username/password.
+
+
+![ntfy website](./ntfy.sh.png)
 
 ## What is the NTFY Plugin?
 
