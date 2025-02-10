@@ -1,0 +1,29 @@
+<div class="layout layout--col layout--stretch-x layout-half-horizontal">
+
+  <div style="overflow-y: auto;">
+    {% assign max_rows = trmnl.plugin_settings.custom_fields_values.max_rows | default: 5 %}
+    {% assign reversed_data = data | reverse %}
+    {% assign flex = true %}
+
+    {% for alert in reversed_data limit: max_rows %}
+
+    <div class="content mb--2">
+      <div class="flex flex--left flex--stretch-x">
+        <span class="label label--small no-shrink">{{ alert.time | date: "%-d%b %I:%M %p" }}</span>
+        <span class="value value--small">{{ alert.message }}</span>
+      </div>
+    </div>
+
+    {% endfor %}
+
+
+  </div>
+
+  <div class="title_bar">
+    <span class="title"><img src="https://ntfy.sh/static/media/ntfy-d7abf07b.svg" alt="ntfy Icon" height=19px
+        width=19px /> NTFY Alerts</span>
+        <span class="instance">Topic: {{ trmnl.plugin_settings.custom_fields_values.topic_name }}</span>
+      </div>
+
+
+</div>

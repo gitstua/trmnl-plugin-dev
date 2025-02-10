@@ -32,6 +32,14 @@ To develop a plugin, you need to run this locally either by building the Docker 
 
 See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full details.
 
+### NTFY Plugin
+<img src="_plugins/ntfy/preview/full.png" width="600" alt="NTFY Plugin">
+
+- Displays periodic alerts from the [ntfy.sh](https://ntfy.sh/) notification service.
+- Optimized for TRMNL devices with periodic updates.
+- **DATA:** ntfy.sh API
+- **SOURCE:** [_plugins/ntfy](_plugins/ntfy)
+
 ### My Agenda
 <img src="_plugins/my-agenda/preview/full.png" width="600" alt="My Agenda">
 

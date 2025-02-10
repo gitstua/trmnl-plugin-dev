@@ -141,7 +141,7 @@ function checkRateLimit() {
     
     // Increment and check
     requestCount++;
-    return requestCount <= MAX_REQUESTS_PER_5_MIN;
+    return requestCount <= config.MAX_REQUESTS_PER_5_MIN;
 }
 
 // Update the fetchLiveData function
@@ -168,7 +168,11 @@ async function fetchLiveData(url, headers) {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return await response.json();
+        const text = await response.text();
+        if (!text.trim()) {
+            return {};
+        }
+        return JSON.parse(text);
     } catch (error) {
         console.error(`Error fetching live data from ${url}:`, error);
         if (error.status === 429) {
@@ -317,7 +321,7 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
                         ...globalDeviceData
                     }
                 };
-                
+
                 const value = getNestedValue(data, path);
                 return value !== undefined ? value : match; // Keep original token if path not found
             });
@@ -343,7 +347,28 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
                 headers = { ...headers, ...JSON.parse(envVars.HEADERS) };
             }
 
+            // Fetch live data using the polling URL
             data = await fetchLiveData(publicUrl, headers);
+            
+            // if live data is an array with no root key, add a root key called "data"
+            if (Array.isArray(data) && data.length > 0) {
+                data = { data: data };
+            }
+
+            // Determine the plugin path
+            const pluginPath = pluginId === '.' 
+                ? config.PLUGINS_PATH 
+                : path.join(config.PLUGINS_PATH, pluginId);
+            
+            // Define the temporary directory and file path
+            const tmpDir = path.join(pluginPath, 'tmp');
+            const dataFile = path.join(tmpDir, 'data.json');
+            
+            // Create the tmp directory if it doesn't exist
+            await fs.mkdir(tmpDir, { recursive: true });
+            
+            // Write the fetched live data to data.json in the tmp folder
+            await fs.writeFile(dataFile, JSON.stringify(data, null, 2), 'utf8');
         } else {
             // Load from sample.json for preview
             const samplePath = pluginId === '.' 
@@ -690,8 +715,7 @@ const handleDisplay = async (req, res) => {
         res.setHeader('Content-Disposition', `attachment; filename=${downloadFilename}`);
         res.send(bmpBuffer);
 
-        // Clean up temp BMP file but keep the PNG in preview directory
-        await fs.unlink(tempBmp).catch(() => {});
+        // Leaving the ImageMagick temporary BMP file intact in the tmp directory.
         
     } catch (error) {
         console.error('Error generating display:', error);
