@@ -16,18 +16,11 @@
     </div>
 
     {% endfor %}
-
-
-
-
   </div>
-
-  <div class="title_bar">
-    <span class="title"><img src="https://ntfy.sh/static/media/ntfy-d7abf07b.svg" alt="ntfy Icon" height=19px
-        width=19px /> NTFY Alerts</span>
-    <span class="instance">Topic: {{ trmnl.plugin_settings.custom_fields_values.topic_name }}</span>
-  </div>
-
 </div>
 
+<div class="title_bar">
+  <span class="title"><img src="https://ntfy.sh/static/media/ntfy-d7abf07b.svg" alt="ntfy Icon" height=19px
+                        width=19px /> NTFY Alerts</span>
+  <span class="instance">Topic: {{ data[0].topic }}</span>
 </div>
