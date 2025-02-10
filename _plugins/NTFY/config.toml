@@ -1,6 +1,6 @@
-#url = "https://stu-workers.stuey.workers.dev/ndjson-to-json?url=https://ntfy.sh/{trmnl.plugin_settings.custom_fields_values.topic_name}/json?poll=1&since={trmnl.plugin_settings.custom_fields_values.ntfy_since}"
+url = "https://stu-workers.stuey.workers.dev/ndjson-to-json?url=https://ntfy.sh/{trmnl.plugin_settings.custom_fields_values.topic_name}/json?poll=1&since={trmnl.plugin_settings.custom_fields_values.ntfy_since}"
 
-url = "https://stu-workers.stuey.workers.dev/ndjson-to-json?url=https://ntfy.sh/trmnl-example12345/json?poll=1&since=24h"
+#url = "https://stu-workers.stuey.workers.dev/ndjson-to-json?url=https://ntfy.sh/trmnl-example12345/json?poll=1&since=24h"
 
 
 name = "Ntfy Alerts"

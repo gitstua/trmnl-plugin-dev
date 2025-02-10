@@ -49,6 +49,7 @@ router.get('/version', (req, res) => {
 /**
  * Setup endpoint
  * Handles device setup requests and returns configuration
+ * TODO: use the device id to get the device from the databasexs
  */
 router.get('/setup', (req, res) => {
     // Get MAC address from headers
@@ -77,5 +78,10 @@ router.get('/setup', (req, res) => {
     }
 });
 
+// Define routes
+router.get('/plugins', async (req, res) => {
+    // ... route handler code ...
+});
 
+// Export the router
 module.exports = router; 

@@ -5,7 +5,6 @@
     {% assign reversed_data = data | reverse %}
     {% assign flex = true %}
 
-
     {% for alert in reversed_data limit: max_rows %}
 
     <div class="content mb--2">
@@ -22,5 +21,5 @@
 <div class="title_bar">
   <span class="title"><img src="https://ntfy.sh/static/media/ntfy-d7abf07b.svg" alt="ntfy Icon" height=19px
                         width=19px /> NTFY Alerts</span>
-  <span class="instance">Topic: {{ data[0].topic }}</span>
+  <span class="instance">Topic: {{ data[0].topic | truncate: 8}}</span>
 </div>

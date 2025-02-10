@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Device Management Admin</title>
+  </head>
+  <body>
+    <div class="layout">
+      <h1>Device Management</h1>
+      <form id="deviceForm">
+        <input type="text" id="mac" placeholder="MAC Address" required>
+        <input type="text" id="api_key" placeholder="API Key" required>
+        <input type="text" id="description" placeholder="Description" required>
+        <button type="submit">Add Device</button>
+      </form>
+      <hr>
+      <table id="devicesTable" border="1" cellpadding="5">
+        <thead>
+          <tr>
+            <th>MAC</th>
+            <th>API Key</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="devicesTableBody"></tbody>
+      </table>
+    </div>
+    <div class="title_bar">
+      <p>Admin UI Title Bar</p>
+    </div>
+    <script>
+      const apiUrl = '/admin/devices';
+
+      function fetchDevices() {
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            const tbody = document.getElementById('devicesTableBody');
+            tbody.innerHTML = '';
+            data.devices.forEach(device => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${device.mac}</td>
+                <td>${device.api_key}</td>
+                <td>${device.description}</td>
+                <td>
+                  <button onclick="showEditForm('${device.mac}', '${device.api_key}', '${device.description}')">Edit</button>
+                  <button onclick="deleteDevice('${device.mac}')">Delete</button>
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+          })
+          .catch(err => console.error('Error fetching devices:', err));
+      }
+
+      function addDevice(event) {
+        event.preventDefault();
+        const mac = document.getElementById('mac').value;
+        const api_key = document.getElementById('api_key').value;
+        const description = document.getElementById('description').value;
+
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mac, api_key, description })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          fetchDevices();
+          document.getElementById('deviceForm').reset();
+        })
+        .catch(err => console.error('Error adding device:', err));
+      }
+
+      function showEditForm(mac, currentApiKey, currentDescription) {
+        const newApiKey = prompt('Enter new API Key', currentApiKey);
+        if (newApiKey === null) return;
+        const newDescription = prompt('Enter new Description', currentDescription);
+        if (newDescription === null) return;
+        updateDevice(mac, newApiKey, newDescription);
+      }
+
+      function updateDevice(mac, api_key, description) {
+        fetch(`${apiUrl}/${mac}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key, description })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          fetchDevices();
+        })
+        .catch(err => console.error('Error updating device:', err));
+      }
+
+      function deleteDevice(mac) {
+        if (!confirm('Are you sure you want to delete this device?')) return;
+        fetch(`${apiUrl}/${mac}`, { method: 'DELETE' })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            fetchDevices();
+          })
+          .catch(err => console.error('Error deleting device:', err));
+      }
+
+      document.getElementById('deviceForm').addEventListener('submit', addDevice);
+
+      // Initial fetch to populate table
+      fetchDevices();
+    </script>
+  </body>
+</html> 

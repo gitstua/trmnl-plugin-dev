@@ -22,6 +22,7 @@ const config = {
     ENABLE_IMAGE_GENERATION: process.env.ENABLE_IMAGE_GENERATION !== 'false', // Default to false
     DEBUG_MODE: process.env.DEBUG_MODE === 'true',
     USE_CACHE: process.env.USE_CACHE === 'true' || false,
+    ADMIN_MODE: process.env.ADMIN_MODE === 'true' || false,
 
     // Rate limiting
     MAX_REQUESTS_PER_5_MIN: parseInt(process.env.MAX_REQUESTS_PER_5_MIN || '400', 10),

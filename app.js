@@ -18,6 +18,9 @@ require('dotenv').config();
 const { version } = require('./package.json');
 const apiRoutes = require('./routes/api');
 const { getAvailablePlugins } = require('./config');
+const adminRouter = require('./admin');
+const { authMiddleware } = require('./middleware/auth');
+
 
 const app = express();
 
@@ -271,8 +274,12 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
                 }
             }
 
+            // Read the .env file for the plugin
             let envVars = {};
             try {
+                const pluginPath = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
+                console.log('Reading .env file for plugin', plugin);
+                console.log('Plugin path', pluginPath);
                 const env = await fs.readFile(path.join(pluginPath, '.env'), 'utf8');
                 envVars = env.split('\n').reduce((acc, line) => {
                     if (!line.trim() || line.startsWith('#')) return acc;
@@ -724,7 +731,10 @@ const handleDisplay = async (req, res) => {
 };
 
 // Mount API routes
-app.use('/api', apiRoutes);
+app.use('/api', authMiddleware, apiRoutes);
+
+// Mount the admin routes
+app.use('/admin', authMiddleware, adminRouter);
 
 // Keep existing display endpoint for BMP generation
 app.get('/display', handleDisplay);

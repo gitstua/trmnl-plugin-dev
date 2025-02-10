@@ -6,7 +6,7 @@
         "expires": 1739199327,
         "event": "message",
         "topic": "trmnl-example12345",
-        "message": "Test of long text in the box to show on the scree"
+        "message": "Test of long text in the box to show on the screen. This is a test of long text in the box to show on the screen. This is a test of long text in the box to show on the screen."
       },
       {
         "id": "YSdtLlDmYt3Q",
@@ -39,6 +39,21 @@
         "event": "message",
         "topic": "trmnl-example12345",
         "message": "🙂❤️ test of emoji"
+      },
+      {
+        "id": "iMOnxxpaMleG",
+        "time": 1739171936,
+        "expires": 1739215136,
+        "event": "message",
+        "topic": "CyiIsZ6gYOLPrzXJCyiIsZ6gYOLPrzXJCyiIsZ6gYOLPrzXJCyiIsZ6gYOLPrzXJ",
+        "title": "☏Phone Mum",
+        "message": "Reminder to phone your mother",
+        "priority": 4,
+        "tags": [
+          "tag1",
+          "tag2"
+        ],
+        "click": "https://example.com"
       }
     ]
   }

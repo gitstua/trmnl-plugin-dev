@@ -49,3 +49,5 @@ node_modules/.bin/aaaa
 .copilot/
 .copilot-*
 github-copilot/
+devices.db
+devices.db-journal
