@@ -55,7 +55,14 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **SOURCE:** [_plugins/currency-exchange](_plugins/currency-exchange)
 
 ### EPL Fixtures
+<kbd>
 <img src="_plugins/epl-fixtures/preview/full.png" width="600" alt="EPL Fixtures">
+</kbd>
+<a href="https://usetrmnl.com/recipes/13395/install" target="_blank">
+  <img src="https://img.shields.io/badge/Add_Recipe_to_TRMNL-FF8C00?style=for-the-badge" alt="Add Recipe to TRMNL"/>
+</a>
+
+
 
 - Shows upcoming English Premier League fixtures
 - Displays match dates, teams, and scores in a compact format
