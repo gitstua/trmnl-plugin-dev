@@ -711,10 +711,19 @@ const handleDisplay = async (req, res) => {
             });
         });
 
+        //add 2 more output files to the tmp directory
+        //1 = -dither FloydSteinberg -monochrome -depth 1 -strip -define bmp:format=bmp3
+        // 2 = -dither FloydSteinberg -monochrome -depth 1 -strip -compress RLE -define bmp:format=bmp3
+
+
+        //examine the BMP file using magick identify -verbose output.bmp
+        // REQUIRES IMAGE MAGICK 7+
+        //exec(`magick identify -verbose ${tempBmp}`, (err, stdout, stderr) => {
+        //    console.log('BMP file information:', stdout);
+        //});
         
         // Read the BMP file
         const bmpBuffer = await fs.readFile(tempBmp);
-        
         
         res.setHeader('Content-Type', 'image/bmp');
         // Update Content-Disposition to include both plugin ID and layout

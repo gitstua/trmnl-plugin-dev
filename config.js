@@ -77,7 +77,11 @@ const config = {
 
     // Image generation options
     //IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -depth 1 -strip',
-    IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -threshold 50% -depth 1 -type bilevel -strip -compress RLE -define bmp:format=bmp3',
+    //exec(`convert ${tempPng} -dither FloydSteinberg -monochrome -depth 1 -strip -define bmp:format=bmp3 ${tempBmp2}`);
+    //exec(`convert ${tempPng} -dither FloydSteinberg -monochrome -depth 1 -strip -compress RLE -define bmp:format=bmp3 ${tempBmp3}`);
+
+
+    IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -monochrome -depth 1 -strip -compress RLE -define bmp:format=bmp3',
 
     get PLUGINS() {
         return getAvailablePlugins();

@@ -12,7 +12,11 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
-    imagemagick
+    imagemagick6
+
+# NOTE: ImageMagick6 is required for the plugin to work as 7 creates 1.2MB 
+# files that cannot be displayed on the TRMNL screen. (maybe timeout downloading
+# or maybe too large)
 
 # Set environment variables for Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
