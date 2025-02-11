@@ -1,0 +1,27 @@
+<div class="layout">
+  <div class="columns">
+    <div class="column">
+      <div>
+        <div class="content text--left" >
+          {% assign current_time = 'now' | date: '%H%M' %}
+          {% assign random_index = "now" | date: "%s" | modulo: snippets.size %}
+          {% assign snippet = snippets[random_index] %}
+          {% for line in snippet.lines %}
+            {% if line contains '{**TRMNL**}' %}
+              {% assign parts = line | split: '{**TRMNL**}' %}
+              <div class="text text--left text--small">{{ parts[0] }}<span class="label label--underline" style="display: inline;">{{ current_time }}</span>{{ parts[1] }}</div>
+            {% else %}
+              <div class="text text--left">{{ line }}</div>
+            {% endif %}
+            {% unless forloop.last %}<br>{% endunless %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="title_bar">
+  <span class="title">Code Clock</span>
+  <span class="instance">The above time is < now()</span>
+</div> 
