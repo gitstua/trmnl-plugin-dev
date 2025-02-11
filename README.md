@@ -115,7 +115,7 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **SOURCE:** [_plugins/trmnl-broadcast](_plugins/trmnl-broadcast)
 
 ### Code Clock
-<img src="_plugins/code-clock/preview/full.png" width="600" alt="Code Clock">
+<img src="_plugins/code-clock/preview/full.png" width="600" alt="Code Clock"> 
 
 - Displays the time of image generation embedded in random code snippets
 - Shows time in various programming contexts (SQL, JavaScript, Python, etc.)
