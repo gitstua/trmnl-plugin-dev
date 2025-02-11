@@ -1,5 +1,8 @@
 # Use Alpine for a lightweight, multi-arch base image
-FROM --platform=$BUILDPLATFORM node:18-alpine AS base
+FROM --platform=$BUILDPLATFORM node:18-alpine3.15 AS base
+
+#Note latest alpine does not have a imagemagick6 package
+#FROM --platform=$BUILDPLATFORM node:18-alpine AS base
 
 # write the platform to the log
 RUN echo "BUILDPLATFORM: $BUILDPLATFORM"
