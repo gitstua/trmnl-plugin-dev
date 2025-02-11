@@ -403,57 +403,22 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             
         const templateContent = await engine.renderFile(viewPath, data);
         
-        const fontFaces = `
-            @font-face {
-                font-family: 'NicoClean';
-                src: url('${config.FONTS_PATH}/NicoClean-Regular.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-            }
-            @font-face {
-                font-family: 'NicoBold';
-                src: url('${config.FONTS_PATH}/NicoBold-Regular.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-            }
-            @font-face {
-                font-family: 'NicoPups';
-                src: url('${config.FONTS_PATH}/NicoPups-Regular.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-            }
-            @font-face {
-                font-family: 'BlockKie';
-                src: url('${config.FONTS_PATH}/BlockKie.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-            }
-            /* Include Inter font */
-            @import url('${config.FONTS_PATH}/inter.css');
-        `;
-
         const htmlContent = `
             <!DOCTYPE html>
             <html>
             <head>
-                <style>${fontFaces}</style>
-                <link rel="stylesheet" href="${config.CDN_PATH}/css/latest/plugins.css">
-                <link rel="stylesheet" href="/custom.css">
+                <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css">
+                <script src="https://usetrmnl.com/js/latest/plugins.js"></script>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;350;375;400;450;600;700&display=swap" rel="stylesheet">
             </head>
-            <body class="trmnl view-only" style="padding:0;margin:0;background:white;">
-                ${templateContent}
-                <script src="${config.CDN_PATH}/js/latest/plugins.js"></script>
-                <script>
-                    window.addEventListener('load', function() {
-                        if (typeof terminalize === 'function') {
-                            terminalize();
-                        }
-                    });
-                </script>
+            <body class="environment trmnl">
+                <div class="screen">
+                    <div class="view view--${layout}">
+                        ${templateContent}
+                    </div>
+                </div>
             </body>
             </html>
         `;
