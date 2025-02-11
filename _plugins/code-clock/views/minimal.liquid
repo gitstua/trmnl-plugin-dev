@@ -1,0 +1,18 @@
+<div class="layout">
+  <div class="columns">
+    <div class="column">
+      <div class="markdown">
+        {% assign current_time = 'now' | date: '%H%M' %}
+        {% assign random_index = 'now' | date: '%s' | modulo: snippets.size %}
+        {% assign snippet = snippets[random_index] %}
+        {% assign first_line = snippet.lines | first %}
+        {% assign parts = first_line | split: '{**TMNRL**}' %}
+        <code class="code-line">
+          {{- parts[0] -}}
+          <span class="label label--underline">{{ current_time }}</span>
+          {{- parts[1] -}}
+        </code>
+      </div>
+    </div>
+  </div>
+</div> 

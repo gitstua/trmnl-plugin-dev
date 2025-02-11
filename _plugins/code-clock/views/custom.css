@@ -1,0 +1,32 @@
+.code-line {
+  font-family: 'Inter', monospace;
+  font-size: 1.2em;
+  line-height: 1.6;
+  color: #2d3748;
+  background: #f7fafc;
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+  display: inline-block;
+  margin: 0.2em 0;
+}
+
+.code-line.large-font {
+  font-size: 2em;
+  line-height: 1.4;
+  padding: 0.4em 0.6em;
+}
+
+.content--center {
+  text-align: left;
+  padding: 1em;
+  background: #f8fafc;
+  border-radius: 0.5em;
+  margin: 1em 0;
+}
+
+/* Make the underlined time text match the code size */
+.code-line .label--underline {
+  font-size: 1em;  /* This will inherit from parent .code-line size */
+  font-family: inherit;
+  vertical-align: baseline;
+} 

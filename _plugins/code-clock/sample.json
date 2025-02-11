@@ -1,0 +1,91 @@
+{
+    "snippets": [
+        {
+            "lines": [
+                "SELECT * ",
+                "FROM student_scores",
+                "WHERE id = {**TRMNL**}",
+                "ORDER BY score score DESC"
+            ]
+        },
+        {
+            "lines": [
+                "function _0x0001() ",
+                "{",
+                "  return Buffer.from('{**TRMNL**}', 'base64');",
+                "}"
+            ]
+        },
+        {
+            "lines": [
+                "Error: 0x{**TRMNL**} at 5f4dcc3b5aa765d61d8327deb882cf99"
+            ]
+        },
+        {
+            "lines": [
+                "if(typeof(message)!=='string'){",
+                "ws.close({**TRMNL**},\"Only JSON-text message allowed\");",
+                "return;",
+                "}catch (err){",
+                "ws.close(\"Only JSON-text message allowed\");",
+                "return;"
+            ]
+        },
+        {
+            "lines": [
+                "SELECT * FROM users WHERE id = {**TRMNL**} "
+            ]
+        },
+        {
+            "lines": [
+                "console.log((0x{**TRMNL**}).toString(2))"
+            ]
+        },
+        {
+            "lines": [
+                "const text = '{**TRMNL**}encodedText';",
+                "const decoded = atob(text);"
+            ]
+        },
+        {
+            "lines": [
+                "import { createHash } from 'crypto';",
+                "const hash = createHash('sha256').update('{**TRMNL**}data').digest('hex');"
+            ]
+        },
+        {
+            "lines": [
+                "at Parser.parseTokens (/Users/stu/code/trmnl-plugins/node_modules/liquidjs/dist/liquid.node.cjs.js:4531:33)",
+                "at Parser.parse (/Users/stu/code/trmnl-plugins/node_modules/liquidjs/dist/liquid.node.cjs.js:4525:21)",
+                "at Liquid.parse (/Users/stu/code/trmnl-plugins/node_modules/liquidjs/dist/liquid.node.cjs.js:{**TRMNL**}:28)"
+            ]
+        },
+        {
+            "lines": [
+                "if(typeof(message)!=='string'){",
+                "  ws.close({**TRMNL**},\"Only JSON-text message allowed\");",
+                "  return;",
+                "}"
+            ]
+        },
+        {
+            "lines": [
+                "try {",
+                "  const data = JSON.parse('{**TRMNL**}');",
+                "} catch (err) {",
+                "  console.error('Invalid JSON at line {**TRMNL**}');",
+                "}"
+            ]
+        },
+        {
+            "lines": [
+                "const time = '{**TRMNL**}';"
+            ]
+        },
+        {
+            "lines": [
+                "$echo the time was '{**TRMNL**}' "
+            ]
+        }
+    ]
+}

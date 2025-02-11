@@ -1,0 +1,5 @@
+name = "Code Clock"
+description = "Displays current time as code snippets"
+version = "1.0.0"
+author = "TRMNL"
+strategy = "static" 
