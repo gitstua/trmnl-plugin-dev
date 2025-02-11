@@ -1,5 +1,18 @@
+# strategy = "polling" ==> the data will be fetched once, at server start-up
+# strategy = "webhook" ==> POST new data to /webhook
+strategy = "polling"
+
+# Poll URL (required for polling strategy)
+url = "https://raw.githubusercontent.com/gitstua/trmnl-plugin-dev/refs/heads/main/_plugins/code-clock/sample.json"
+
+# Plugin metadata
 name = "Code Clock"
-description = "Displays current time as code snippets"
+description = "Displays current time as code snippets embedded in various programming contexts. Updates periodically with new random code samples and time. Note: This is not a realtime clock - it updates when the image is generated."
 version = "1.0.0"
-author = "TRMNL"
-strategy = "static" 
+author = "@gitstua"
+update_frequency = "15/min"
+tags = ["time", "code", "clock", "programming"]
+
+# Polling headers (optional, for polling strategy)
+[polling_headers]
+content-type = "application/json"
