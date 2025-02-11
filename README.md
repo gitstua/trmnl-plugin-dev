@@ -114,6 +114,16 @@ See [Home Assistant TRMNL Plugin](home-assistant-trmnl/README.md) for full detai
 - **DATA:** Static JSON or custom webhook endpoint which is pushed from Home Assistant, your browser or any other script you want
 - **SOURCE:** [_plugins/trmnl-broadcast](_plugins/trmnl-broadcast)
 
+### Code Clock
+<img src="_plugins/code-clock/preview/full.png" width="600" alt="Code Clock">
+
+- Displays the time of image generation embedded in random code snippets
+- Shows time in various programming contexts (SQL, JavaScript, Python, etc.)
+- Will update periodically with new random code samples and time.
+- THIS IS NOT A REALTIME CLOCK - IT IS A CLOCK THAT IS UPDATED WHEN THE IMAGE IS GENERATED on usetrmnl.com hence the text `The above time is < now()`
+- **DATA:** Static snippets with dynamic time insertion
+- **SOURCE:** [_plugins/code-clock](_plugins/code-clock)
+
 ## Alternative
 Whilst I started writing this just to build something for myself, I did not notice the awesome project by @schrockwell - his https://github.com/schrockwell/trmnl_preview/ came before this and so please checkout that too as it gives better results for the preview.
 
