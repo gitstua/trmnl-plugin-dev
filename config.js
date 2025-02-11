@@ -79,10 +79,12 @@ const config = {
     //IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -remap pattern:gray50 -depth 1 -strip',
     //exec(`convert ${tempPng} -dither FloydSteinberg -monochrome -depth 1 -strip -define bmp:format=bmp3 ${tempBmp2}`);
     //exec(`convert ${tempPng} -dither FloydSteinberg -monochrome -depth 1 -strip -compress RLE -define bmp:format=bmp3 ${tempBmp3}`);
-
-
     IMAGE_MAGICK_SWICTHES: '-dither FloydSteinberg -monochrome -depth 1 -strip -compress RLE -define bmp:format=bmp3',
 
+
+    // ImageMagick binary path - defaults to convert
+    IMAGE_MAGICK_BIN: process.env.IMAGE_MAGICK_BIN || 'convert',
+    
     get PLUGINS() {
         return getAvailablePlugins();
     }

@@ -697,7 +697,7 @@ const handleDisplay = async (req, res) => {
         console.log('🎨🎨🎨 ImageMagick wrapper version:', require('imagemagick/package.json').version);
         
         //Output the version number of ImageMagick using convert --version
-        exec('convert --version', (err, stdout, stderr) => {
+        exec(`${config.IMAGE_MAGICK_BIN} --version`, (err, stdout, stderr) => {
             console.log('ImageMagick version:', stdout);
         });
 
@@ -705,7 +705,7 @@ const handleDisplay = async (req, res) => {
 
         // Convert to BMP using ImageMagick - thanks to https://github.com/schrockwell/
         await new Promise((resolve, reject) => {
-            exec(`convert ${tempPng} ${config.IMAGE_MAGICK_SWICTHES} ${tempBmp}`, (err) => {
+            exec(`${config.IMAGE_MAGICK_BIN} ${tempPng} ${config.IMAGE_MAGICK_SWICTHES} ${tempBmp}`, (err) => {
                 if (err) return reject(err);
                 resolve();
             });

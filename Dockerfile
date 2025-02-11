@@ -54,6 +54,9 @@ ENV MAX_REQUESTS_PER_5_MIN=400
 # Disable image generation in Docker by default
 ENV ENABLE_IMAGE_GENERATION=false
 
+# ImageMagick binary path
+ENV IMAGE_MAGICK_BIN=/usr/bin/convert-6
+
 # Persistent cache volume
 VOLUME /data/cache
 
