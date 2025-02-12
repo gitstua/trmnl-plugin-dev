@@ -1,20 +1,75 @@
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const content = document.querySelector('.content');
+    const mainText = document.querySelector('.main-text');
+    const titleBar = document.querySelector('.title_bar');
+    let fontSize = 12;
+    const maxFontSize = 36; // Smaller max font size for half width
+    const safetyMargin = 10;
+    
+    if (mainText && content && titleBar) {
+      const contentStyle = window.getComputedStyle(content);
+      const titleBarStyle = window.getComputedStyle(titleBar);
+      const layoutStyle = window.getComputedStyle(document.querySelector('.layout'));
+      
+      const contentMargins = parseInt(contentStyle.marginTop) + parseInt(contentStyle.marginBottom);
+      const contentPadding = parseInt(contentStyle.paddingTop) + parseInt(contentStyle.paddingBottom);
+      const titleBarHeight = titleBar.offsetHeight + parseInt(titleBarStyle.marginTop) + parseInt(titleBarStyle.marginBottom);
+      const layoutMargins = parseInt(layoutStyle.marginTop) + parseInt(layoutStyle.marginBottom);
+      
+      const availableHeight = window.innerHeight - titleBarHeight - contentMargins - contentPadding - layoutMargins - safetyMargin;
+      content.style.height = `${availableHeight}px`;
+      content.style.overflow = 'hidden';
+      content.style.width = '50%'; // Half width
+      
+      let minSize = 12;
+      let maxSize = maxFontSize;
+      
+      while (minSize <= maxSize) {
+        const midSize = Math.floor((minSize + maxSize) / 2);
+        mainText.style.fontSize = `${midSize}px`;
+        
+        const timeSpan = mainText.querySelector('.label--underline');
+        if (timeSpan) {
+          timeSpan.style.fontSize = `${midSize}px`;
+        }
+        
+        if (content.scrollHeight <= content.clientHeight) {
+          fontSize = midSize;
+          minSize = midSize + 1;
+        } else {
+          maxSize = midSize - 1;
+        }
+      }
+      
+      mainText.style.fontSize = `${fontSize}px`;
+      const timeSpan = mainText.querySelector('.label--underline');
+      if (timeSpan) {
+        timeSpan.style.fontSize = `${fontSize}px`;
+      }
+    }
+  });
+</script>
+
 <div class="layout">
   <div class="columns">
     <div class="column">
       <div>
-        <div class="content text--left" >
+        <div class="content text--left">
           {% assign current_time = 'now' | date: '%H%M' %}
           {% assign random_index = "now" | date: "%s" | modulo: snippets.size %}
           {% assign snippet = snippets[random_index] %}
-          {% for line in snippet.lines %}
-            {% if line contains '{**TRMNL**}' %}
-              {% assign parts = line | split: '{**TRMNL**}' %}
-              <div class="text text--left text--small">{{ parts[0] }}<span class="label label--underline" style="display: inline;">{{ current_time }}</span>{{ parts[1] }}</div>
-            {% else %}
-              <div class="text text--left">{{ line }}</div>
-            {% endif %}
-            {% unless forloop.last %}<br>{% endunless %}
-          {% endfor %}
+          <div class="main-text">
+            {% for line in snippet.lines %}
+              {% if line contains '{**TRMNL**}' %}
+                {% assign parts = line | split: '{**TRMNL**}' %}
+                <div class="text text--left">{{ parts[0] }}<span class="label label--underline" style="display: inline; font-size: inherit;">{{ current_time }}</span>{{ parts[1] }}</div>
+              {% else %}
+                <div class="text text--left">{{ line }}</div>
+              {% endif %}
+              {% unless forloop.last %}<br>{% endunless %}
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
