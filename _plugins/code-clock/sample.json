@@ -86,6 +86,52 @@
             "lines": [
                 "$echo the time was '{**TRMNL**}' "
             ]
+        },
+        {
+            "lines": [
+                "typedef struct DeviceStatusStamp",
+                "{",
+                "    int8_t wifi_rssi_level;",
+                "    char wifi_status[30];",
+                "    uint32_t refresh_rate;",
+                "    uint32_t time_since_last_sleep;",
+                "    char current_fw_version[10];",
+                "    char special_function[{**TRMNL**}];",
+                "    float battery_voltage;",
+                "    char wakeup_reason[30];",
+                "    uint32_t free_heap_size;",
+                "    ",
+                "    ScreenStatus screen_status;",
+                "} DeviceStatusStamp;"
+            ]
+        },
+        {
+            "lines": [
+                "else if (pin == HIGH && elapsed > {**TRMNL**})",
+                "{",
+                "    Log_info(\"Button time=%d pin=%d: detected no-action\", elapsed, pin);",
+                "    return NoAction;",
+                "}"
+            ]
+        },
+        {
+            "lines": [
+                "Paint_SelectImage(BlackImage);",
+                "Paint_Clear(WHITE);",
+                "Paint_DrawBitMap(image_buffer + {**TRMNL**});"
+            ]
+        },
+        {
+            "lines": [
+                "size_t chunkSize = _min({**TRMNL**}, diff);",
+                "uint16_t res = file.write(in_buffer + bytesWritten, chunkSize);"
+            ]
+        },
+        {
+            "lines": [
+                "#define WIFI_MAX_SSID_LENGTH {**TRMNL**}",
+                "#define WIFI_MAX_PASSWORD_LENGTH 40"
+            ]
         }
     ]
 }
