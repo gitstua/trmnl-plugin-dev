@@ -147,10 +147,14 @@ router.post('/plugins/:pluginId/export', async (req, res) => {
 
         // Generate the zip as a nodebuffer
         const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-        
+        const epochTime = Date.now();
+        const filename = `${pluginId}-plugin-${epochTime}.zip`;
+
+        console.log(`Exported plugin ${pluginId} to ${filename}`);
+
         // Set headers to trigger a download, then send the zip content
         res.setHeader('Content-Type', 'application/zip');
-        res.setHeader('Content-Disposition', `attachment; filename=${pluginId}-plugin.zip`);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(zipBuffer);
     } catch (err) {
         console.error('Export failed:', err);
