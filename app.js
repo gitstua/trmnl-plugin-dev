@@ -261,10 +261,13 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             // Handle live data fetching for polling strategy only
             let publicUrl = pluginInfo.trmnl.plugin_settings.url;
 
+            // calculate the plugin path
+            const pluginPathLive = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
+
             // Check if plugin requires auth headers but no .env file exists
             if (pluginInfo.trmnl.plugin_settings.requires_auth_headers === true) {
                 try {
-                    await fs.access(path.join(pluginPath, '.env'));
+                    await fs.access(path.join(pluginPathLive, '.env'));
                 } catch (err) {
                     return res.status(400).json({
                         error: 'Authentication Required',

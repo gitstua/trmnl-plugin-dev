@@ -19,9 +19,15 @@
       const titleBarHeight = titleBar.offsetHeight + parseInt(titleBarStyle.marginTop) + parseInt(titleBarStyle.marginBottom);
       const layoutMargins = parseInt(layoutStyle.marginTop) + parseInt(layoutStyle.marginBottom);
       
-      // Calculate available height accounting for all spacing
-      const availableHeight = window.innerHeight - titleBarHeight - contentMargins - contentPadding - layoutMargins - safetyMargin;
-      content.style.height = `${availableHeight}px`;
+      // Calculate available height with 5% reduction
+      const maxHeight = window.innerHeight - titleBarHeight - contentMargins - contentPadding - layoutMargins - safetyMargin;
+      const targetHeight = maxHeight * 0.95;
+      content.style.height = `${targetHeight}px`;
+
+      // Calculate available width with 5% reduction
+      const maxWidth = content.clientWidth;
+      const targetWidth = maxWidth * 0.95;
+      content.style.width = `${targetWidth}px`;
       content.style.overflow = 'hidden'; // Prevent scrolling
       
       // Binary search for optimal font size
@@ -38,7 +44,7 @@
           timeSpan.style.fontSize = `${midSize}px`;
         }
         
-        if (content.scrollHeight <= content.clientHeight) {
+        if (content.scrollHeight <= content.clientHeight && content.scrollWidth <= content.clientWidth) {
           fontSize = midSize;
           minSize = midSize + 1;
         } else {
