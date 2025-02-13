@@ -76,13 +76,22 @@ This will start the server and provide the URL to open the preview in your brows
 
 You can run the TRMNL Plugin Tester using Docker:
 
-### Using Docker Hub Image
+### Using Docker in Development
 To build and run the image, use the following command:
 ```bash
 ./scripts/run-docker.sh
 ```
 
-The Docker image is not yet pushed to Docker Hub, so you need to build it locally.
+### Using Docker Hub Image
+The Docker image is built and pushed to Docker Hub for x86 and ARM architectures. You can pull it directly from [stuartleeks/trmnl-plugin-tester](https://hub.docker.com/r/stuartleeks/trmnl-plugin-tester).
+
+To run the image, use the following command:
+```bash
+docker run -d -p 3000:3000 stuartleeks/trmnl-plugin-tester
+```
+
+
+
 
 ## Example Plugins
 
