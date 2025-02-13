@@ -45,7 +45,7 @@ fi
 # Start the development server with the original directory as PLUGINS_PATH
 echo "Starting TRMNL Plugin Tester..."
 echo "Access the tool at: http://localhost:3000"
-PLUGINS_PATH="$ORIGINAL_DIR/_plugins" npm run dev
+PLUGINS_PATH="$ORIGINAL_DIR/_plugins" ADMIN_MODE=true npm run dev
 
 # Start the server
 node app.js 

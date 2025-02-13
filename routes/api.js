@@ -6,6 +6,11 @@ const path = require('path');
 const { version } = require('../package.json');
 const config = require('../config');
 const { getAvailablePlugins } = require('../config');
+const fs = require('fs').promises;
+const JSZip = require('jszip');
+const yaml = require('js-yaml');
+const dotenv = require('dotenv');
+const toml = require('toml');
 
 /**
  * Mock display API endpoint
@@ -81,6 +86,76 @@ router.get('/setup', (req, res) => {
 // Define routes
 router.get('/plugins', async (req, res) => {
     // ... route handler code ...
+});
+
+/**
+ * Export endpoint
+ * This endpoint will generate a zip file containing:
+ *  - A settings.yml file generated from config.toml (with substitutions from .env)
+ *  - All Liquid template files in the plugin's "views" directory
+ *
+ * The endpoint is available at:
+ *   POST /api/plugins/:pluginId/export
+ */
+router.post('/plugins/:pluginId/export', async (req, res) => {
+    try {
+        const { pluginId } = req.params;
+        // Determine the correct plugin path
+        const pluginPath = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
+
+        // Load .env file if it exists; otherwise, envConfig remains an empty object
+        let envConfig = {};
+        try {
+            const envPath = path.join(pluginPath, '.env');
+            envConfig = dotenv.parse(await fs.readFile(envPath));
+        } catch (err) {
+            console.warn(`No .env file found for plugin ${pluginId}`);
+        }
+
+        // Load the plugin configuration file (config.toml)
+        const tomlPath = path.join(pluginPath, 'config.toml');
+        const tomlConfig = toml.parse(await fs.readFile(tomlPath, 'utf-8'));
+
+        // Build the settings object with substitutions from .env
+        const settings = {
+            strategy: 'polling',
+            no_screen_padding: 'no',
+            dark_mode: 'no',
+            static_data: '',
+            polling_verb: 'get',
+            polling_url: tomlConfig.url?.replace('${API_KEY}', envConfig.API_KEY || ''),
+            polling_headers: '',
+            name: tomlConfig.name || 'Plugin',
+            refresh_interval: tomlConfig.refresh_interval || 720
+        };
+
+        // Create a new JSZip instance
+        const zip = new JSZip();
+        
+        // Add settings.yml to the zip by dumping the settings object to YAML format
+        zip.file('settings.yml', yaml.dump(settings));
+        
+        // Get the views folder contents and add all .liquid files to the zip
+        const viewsDir = path.join(pluginPath, 'views');
+        const files = await fs.readdir(viewsDir);
+        for (const file of files) {
+            if (file.endsWith('.liquid')) {
+                const content = await fs.readFile(path.join(viewsDir, file), 'utf-8');
+                zip.file(`${file}`, content);
+            }
+        }
+
+        // Generate the zip as a nodebuffer
+        const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
+        
+        // Set headers to trigger a download, then send the zip content
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename=${pluginId}-plugin.zip`);
+        res.send(zipBuffer);
+    } catch (err) {
+        console.error('Export failed:', err);
+        res.status(500).json({ error: 'Export failed', details: err.message });
+    }
 });
 
 // Export the router

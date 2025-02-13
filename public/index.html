@@ -205,7 +205,22 @@
             bmpButton.setAttribute('data-tooltip', 'Open preview in new window as BMP - slow but high quality (800x480)');
             bmpButton.setAttribute('data-pixel-processed', 'true');
             
-            // Add click handler
+            // Add Export button
+            const exportButton = document.createElement('button');
+            exportButton.textContent = 'Export';
+            exportButton.style.background = '#666';
+            exportButton.style.padding = '4px 8px';
+            exportButton.style.marginLeft = '8px';
+            exportButton.setAttribute('data-tooltip', 'Export plugin as zip with settings.yml and templates');
+            
+            // Create a container for the buttons and right-align it
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.justifyContent = 'flex-end';
+            buttonContainer.style.alignItems = 'center';
+            buttonContainer.style.gap = '8px'; // Add spacing between buttons
+            
+            // Add click handlers
             bmpButton.onclick = (e) => {
                 e.preventDefault();
                 const params = new URLSearchParams();
@@ -214,10 +229,41 @@
                 if (isLive) params.set('live', 'true');
                 window.open(`/display-preview.html?${params.toString()}`, '_blank');
             };
+
+            exportButton.onclick = async (e) => {
+                e.preventDefault();
+                try {
+                    const response = await fetch(`/api/plugins/${plugin.id}/export`, {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) throw new Error('Export failed');
+                    
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${plugin.id}-plugin.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    showToast('Export successful!', 'success');
+                } catch (err) {
+                    console.error('Export failed:', err);
+                    showToast('Export failed. Check console for details.', 'error');
+                }
+            };
             
+            // Add buttons to the container
+            buttonContainer.appendChild(bmpButton);
+            buttonContainer.appendChild(exportButton);
+            
+            // Add title and button container to the title container
             titleContainer.appendChild(title);
+            titleContainer.appendChild(buttonContainer);
             
-            // Only append BMP button if image generation is enabled
+            // Only append buttons if image generation is enabled
             let imageGenerationEnabled = true; // Default value
             try {
                 const response = await fetch('/api/version');
@@ -229,7 +275,7 @@
                 console.error('Failed to check image generation:', error);
             }
             if (imageGenerationEnabled) {
-                titleContainer.appendChild(bmpButton);
+                titleContainer.appendChild(buttonContainer);
             }
             
             leftSide.appendChild(titleContainer);
