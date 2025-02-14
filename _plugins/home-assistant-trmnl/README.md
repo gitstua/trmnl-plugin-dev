@@ -32,7 +32,7 @@ The data is sent from Home Assistant to TRMNL via a webhook.
 5. In Home Assistant, go to Settings > Devices & Services and select ADD INTEGRATION
 6. Select **TRMNL Entity Push** and specify your WebHook URL from the TRMNL private plugin
 
-###Label Your Entities in Home Assistant
+## Label Your Entities in Home Assistant
 
 1. In Home Assistant, go to Settings > Devices & Services
 2. Select "Entities"
