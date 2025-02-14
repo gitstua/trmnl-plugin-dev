@@ -118,16 +118,18 @@ router.post('/plugins/:pluginId/export', async (req, res) => {
 
         // Build the settings object with substitutions from .env
         const settings = {
-            strategy: 'polling',
+            strategy: tomlConfig.strategy || '',
             no_screen_padding: 'no',
             dark_mode: 'no',
             static_data: '',
-            polling_verb: 'get',
+            polling_verb: tomlConfig.polling_verb || 'get',
             polling_url: tomlConfig.url?.replace('${API_KEY}', envConfig.API_KEY || ''),
             polling_headers: '',
             name: tomlConfig.name || 'Plugin',
             refresh_interval: tomlConfig.refresh_interval || 720
         };
+
+        console.log("Settings object:", settings);
 
         // Create a new JSZip instance
         const zip = new JSZip();
