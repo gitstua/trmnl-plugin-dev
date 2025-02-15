@@ -203,25 +203,13 @@ async function initializeDeviceData() {
 
 // Update the preview route to handle both single and multi-plugin modes
 app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
-    // Extract layout and plugin parameters correctly
-    let layout, plugin;
-    
-    if (req.params.plugin && req.params.layout) {
-        // Route: /preview/:plugin/:layout
-        plugin = req.params.plugin;
-        layout = req.params.layout;
-    } else {
-        // Route: /preview/:layout
-        layout = req.params.layout;
-        plugin = undefined;
-    }
-
+    let layout = req.params.layout;
+    const plugin = req.params.plugin;
     const { live } = req.query;
     
     try {
-        // If no plugin specified and in single plugin mode, use '.'
+        // Get plugin ID and info
         const pluginId = plugin || (await config.isPluginDirectory(config.PLUGINS_PATH) ? '.' : null);
-        
         if (!pluginId) {
             return res.status(400).json({ 
                 error: 'Plugin ID required',
@@ -229,168 +217,43 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             });
         }
 
+        const pluginInfo = await config.getPluginInfo(pluginId);
         let data;
-        let pluginInfo;
 
-        // Read and parse the plugin config first
-        const pluginPath = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
-        const configContent = await fs.readFile(path.join(pluginPath, 'config.toml'), 'utf8');
-        const rawPluginInfo = toml.parse(configContent);
-
-        // Structure the plugin info
-        pluginInfo = {
-            trmnl: {
-                plugin_settings: {
-                    ...rawPluginInfo
-                }
-            }
-        };
-
-        // Check if strategy is static or webhook - always load from sample.json
+        // Load data based on strategy
         if (pluginInfo.trmnl.plugin_settings.strategy === 'static' || 
             pluginInfo.trmnl.plugin_settings.strategy === 'webhook') {
-            // Always load from sample.json for static and webhook strategies
-            const samplePath = pluginId === '.' 
-                ? path.join(config.PLUGINS_PATH, 'sample.json')
-                : path.join(config.PLUGINS_PATH, pluginId, 'sample.json');
-                
-            data = JSON.parse(
-                await fs.readFile(samplePath, 'utf8')
-            );
+            data = JSON.parse(await fs.readFile(config.getSamplePath(pluginId), 'utf8'));
         } else if (live === 'true') {
-            // Handle live data fetching for polling strategy only
-            let publicUrl = pluginInfo.trmnl.plugin_settings.url;
-
-            // calculate the plugin path
-            const pluginPathLive = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
-
-            // Check if plugin requires auth headers but no .env file exists
-            if (pluginInfo.trmnl.plugin_settings.requires_auth_headers === true) {
-                try {
-                    await fs.access(path.join(pluginPathLive, '.env'));
-                } catch (err) {
-                    return res.status(400).json({
-                        error: 'Authentication Required',
-                        message: 'This plugin requires authentication headers. Please create a .env file with the required credentials.',
-                        pluginName: pluginInfo.trmnl.plugin_settings.name
-                    });
-                }
-            }
-
-            // Read the .env file for the plugin
-            let envVars = {};
             try {
-                const pluginPath = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
-                console.log('Reading .env file for plugin', plugin);
-                console.log('Plugin path', pluginPath);
-                const env = await fs.readFile(path.join(pluginPath, '.env'), 'utf8');
-                envVars = env.split('\n').reduce((acc, line) => {
-                    if (!line.trim() || line.startsWith('#')) return acc;
-                    const [key, value] = line.split('=');
-                    if (key && value) {
-                        // Store env vars in both original and uppercase for case-insensitive matching
-                        const trimmedKey = key.trim();
-                        const trimmedValue = value.trim();
-                        acc[trimmedKey] = trimmedValue;
-                        acc[trimmedKey.toUpperCase()] = trimmedValue;
-                    }
-                    return acc;
-                }, {});
-            } catch (err) {
-                console.warn(`Warning: No .env file found for plugin ${plugin}`);
-            }
-
-            // Replace any {placeholder} in the URL with environment variables first
-            Object.entries(envVars).forEach(([key, value]) => {
-                const placeholder = `{${key}}`;
-                if (publicUrl.includes(placeholder)) {
-                    publicUrl = publicUrl.replace(placeholder, value);
-                }
-            });
-
-            // Function to get nested value from an object using dot notation
-            const getNestedValue = (obj, path) => {
-                return path.split('.').reduce((current, key) => {
-                    return current && current[key];
-                }, obj);
-            };
-
-            // Replace tokens with fully qualified paths
-            const tokenRegex = /{([^}]+)}/g;
-            publicUrl = publicUrl.replace(tokenRegex, (match, path) => {
-                // Check env vars first (already done above, this handles any remaining tokens)
-                if (envVars[path]) return envVars[path];
+                // Get live data configuration
+                const { publicUrl, headers } = await config.getLiveData(pluginId, pluginInfo, globalDeviceData);
                 
-                // Try to get value from plugin settings or device data
-                const data = {
-                    trmnl: {
-                        plugin_settings: {
-                            ...rawPluginInfo,
-                            custom_fields_values: rawPluginInfo.custom_fields_values || {}
-                        },
-                        ...globalDeviceData
-                    }
-                };
-
-                const value = getNestedValue(data, path);
-                return value !== undefined ? value : match; // Keep original token if path not found
-            });
-
-            // Add any additional query parameters
-            if (envVars.additional_query_string_params) {
-                publicUrl += `&${envVars.additional_query_string_params}`;
-            }
-
-            // Combine polling headers from config with any headers from .env
-            let headers = { ...pluginInfo.trmnl.plugin_settings.polling_headers };
-            
-            // Replace any {placeholder} in header values
-            Object.entries(headers).forEach(([headerKey, headerValue]) => {
-                if (typeof headerValue === 'string' && headerValue.startsWith('{') && headerValue.endsWith('}')) {
-                    const envKey = headerValue.slice(1, -1); // Remove { }
-                    headers[headerKey] = envVars[envKey] || envVars[envKey.toUpperCase()] || headerValue;
+                // Fetch and process data
+                data = await fetchLiveData(publicUrl, headers);
+                if (Array.isArray(data)) {
+                    data = { data };
                 }
-            });
 
-            // Add any additional headers from .env
-            if (envVars.HEADERS) {
-                headers = { ...headers, ...JSON.parse(envVars.HEADERS) };
+                // Save to tmp directory
+                const pluginPath = config.getPluginPath(pluginId);
+                const tmpDir = path.join(pluginPath, 'tmp');
+                await fs.mkdir(tmpDir, { recursive: true });
+                await fs.writeFile(
+                    path.join(tmpDir, 'data.json'), 
+                    JSON.stringify(data, null, 2)
+                );
+            } catch (error) {
+                if (error.error === 'Authentication Required') {
+                    return res.status(400).json(error);
+                }
+                throw error;
             }
-
-            // Fetch live data using the polling URL
-            data = await fetchLiveData(publicUrl, headers);
-            
-            // if live data is an array with no root key, add a root key called "data"
-            if (Array.isArray(data) && data.length > 0) {
-                data = { data: data };
-            }
-
-            // Determine the plugin path
-            const pluginPath = pluginId === '.' 
-                ? config.PLUGINS_PATH 
-                : path.join(config.PLUGINS_PATH, pluginId);
-            
-            // Define the temporary directory and file path
-            const tmpDir = path.join(pluginPath, 'tmp');
-            const dataFile = path.join(tmpDir, 'data.json');
-            
-            // Create the tmp directory if it doesn't exist
-            await fs.mkdir(tmpDir, { recursive: true });
-            
-            // Write the fetched live data to data.json in the tmp folder
-            await fs.writeFile(dataFile, JSON.stringify(data, null, 2), 'utf8');
         } else {
-            // Load from sample.json for preview
-            const samplePath = pluginId === '.' 
-                ? path.join(config.PLUGINS_PATH, 'sample.json')
-                : path.join(config.PLUGINS_PATH, pluginId, 'sample.json');
-                
-            data = JSON.parse(
-                await fs.readFile(samplePath, 'utf8')
-            );
+            data = JSON.parse(await fs.readFile(config.getSamplePath(pluginId), 'utf8'));
         }
 
-        // Merge the plugin settings with the data
+        // Merge data with plugin settings
         data = {
             ...data,
             trmnl: {
@@ -399,14 +262,14 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             }
         };
 
-        // Update the view path to use pluginPath
+        // Render template
         const viewPath = pluginId === '.' 
             ? path.join('views', `${layout}.liquid`)
             : path.join(pluginId, 'views', `${layout}.liquid`);
             
         const templateContent = await engine.renderFile(viewPath, data);
         
-        const htmlContent = `
+        res.send(`
             <!DOCTYPE html>
             <html>
             <head>
@@ -424,8 +287,7 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
                 </div>
             </body>
             </html>
-        `;
-        res.send(htmlContent);
+        `);
     } catch (error) {
         console.error('Error:', error);
         if (error.status === 429) {
@@ -469,7 +331,7 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
             });
         }
 
-        const pluginPath = effectivePluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, effectivePluginId);
+        const pluginPath = config.getPluginPath(effectivePluginId);
         const layoutContent = await fs.readFile(
             path.join(pluginPath, 'views', `${layoutName}.liquid`),
             'utf8'
@@ -484,7 +346,6 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
 // Update the endpoint to serve the raw config.toml content
 app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => {
     try {
-        // If no pluginId provided, check if we're in single plugin mode
         const pluginId = req.params.pluginId || (await config.isPluginDirectory(config.PLUGINS_PATH) ? '.' : null);
         
         if (!pluginId) {
@@ -494,13 +355,10 @@ app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => 
             });
         }
 
-        const configPath = pluginId === '.' 
-            ? path.join(config.PLUGINS_PATH, 'config.toml')
-            : path.join(config.PLUGINS_PATH, pluginId, 'config.toml');
-            
-        const configContent = await fs.readFile(configPath, 'utf8');
-        // Send the raw TOML content with text/plain content type
-        res.type('text/plain').send(configContent);
+        // Get the raw TOML content instead of the parsed object
+        const configPath = config.getPluginPath(pluginId);
+        const rawToml = await fs.readFile(path.join(configPath, 'config.toml'), 'utf8');
+        res.type('text/plain').send(rawToml);
     } catch (error) {
         console.error(`Error reading config.toml for plugin ${req.params.pluginId || 'unknown'}:`, error);
         res.status(404).json({ error: 'Plugin configuration not found' });
