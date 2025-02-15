@@ -1,23 +1,23 @@
-Proprietary License
+Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)
 
 Copyright (c) 2025 Stu Eggerton
-All rights reserved.
 
-This software and associated documentation files (the "Software") are the
-exclusive property of Stu Eggerton. Permission is granted to use the Software
-as-is for personal and non-commercial purposes only, subject to the following
-conditions:
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
 
-1. The Software may not be sold, licensed, sublicensed, distributed, or 
-   otherwise commercialized in any form.
+To view a copy of this license, visit:
+http://creativecommons.org/licenses/by-nc/4.0/
 
-2. The Software may not be forked, modified, merged, or incorporated into
-   other software projects without the express written permission of Stu Eggerton.
+You are free to:
+* Share — copy and redistribute the material in any medium or format
+* Adapt — remix, transform, and build upon the material
 
-3. The above copyright notice and this permission notice shall be included
-   in all copies of the Software.
+Under the following terms:
+* Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
+* NonCommercial — You may not use the material for commercial purposes.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+Notices:
+You do not have to comply with the license for elements of the material in the public domain or where your use is permitted by an applicable exception or limitation.
+
+No warranties are given. The license may not give you all of the permissions necessary for your intended use. For example, other rights such as publicity, privacy, or moral rights may limit how you use the material. 
