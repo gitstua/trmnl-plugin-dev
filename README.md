@@ -5,12 +5,12 @@ A development tool for testing TRMNL plugins. This project allows you to preview
 ## Features
 
 - **Plugin Preview**: Preview plugins in various layouts (full, half-horizontal, half-vertical, quadrant).
-    - read from plugin config toml files
-  - substition of tokens for plugins
-  - preview of plugin content
-  - ability to copy templates
+    - Uses standard `settings.yml` format compatible with TRMNL import/export
+    - Preview plugin content with live data or sample data
+    - Copy layout templates for different screen sizes
+    - Export plugins as ZIP files ready for TRMNL import
 
-- **Local & API Support**: Work with local `plugin.json` files or call external APIs for live data.
+- **Local & API Support**: Work with local `sample.json` files or call external APIs for live data.
 - **Clipboard Integration**: Copy layouts and API URLs directly to the clipboard for easy pasting into the TRMNL plugin dashboard.
 - **Image Generation**: Generate BMP images for TRMNL displays using Puppeteer and ImageMagick.
 - **Rate Limiting**: Built-in rate limiting to prevent abuse (default: 400 requests per 5 minutes).
@@ -90,8 +90,35 @@ To run the image, use the following command:
 docker run -d -p 3000:3000 stuartleeks/trmnl-plugin-tester
 ```
 
+## Plugin Configuration
 
+Each plugin requires a `settings.yml` file that defines how it works. This format is compatible with TRMNL's import/export functionality. Here's an example:
 
+```yaml
+---
+strategy: polling                # polling, static, or webhook
+no_screen_padding: 'no'         # yes/no - removes padding around the screen
+dark_mode: 'no'                 # yes/no - inverts colors for dark mode
+polling_verb: get               # HTTP verb for polling strategy
+polling_url: https://api.example.com/data  # URL to fetch data from
+polling_headers: 'content-type: application/json'  # HTTP headers
+name: Example Plugin            # Display name of the plugin
+description: Plugin description # Shown in plugin gallery
+refresh_interval: 3600          # Seconds between updates
+
+# Optional custom fields that users can configure
+custom_fields:
+- keyname: apikey              # Internal field name
+  field_type: string           # string, number, select
+  name: API Key                # Display name
+  description: Your API key    # Help text
+  placeholder: your-api-key    # Example value
+```
+
+The plugin should also include:
+- `views/` directory with Liquid templates for different layouts
+- `sample.json` for testing without live data
+- Optional `.env` file for secrets (add to .gitignore)
 
 ## Example Plugins
 
