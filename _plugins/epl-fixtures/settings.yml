@@ -1,11 +1,42 @@
 ---
 strategy: polling
-no_screen_padding: 'no'
+no_screen_padding: 'yes'
 dark_mode: 'no'
 static_data: ''
 polling_verb: get
 polling_url: https://raw.githubusercontent.com/openfootball/football.json/refs/heads/master/2024-25/en.1.json
 polling_headers: 'content-type: application/json'
+custom_fields:
+- keyname: myteam
+  field_type: select
+  options:
+  - None
+  - AFC Bournemouth
+  - Arsenal FC
+  - Aston Villa FC
+  - Brentford FC
+  - Brighton & Hove Albion FC
+  - Chelsea FC
+  - Crystal Palace FC
+  - Everton FC
+  - Fulham FC
+  - Ipswich Town FC
+  - Leicester City FC
+  - Liverpool FC
+  - Manchester City FC
+  - Manchester United FC
+  - Newcastle United FC
+  - Nottingham Forest FC
+  - Southampton FC
+  - Tottenham Hotspur FC
+  - West Ham United FC
+  - Wolverhampton Wanderers FC
+  default: None
+  name: My Team
+  description: Choose a team to highlight
 name: EPL Fixtures
 description: Shows English Premier League fixtures and results from the open football.json dataset. Displays match dates, teams, and scores for the current season.
 refresh_interval: 43200
+
+custom_fields_values:
+  myteam: "brighton_&_hove_albion_fc"

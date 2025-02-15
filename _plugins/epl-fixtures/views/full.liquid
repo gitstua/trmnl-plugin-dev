@@ -1,72 +1,78 @@
 <style>
   .title--small {
-    font-size: 12px; /* Ensure small font for all titles */
+    font-size: 10px;
+    /* Ensure small font for all titles */
   }
-  .label--outline {
-    border: 1px solid #000; /* Outline the label */
+
+  .label--outline, .title--outline {
+    border: 1px solid #000;
+    /* Outline the label */
     padding: 2px 5px;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 11px;
   }
+
 </style>
 
-<div class="view bg-white">
-  <div class="layout">
-    
-        <table class="table table--striped">
-          <thead>
-            <tr>
-              <th><span class="title text--left title--small">Date</span></th>
-              <th><span class="title text--left title--small">Time</span></th>
-              <th><span class="title text--left title--small">Home</span></th>
-              <th><span class="title text--left title--small">Away</span></th>
-              
-            </tr>
-          </thead>
-          <tbody>
-            {% assign today = "now" | date: "%Y-%m-%d" %}
-            {% assign counter = 0 %}
-            {% assign upcoming_matches = matches | sort: "date" %} <!-- Sort matches in ascending order (next matches) -->
+<div class="layout">
 
-            {% for match in upcoming_matches %}
-              {% if match.date > today and counter < 9 %}
-                {% assign formatted_date = match.date | date: "%-d %b" %} <!-- Converts to '1 Jan' format -->
-                <tr>
-                  <td><span class="title title--small">{{ formatted_date }}</span></td>
-                  <td><span class="title title--small">{{ match.time }}</span></td>
-                  <td>
-                    <div class="flex gap gap--small" style="align-items: center">
-                      {% if match.score.ft[0] > match.score.ft[1] %}
-                        <span class="label label--outline">{{ match.team1 }}</span>
-                      {% else %}
-                        <span class="title title--small">{{ match.team1 }}</span>
-                      {% endif %}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="flex gap gap--small" style="align-items: center">
-                      {% if match.score.ft[1] > match.score.ft[0] %}
-                        <span class="label label--outline">{{ match.team2 }}</span>
-                      {% else %}
-                        <span class="title title--small">{{ match.team2 }}</span>
-                      {% endif %}
-                    </div>
-                  </td>
-                  <td>
-                    <span class="title title--small">
-                      {% if match.score.ft %}
-                        {{ match.score.ft[0] }} - {{ match.score.ft[1] }}
-                      {% endif %}
-                    </span>
-                  </td>
-                </tr>
-                {% assign counter = counter | plus: 1 %}
+  <table class="table table--striped">
+    <thead>
+      <tr>
+        <th><span class="title text--left title--small">Date</span></th>
+        <th><span class="title text--left title--small">Time</span></th>
+        <th><span class="title text--left title--small">Home</span></th>
+        <th><span class="title text--left title--small">Away</span></th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% assign today = "now" | date: "%Y-%m-%d" %}
+      {% assign counter = 0 %}
+      {% assign upcoming_matches = matches | sort: "date" %} <!-- Sort matches in ascending order (next matches) -->
+
+      {% assign myteam = trmnl.plugin_settings.custom_fields_values.myteam %}
+
+      {% for match in upcoming_matches %}
+      {% if match.date > today and counter < 9 %} {% assign formatted_date=match.date | date: "%-d %b" %} <!-- Converts
+        to '1 Jan' format -->
+        <tr>
+          <td><span class="title title--small">{{ formatted_date }}</span></td>
+          <td><span class="title title--small">{{ match.time }}</span></td>
+          <td>
+            <div class="flex gap gap--small" style="align-items: center">
+              {% assign normalized_team1 = match.team1 | downcase | replace: " ", "_" %}
+              {% if myteam == normalized_team1 %}
+              <span class="title title--small title--outline">{{ match.team1 }}</span>
+              {% else %}
+              <span class="title title--small">{{ match.team1 }}</span>
               {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-     
-  </div>
+            </div>
+          </td>
+          <td>
+            <div class="flex gap gap--small" style="align-items: center">
+              {% assign normalized_team2 = match.team2 | downcase | replace: " ", "_" %}
+              {% if myteam == normalized_team2 %}
+              <span class="title title--small title--outline">{{ match.team2 }}</span>
+              {% else %}
+              <span class="title title--small">{{ match.team2 }}</span>
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            <span class="title title--small">
+              {% if match.score.ft %}
+              {{ match.score.ft[0] }} - {{ match.score.ft[1] }}
+              {% endif %}
+            </span>
+          </td>
+        </tr>
+        {% assign counter = counter | plus: 1 %}
+        {% endif %}
+        {% endfor %}
+    </tbody>
+  </table>
+
 </div>
 <div class="title_bar">
   <img class="image" src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" />
