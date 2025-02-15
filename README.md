@@ -20,6 +20,9 @@ A development tool for testing TRMNL plugins. This project allows you to preview
   - `/api/display` and associated BMP generation
   - docker built and [pushed to docker hub](https://hub.docker.com/r/stuartleeks/trmnl-plugin-tester) for x86 and ARM
 
+## Live demo
+I have a live demo of this project running on [fly.io](https://trmnl-plugins.fly.dev/)
+
 ## Configuration Options
 
 The following configuration options are available in `config.js`:
