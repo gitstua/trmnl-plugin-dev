@@ -42,8 +42,8 @@ let globalDeviceData = {};
 // Function to initialize the liquid engine synchronously
 function setupLiquidEngine() {
     try {
-        // Synchronously check for config.toml in the plugins directory
-        fsSync.accessSync(path.join(config.PLUGINS_PATH, 'config.toml'));
+        // Synchronously check for settings.yml in the plugins directory
+        fsSync.accessSync(path.join(config.PLUGINS_PATH, 'settings.yml'));
         // Single plugin mode
         return new Liquid({
             root: config.PLUGINS_PATH,
@@ -159,7 +159,7 @@ async function fetchLiveData(url, headers) {
             throw error;
         }
 
-        if (headers) {
+        if (headers && headers !== '{}' && Object.keys(headers).length > 0) {
             try {
                 parsedHeaders = typeof headers === 'string' ? JSON.parse(headers) : headers;
             } catch (error) {
@@ -167,7 +167,7 @@ async function fetchLiveData(url, headers) {
             }
         }
 
-        const response = await fetch(url, { headers: parsedHeaders });
+        const response = await fetch(url, Object.keys(parsedHeaders).length > 0 ? { headers: parsedHeaders } : undefined);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -190,17 +190,6 @@ async function fetchLiveData(url, headers) {
     }
 }
 
-// Add after the other startup initialization code
-async function initializeDeviceData() {
-    try {
-        globalDeviceData = JSON.parse(
-            await fs.readFile(path.join(process.cwd(), 'device.json'), 'utf8')
-        );
-    } catch (err) {
-        console.warn('Warning: No device.json found, using empty device data');
-    }
-}
-
 // Update the preview route to handle both single and multi-plugin modes
 app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
     let layout = req.params.layout;
@@ -217,20 +206,20 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
             });
         }
 
-        const pluginInfo = await config.getPluginInfo(pluginId);
+        const publicUrlWithTokens = await config.getPluginInfoWithTokens(pluginId);
         let data;
 
         // Load data based on strategy
-        if (pluginInfo.trmnl.plugin_settings.strategy === 'static' || 
-            pluginInfo.trmnl.plugin_settings.strategy === 'webhook') {
+        if (publicUrlWithTokens.trmnl.plugin_settings.strategy === 'static' || 
+            publicUrlWithTokens.trmnl.plugin_settings.strategy === 'webhook') {
             data = JSON.parse(await fs.readFile(config.getSamplePath(pluginId), 'utf8'));
         } else if (live === 'true') {
             try {
-                // Get live data configuration
-                const { publicUrl, headers } = await config.getLiveData(pluginId, pluginInfo, globalDeviceData);
-                
-                // Fetch and process data
-                data = await fetchLiveData(publicUrl, headers);
+
+                const polling_url = publicUrlWithTokens.trmnl.plugin_settings.polling_url;
+                const headers = publicUrlWithTokens.trmnl.plugin_settings.headers;
+                // Get data using the polling URL and headers from plugin info
+                data = await fetchLiveData(polling_url, headers);
                 if (Array.isArray(data)) {
                     data = { data };
                 }
@@ -257,8 +246,8 @@ app.get(['/preview/:layout', '/preview/:plugin/:layout'], async (req, res) => {
         data = {
             ...data,
             trmnl: {
-                ...pluginInfo.trmnl,
-                ...globalDeviceData
+                ...publicUrlWithTokens.trmnl,
+                ...config.deviceData
             }
         };
 
@@ -344,24 +333,17 @@ app.get(['/api/layout/:layout', '/api/layout/:pluginId/:layout'], async (req, re
 });
 
 // Update the endpoint to serve the raw config.toml content
-app.get(['/api/plugin-toml', '/api/plugin-toml/:pluginId'], async (req, res) => {
+app.get('/api/plugin-settings/:pluginId', async (req, res) => {
     try {
-        const pluginId = req.params.pluginId || (await config.isPluginDirectory(config.PLUGINS_PATH) ? '.' : null);
+        const pluginId = req.params.pluginId;
+        const pluginPath = config.getPluginPath(pluginId);
+        const settingsPath = path.join(pluginPath, 'settings.yml');
         
-        if (!pluginId) {
-            return res.status(400).json({ 
-                error: 'Plugin ID required',
-                message: 'Please select a plugin to view its configuration'
-            });
-        }
-
-        // Get the raw TOML content instead of the parsed object
-        const configPath = config.getPluginPath(pluginId);
-        const rawToml = await fs.readFile(path.join(configPath, 'config.toml'), 'utf8');
-        res.type('text/plain').send(rawToml);
+        const settingsContent = await fs.readFile(settingsPath, 'utf8');
+        res.type('text/yaml').send(settingsContent);
     } catch (error) {
-        console.error(`Error reading config.toml for plugin ${req.params.pluginId || 'unknown'}:`, error);
-        res.status(404).json({ error: 'Plugin configuration not found' });
+        console.error('Error reading settings.yml:', error);
+        res.status(500).send('Error reading settings.yml');
     }
 });
 
@@ -584,13 +566,12 @@ async function startServer() {
             console.log('🔌 Running in single plugin mode since config.toml file was found in the folder');
             console.log(`📂 Plugin folder: ${path.basename(config.PLUGINS_PATH)}`);
         } else {
-            console.log('🔌 Running in multi-plugin mode since no config.toml file was found in the folder');
+            console.log('🔌 Running in multi-plugin mode since no settings.yml file was found in the folder');
             console.log(`📂 Plugins directory: ${config.PLUGINS_PATH}`);
         }
         console.log('💾 Cache directory set to:', config.CACHE_PATH);
 
         await downloadAssets();
-        await initializeDeviceData();
         
         app.listen(config.PORT, () => {
             console.log(`Test app running at http://localhost:${config.PORT}`);

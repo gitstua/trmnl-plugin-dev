@@ -5,16 +5,25 @@
     {% assign reversed_data = data | reverse %}
     {% assign flex = true %}
 
-    {% for alert in reversed_data limit: max_rows %}
+    {% if alerts.size > 0 %}
+      {% for alert in reversed_data limit: max_rows %}
 
-    <div class="content mb--2">
-      <div class="flex flex--left flex--stretch-x">
-        <span class="label label--small no-shrink">{{ alert.time | date: "%-d%b %I:%M %p" }}</span>
-        <span class="value ">{{ alert.message }}</span>
+      <div class="content mb--2">
+        <div class="flex flex--left flex--stretch-x">
+          <span class="label label--small no-shrink">{{ alert.time | date: "%-d%b %I:%M %p" }}</span>
+          <span class="value ">{{ alert.message }}</span>
+        </div>
       </div>
-    </div>
 
-    {% endfor %}
+      {% endfor %}
+    {% else %}
+      <div class="content mb--2">
+        <span class="title title--xlarge">NO alerts found</span>
+        <span class="title title--small">Check your topic and try again</span>
+      </div>
+
+    {% endif %}
+
   </div>
 </div>
 

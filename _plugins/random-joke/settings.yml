@@ -1,0 +1,11 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://official-joke-api.appspot.com/random_joke
+polling_headers: "content-type: application/json"
+name: Random Joke
+description: Displays a random joke with setup and punchline from the Official Joke API. Updates on each refresh to show a new joke.
+refresh_interval: 3600

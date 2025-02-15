@@ -1,0 +1,17 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://api.currencyapi.com/v3/latest?currencies=AUD%2CUSD&apikey={{ apikey }}
+polling_headers: 'content-type: application/json'
+name: Currency Exchange Rates
+description: Display current exchange rates for AUD and USD
+refresh_interval: 86400
+custom_fields:
+- keyname: apikey
+  field_type: string
+  name: API Key
+  description: Your currencyapi.com API key
+  placeholder: your-api-key-here 

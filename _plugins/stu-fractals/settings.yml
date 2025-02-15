@@ -1,0 +1,12 @@
+---
+strategy: static
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://official-joke-api.appspot.com/random_joke  # Placeholder URL for preview
+polling_headers: ''
+name: Stu Fractals
+description: Display beautiful fractal images
+version: 1.0.0
+author: Stu 

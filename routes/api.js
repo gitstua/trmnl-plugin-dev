@@ -91,8 +91,8 @@ router.get('/plugins', async (req, res) => {
 /**
  * Export endpoint
  * This endpoint will generate a zip file containing:
- *  - A settings.yml file generated from config.toml (with substitutions from .env)
- *  - All Liquid template files in the plugin's "views" directory
+ *  - The plugin's settings.yml file
+ *  - All Liquid template files from the plugin's "views" directory
  *
  * The endpoint is available at:
  *   POST /api/plugins/:pluginId/export
@@ -100,10 +100,9 @@ router.get('/plugins', async (req, res) => {
 router.post('/plugins/:pluginId/export', async (req, res) => {
     try {
         const { pluginId } = req.params;
-        // Determine the correct plugin path
-        const pluginPath = pluginId === '.' ? config.PLUGINS_PATH : path.join(config.PLUGINS_PATH, pluginId);
+        const pluginPath = config.getPluginPath(pluginId);
 
-        // Load .env file if it exists; otherwise, envConfig remains an empty object
+        // Load .env file if it exists
         let envConfig = {};
         try {
             const envPath = path.join(pluginPath, '.env');
@@ -112,32 +111,17 @@ router.post('/plugins/:pluginId/export', async (req, res) => {
             console.warn(`No .env file found for plugin ${pluginId}`);
         }
 
-        // Load the plugin configuration file (config.toml)
-        const tomlPath = path.join(pluginPath, 'config.toml');
-        const tomlConfig = toml.parse(await fs.readFile(tomlPath, 'utf-8'));
-
-        // Build the settings object with substitutions from .env
-        const settings = {
-            strategy: tomlConfig.strategy || '',
-            no_screen_padding: 'no',
-            dark_mode: 'no',
-            static_data: '',
-            polling_verb: tomlConfig.polling_verb || 'get',
-            polling_url: tomlConfig.url,
-            polling_headers: '',
-            name: tomlConfig.name || 'Plugin',
-            refresh_interval: tomlConfig.refresh_interval || 720
-        };
-
-        console.log("Settings object:", settings);
+        // Load and copy the settings.yml file directly
+        const settingsPath = path.join(pluginPath, 'settings.yml');
+        const settings = yaml.load(await fs.readFile(settingsPath, 'utf-8'));
 
         // Create a new JSZip instance
         const zip = new JSZip();
         
-        // Add settings.yml to the zip by dumping the settings object to YAML format
-        zip.file('settings.yml', yaml.dump(settings));
+        // Add settings.yml to the zip
+        zip.file('settings.yml', await fs.readFile(settingsPath, 'utf8'));
         
-        // Get the views folder contents and add all .liquid files to the zip
+        // Get the views folder contents and add all .liquid files
         const viewsDir = path.join(pluginPath, 'views');
         const files = await fs.readdir(viewsDir);
         for (const file of files) {
@@ -147,14 +131,11 @@ router.post('/plugins/:pluginId/export', async (req, res) => {
             }
         }
 
-        // Generate the zip as a nodebuffer
+        // Generate and send the zip
         const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
         const epochTime = Date.now();
         const filename = `${pluginId}-plugin-${epochTime}.zip`;
 
-        console.log(`Exported plugin ${pluginId} to ${filename}`);
-
-        // Set headers to trigger a download, then send the zip content
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(zipBuffer);

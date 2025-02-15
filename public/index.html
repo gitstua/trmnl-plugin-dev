@@ -58,11 +58,6 @@
         <span class="description"></span>
     </div>
 
-    <div class="footer">
-        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V<span id="version">...</span>
-        <span style="display: block; color: #666; font-size: 0.8em;" id="build-timestamp"></span>
-    </div>
-
     <!-- Add popup HTML -->
     <div class="popup-overlay" id="welcomeOverlay">
         <div class="welcome-popup">
@@ -89,6 +84,13 @@
 
     <!-- Add toast container -->
     <div id="toast" class="toast"></div>
+
+    <div class="footer">
+        Made with ❤️ by <a href="https://github.com/gitstua/">Stu</a> to enable the <a href="https://usetrmnl.com/">TRMNL</a> community. V<span id="version">...</span>
+        <span style="display: block; color: #666; font-size: 0.8em;" id="build-timestamp"></span>
+    </div>
+
+
 
     <script src="https://usetrmnl.com/js/latest/plugins.js"></script>
     <script>
@@ -162,18 +164,17 @@
             }
         }
 
-        async function fetchRawToml(pluginId) {
+        async function fetchSettings(pluginId) {
             try {
-                // Adjust endpoint based on single plugin mode
                 const endpoint = pluginId === '.' 
-                    ? '/api/plugin-toml/.'
-                    : `/api/plugin-toml/${pluginId}`;
+                    ? '/api/plugin-settings/.'
+                    : `/api/plugin-settings/${pluginId}`;
                     
                 const response = await fetch(endpoint);
-                if (!response.ok) throw new Error('Failed to fetch config.toml');
+                if (!response.ok) throw new Error('Failed to fetch settings.yml');
                 return await response.text();
             } catch (error) {
-                console.error('Error fetching config.toml:', error);
+                console.error('Error fetching settings.yml:', error);
                 return null;
             }
         }
@@ -305,13 +306,13 @@
             const infoPanel = document.createElement('div');
             infoPanel.className = 'plugin-info-panel';
             
-            // Fetch and display raw TOML content
-            fetchRawToml(plugin.id).then(tomlContent => {
-                if (tomlContent) {
-                    const tomlPre = document.createElement('pre');
-                    tomlPre.style.whiteSpace = 'pre-wrap';
-                    tomlPre.textContent = tomlContent;
-                    infoPanel.appendChild(tomlPre);
+            // Fetch and display settings.yml content
+            fetchSettings(plugin.id).then(settingsContent => {
+                if (settingsContent) {
+                    const settingsPre = document.createElement('pre');
+                    settingsPre.style.whiteSpace = 'pre-wrap';
+                    settingsPre.textContent = settingsContent;
+                    infoPanel.appendChild(settingsPre);
                 }
             });
 
@@ -428,7 +429,7 @@
         async function copyToClipboard(text) {
             try {
                 await navigator.clipboard.writeText(text);
-                showToast('Copied to clipboard!');
+                showToast('Copied to clipboard!', 'success');
             } catch (err) {
                 console.error('Failed to copy:', err);
                 showToast('Failed to copy to clipboard', 'error');
@@ -466,11 +467,11 @@
             }
         }
 
-        // Update the closeWelcome function
+        // Add the closeWelcome function
         function closeWelcome() {
             document.getElementById('welcomeOverlay').style.display = 'none';
             localStorage.setItem('welcomeLastShown', new Date().toDateString());
         }
     </script>
 </body>
-</html> 
+</html>

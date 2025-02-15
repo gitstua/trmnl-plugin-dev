@@ -1,0 +1,17 @@
+---
+strategy: webhook
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://api.example.com/broadcast?channel={{ channel }}
+polling_headers: "Authorization: Bearer {{ AUTH_TOKEN }}\ncontent-type: application/json"
+name: TRMNL Broadcast
+description: Displays a static text message in a terminal-style interface
+refresh_interval: 3600
+custom_fields:
+- keyname: channel
+  field_type: string
+  name: Channel
+  description: The broadcast channel to subscribe to
+  placeholder: trmnl-broadcast 

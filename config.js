@@ -1,15 +1,101 @@
 const path = require('path');
 const toml = require('toml');
 const fs = require('fs').promises;
+const yaml = require('js-yaml');
+
+// Add at the top with other state variables
+let globalDeviceData = {};
+
+// Add the initialization function
+async function initializeDeviceData() {
+    try {
+        globalDeviceData = JSON.parse(
+            await fs.readFile(path.join(process.cwd(), 'device.json'), 'utf8')
+        );
+    } catch (err) {
+        console.warn('Warning: No device.json found, using empty device data');
+        globalDeviceData = {};
+    }
+}
 
 // Helper function to check if a directory is a plugin directory
-async function isPluginDirectory(dirPath) {
+async function isPluginDirectory(dir) {
     try {
-        await fs.access(path.join(dirPath, 'config.toml'));
-        return true;
-    } catch {
+        const stats = await fs.stat(dir);
+        if (!stats.isDirectory()) return false;
+
+        // Check for settings.yml instead of config.toml
+        const files = await fs.readdir(dir);
+        return files.includes('settings.yml') && files.includes('views');
+    } catch (err) {
         return false;
     }
+}
+
+// Move getPluginInfoWithTokens outside the config object
+async function getPluginInfoWithTokens(pluginId) {
+    const pluginInfo = await this.getPluginInfo(pluginId);
+    const envVars = await this.readEnvVars(pluginId);
+    
+    // Deep clone the plugin settings to avoid modifying the original
+    const settings = JSON.parse(JSON.stringify(pluginInfo.trmnl.plugin_settings));
+    
+
+    // Replace tokens in urls if they exist
+    if (settings.polling_url) {
+        settings.polling_url = await this.replaceTokensInUrl(
+            settings.polling_url,
+            settings,
+            envVars,
+            this.deviceData
+        );
+    }
+
+    //write settings.polling_headers to console
+    console.log('Original polling headers:', settings.polling_headers);
+
+    // If no polling headers, return empty object
+    if (!settings.polling_headers) {
+        return {
+            trmnl: {
+                plugin_settings: {
+                    ...settings,
+                    headers: {}
+                }
+            }
+        };
+    }
+
+    //polling_headers is a string, replace all {{ placeholder }} with the envVars
+    const replaced_headers_string = settings.polling_headers.replace(/\{\{\s*([^}]+)\s*\}\}/g, (match, p1) => {
+        const trimmedKey = p1.trim();
+        return envVars[trimmedKey] || envVars[trimmedKey.toUpperCase()] || match;
+    });
+
+    console.log('Replaced headers string:', replaced_headers_string);
+
+    //convert the string to an array of strings and filter out empty lines
+    const headers_array = replaced_headers_string.split('\n').filter(line => line.trim());
+
+    //convert the array of header strings to an object
+    const headers = headers_array.reduce((acc, header) => {
+        const [key, value] = header.split(':').map(part => part.trim());
+        if (key && value) {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
+
+    console.log('Final headers object:', headers);
+
+    return {
+        trmnl: {
+            plugin_settings: {
+                ...settings,
+                headers
+            }
+        }
+    };
 }
 
 // Environment-based configuration
@@ -89,17 +175,17 @@ const config = {
         return getAvailablePlugins();
     },
 
-    // Add this method to the config object
+    // this method is used to get the plugin info from the settings.yml file
     async getPluginInfo(pluginId) {
         const pluginPath = this.getPluginPath(pluginId);
-        const configContent = await fs.readFile(path.join(pluginPath, 'config.toml'), 'utf8');
-        const rawPluginInfo = toml.parse(configContent);
+        const configContent = await fs.readFile(path.join(pluginPath, 'settings.yml'), 'utf8');
+        const settings = yaml.load(configContent);
 
         return {
             trmnl: {
                 plugin_settings: {
-                    ...rawPluginInfo,
-                    custom_fields_values: rawPluginInfo.custom_fields_values || {}
+                    ...settings,
+                    custom_fields_values: settings.custom_fields_values || {}
                 }
             }
         };
@@ -110,89 +196,68 @@ const config = {
         return pluginId === '.' 
             ? path.join(this.PLUGINS_PATH, 'sample.json')
             : path.join(this.PLUGINS_PATH, pluginId, 'sample.json');
+    },
+
+    get deviceData() {
+        return globalDeviceData;
+    },
+
+    async initialize() {
+        await initializeDeviceData();
     }
 };
 
 async function getAvailablePlugins() {
-    // First check if PLUGINS_PATH itself is a plugin directory
-    if (await isPluginDirectory(config.PLUGINS_PATH)) {
-        const pluginName = path.basename(config.PLUGINS_PATH);
-        try {
-            const configContent = await fs.readFile(path.join(config.PLUGINS_PATH, 'config.toml'), 'utf8');
-            const rawPluginInfo = toml.parse(configContent);
-
-            // Nest everything under trmnl.plugin_settings
-            const pluginInfo = {
-                trmnl: {
-                    plugin_settings: {
-                        ...rawPluginInfo,
-                        // Correctly reference the custom_fields_values from the TOML
-                        custom_fields_values: rawPluginInfo.custom_fields_values || {}
-                    }
-                }
-            };
-
-            return [{
-                id: '.', // Use '.' to indicate current directory
-                name: pluginInfo.trmnl.plugin_settings.name || pluginName,
-                public_url: pluginInfo.trmnl.plugin_settings.url
-            }];
-        } catch (error) {
-            console.warn(`Warning: Error reading config.toml in ${config.PLUGINS_PATH}`);
-            return [];
-        }
-    }
-
-    // Multiple plugins mode
-    const dirs = (await fs.readdir(config.PLUGINS_PATH, { withFileTypes: true }))
-        .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name)
-        .filter(name => !['node_modules', 'public', 'design-system', 'scripts'].includes(name) &&
-            !name.startsWith('.')
-        );
-
-    // Add the "All" option as the first plugin only if we have multiple plugins
-    const plugins = dirs.length > 1 ? [{
-        id: 'all',
-        name: 'All Plugins'
-    }] : [];
-
-    // Get plugin info for each directory
-    const pluginInfos = await Promise.all(
-        dirs.map(async (dir) => {
-            if (await isPluginDirectory(path.join(config.PLUGINS_PATH, dir))) {
+    try {
+        const pluginsPath = config.PLUGINS_PATH;
+        const entries = await fs.readdir(pluginsPath, { withFileTypes: true });
+        
+        // Filter for directories that contain a settings.yml file
+        const plugins = [];
+        
+        // Skip special directories
+        const skipDirs = ['node_modules', 'public', 'design-system', 'scripts'];
+        
+        for (const entry of entries) {
+            if (entry.isDirectory() && !skipDirs.includes(entry.name) && !entry.name.startsWith('.')) {
+                const pluginPath = path.join(pluginsPath, entry.name);
+                const settingsPath = path.join(pluginPath, 'settings.yml');
+                
                 try {
-                    const configContent = await fs.readFile(path.join(config.PLUGINS_PATH, dir, 'config.toml'), 'utf8');
-                    const rawPluginInfo = toml.parse(configContent);
-
-                    // Nest everything under trmnl.plugin_settings
-                    const pluginInfo = {
-                        trmnl: {
-                            plugin_settings: {
-                                ...rawPluginInfo,
-                                // Correctly reference the custom_fields_values from the TOML
-                                custom_fields_values: rawPluginInfo.custom_fields_values || {}
-                            }
-                        }
-                    };
-
-                    return {
-                        id: dir,
-                        name: pluginInfo.trmnl.plugin_settings.name || dir,
-                        public_url: pluginInfo.trmnl.plugin_settings.url
-                    };
-                } catch (error) {
-                    console.warn(`Warning: Error reading config.toml in ${dir}`);
-                    return null;
+                    // Check if settings.yml exists
+                    await fs.access(settingsPath);
+                    
+                    // Read and parse settings.yml
+                    const settingsContent = await fs.readFile(settingsPath, 'utf8');
+                    const settings = yaml.load(settingsContent);
+                    
+                    plugins.push({
+                        id: entry.name,
+                        name: settings.name || entry.name,
+                        description: settings.description || ''
+                    });
+                } catch (err) {
+                    console.warn(`Skipping ${entry.name}: No valid settings.yml found`);
                 }
             }
-            return null;
-        })
-    );
+        }
 
-    // Add the valid plugins after the "All" option
-    plugins.push(...pluginInfos.filter(plugin => plugin !== null));
-    return plugins;
+        console.log(`Found ${plugins.length} plugins:`, plugins.map(p => p.name).join(', ')); // Debug log
+
+        // Add "All Plugins" option if there are multiple plugins
+        if (plugins.length > 1) {
+            plugins.unshift({
+                id: 'all',
+                name: 'All Plugins',
+                description: 'Show all available plugins'
+            });
+        }
+        
+        return plugins;
+    } catch (error) {
+        console.error('Error getting available plugins:', error);
+        return [];
+    }
 }
 
 config.getAvailablePlugins = getAvailablePlugins;
@@ -206,9 +271,20 @@ function getNestedValue(obj, path) {
     }, obj);
 }
 
-async function replaceTokensInUrl(url, pluginInfo, envVars, deviceData) {
+// Update replaceTokensInUrl to use settings directly
+async function replaceTokensInUrl(url, settings, envVars, deviceData) {
+    if (!url) return url;
+
     // Replace any {{placeholder}} in the URL with environment variables first
-    Object.entries(envVars).forEach(([key, value]) => {
+    Object.entries(envVars || {}).forEach(([key, value]) => {
+        const placeholder = `{{ ${key} }}`;
+        if (url.includes(placeholder)) {
+            url = url.replace(placeholder, value);
+        }
+    });
+
+    //replace any remaining tokens such as {{ days }} with the value from the custom_fields_values object
+    Object.entries(settings.custom_fields_values || {}).forEach(([key, value]) => {
         const placeholder = `{{ ${key} }}`;
         if (url.includes(placeholder)) {
             url = url.replace(placeholder, value);
@@ -218,15 +294,15 @@ async function replaceTokensInUrl(url, pluginInfo, envVars, deviceData) {
     // Replace tokens with fully qualified paths
     const tokenRegex = /\{\{\s*([^}]+)\s*\}\}/g;
     url = url.replace(tokenRegex, (match, path) => {
-        // Check env vars first (already done above, this handles any remaining tokens)
-        if (envVars[path.trim()]) return envVars[path.trim()];
+        // Check env vars first
+        if (envVars && envVars[path.trim()]) return envVars[path.trim()];
         
         // Try to get value from plugin settings or device data
         const data = {
             trmnl: {
                 plugin_settings: {
-                    ...pluginInfo.trmnl.plugin_settings,
-                    custom_fields_values: pluginInfo.trmnl.plugin_settings.custom_fields_values || {}
+                    ...settings,
+                    custom_fields_values: settings.custom_fields_values || {}
                 },
                 ...deviceData
             }
@@ -239,11 +315,11 @@ async function replaceTokensInUrl(url, pluginInfo, envVars, deviceData) {
     return url;
 }
 
-// Add the methods to the config object
+// Make sure these are properly added to the config object
 config.getNestedValue = getNestedValue;
 config.replaceTokensInUrl = replaceTokensInUrl;
 
-// Add these methods to handle env vars and data merging
+// Update readEnvVars to properly clean header values
 async function readEnvVars(pluginId) {
     const pluginPath = this.getPluginPath(pluginId);
     let envVars = {};
@@ -251,11 +327,29 @@ async function readEnvVars(pluginId) {
     try {
         const env = await fs.readFile(path.join(pluginPath, '.env'), 'utf8');
         envVars = env.split('\n').reduce((acc, line) => {
-            if (!line.trim() || line.startsWith('#')) return acc;
-            const [key, value] = line.split('=').map(s => s.trim());
+            line = line.trim();
+            if (!line || line.startsWith('#')) return acc;
+            
+            // Split only on the first '=' to handle values that contain '='
+            const splitIndex = line.indexOf('=');
+            if (splitIndex === -1) return acc;
+            
+            const key = line.slice(0, splitIndex).trim();
+            const value = line.slice(splitIndex + 1).trim();
+            
             if (key && value) {
-                acc[key] = value;
-                acc[key.toUpperCase()] = value;
+                // Handle multi-line headers by joining with commas
+                if (key === 'HEADERS') {
+                    try {
+                        // Parse and stringify to validate and clean the JSON
+                        acc[key] = JSON.stringify(JSON.parse(value));
+                    } catch (e) {
+                        console.warn(`Warning: Invalid JSON in HEADERS env var for plugin ${pluginId}`);
+                    }
+                } else {
+                    acc[key] = value;
+                    acc[key.toUpperCase()] = value;
+                }
             }
             return acc;
         }, {});
@@ -266,65 +360,32 @@ async function readEnvVars(pluginId) {
     return envVars;
 }
 
-async function prepareHeaders(pluginInfo, envVars) {
-    let headers = { ...pluginInfo.trmnl.plugin_settings.polling_headers };
-    
-    Object.entries(headers).forEach(([key, value]) => {
-        if (typeof value === 'string' && value.startsWith('{{') && value.endsWith('}}')) {
-            const envKey = value.slice(2, -2).trim();
-            headers[key] = envVars[envKey] || envVars[envKey.toUpperCase()] || value;
-        }
-    });
-    
-    if (envVars.HEADERS) {
-        headers = { ...headers, ...JSON.parse(envVars.HEADERS) };
-    }
-    
-    return headers;
-}
-
-async function getLiveData(pluginId, pluginInfo, deviceData) {
-    const pluginPath = this.getPluginPath(pluginId);
-    
-    // Check auth requirements
-    if (pluginInfo.trmnl.plugin_settings.requires_auth_headers) {
-        try {
-            await fs.access(path.join(pluginPath, '.env'));
-        } catch (err) {
-            throw {
-                error: 'Authentication Required',
-                message: 'This plugin requires authentication headers. Please create a .env file.',
-                pluginName: pluginInfo.trmnl.plugin_settings.name
-            };
-        }
-    }
-
-    // Read and process env vars
-    const envVars = await this.readEnvVars(pluginId);
-    
-    // Get URL with replaced tokens
-    let publicUrl = await this.replaceTokensInUrl(
-        pluginInfo.trmnl.plugin_settings.url,
-        pluginInfo,
-        envVars,
-        deviceData
-    );
-
-    // Add additional query parameters if any
-    if (envVars.additional_query_string_params) {
-        publicUrl += `&${envVars.additional_query_string_params}`;
-    }
-
-    // Prepare headers
-    const headers = await this.prepareHeaders(pluginInfo, envVars);
-
-    return { publicUrl, headers };
-}
-
-// Add the methods to the config object
+// Add readEnvVars to the config object
 config.readEnvVars = readEnvVars;
-config.prepareHeaders = prepareHeaders;
-config.getLiveData = getLiveData;
+
+// Add all functions to config object first
+config.getPluginInfoWithTokens = getPluginInfoWithTokens;
+config.getNestedValue = getNestedValue;
+config.replaceTokensInUrl = replaceTokensInUrl;
+config.readEnvVars = readEnvVars;
+config.isPluginDirectory = isPluginDirectory;
+config.getAvailablePlugins = getAvailablePlugins;
+
+// Then bind all methods to config
+config.getPluginInfoWithTokens = config.getPluginInfoWithTokens.bind(config);
+config.getNestedValue = config.getNestedValue.bind(config);
+config.replaceTokensInUrl = config.replaceTokensInUrl.bind(config);
+config.readEnvVars = config.readEnvVars.bind(config);
+config.getPluginInfo = config.getPluginInfo.bind(config);
+config.getPluginPath = config.getPluginPath.bind(config);
+config.isPluginDirectory = config.isPluginDirectory.bind(config);
+config.getAvailablePlugins = config.getAvailablePlugins.bind(config);
+
+// Call initialize when the module loads
+config.initialize().catch(err => {
+    console.error('Error initializing config:', err);
+});
 
 module.exports = config;
+ 
  

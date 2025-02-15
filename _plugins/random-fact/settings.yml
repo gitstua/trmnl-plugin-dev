@@ -1,0 +1,11 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://uselessfacts.jsph.pl/random.json?language=en
+polling_headers: 'content-type: application/json'
+name: Random Fact
+description: Displays a random fact
+refresh_interval: 3600

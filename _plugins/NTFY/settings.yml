@@ -1,0 +1,26 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://stu-workers.stuey.workers.dev/ndjson-to-json?url=https://ntfy.sh/{{ topic_name }}/json?poll=1&since={{ ntfy_since }}
+polling_headers: ''
+custom_fields:
+- keyname: topic_name
+  field_type: string
+  name: Topic Name
+  description: The ntfy.sh topic to subscribe to
+  placeholder: trmnl-example12345
+- keyname: ntfy_since
+  field_type: string
+  name: Time Window
+  description: How far back to look for notifications
+  placeholder: 1h
+- keyname: max_rows
+  field_type: number
+  name: Max Rows
+  description: Maximum number of notifications to display
+  placeholder: 6
+name: Ntfy Alerts
+refresh_interval: 60

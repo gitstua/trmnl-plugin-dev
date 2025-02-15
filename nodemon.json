@@ -3,7 +3,7 @@
     "app.js",
     "config.json",
     "_plugins/**/*.html", 
-    "_plugins/**/*.toml", 
+    "_plugins/**/*.yml", 
     "public/**/*",  
     "_plugins/**/plugin.json",
     "device.json"

@@ -1,0 +1,21 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: "https://d2e7dd7d-stucal-92a1.stuey.workers.dev/?url={{ calendar_url }}&days={{ days }}"
+polling_headers: "X-API-Key: {{ X_API_Key }}\ncontent-type: application/json"
+custom_fields:
+- keyname: calendar_url
+  field_type: string
+  name: Calendar URL
+  description: Your iCal calendar URL (e.g. from Google Calendar)
+  placeholder: https://calendar.google.com/calendar/ical/example%40gmail.com/public/basic.ics
+name: My Agenda
+refresh_interval: 300 
+
+custom_fields_values:
+  calendar_url: https://calendar.google.com/calendar/ical/example%40gmail.com/public/basic.ics
+  X_API_Key: put into .env file
+  days: 20

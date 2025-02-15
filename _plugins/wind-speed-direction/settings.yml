@@ -1,0 +1,24 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://api.open-meteo.com/v1/forecast?latitude={{ latitude }}&longitude={{ longitude }}&timezone={{ trmnl.user.time_zone_iana }}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=mph&forecast_days=1
+polling_headers: ''
+custom_fields:
+- keyname: latitude
+  field_type: string
+  name: Latitude
+  description: The latitude of your location. e.g. 40.7128
+  placeholder: 40.7128
+- keyname: longitude
+  field_type: string
+  name: Longitude
+  description: The longitude of your location e.g. -74.0060
+  placeholder: -74.0060
+name: Wind Speed & Direction
+refresh_interval: 720
+
+latitude: 40.7128
+longitude: -74.0060

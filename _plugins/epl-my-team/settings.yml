@@ -1,0 +1,11 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://raw.githubusercontent.com/openfootball/football.json/refs/heads/master/2024-25/en.1.json
+polling_headers: 'content-type: application/json'
+name: EPL My Team
+description: Displays Manchester United's fixtures and results from the open football.json dataset. Shows past results and upcoming matches for the current season.
+refresh_interval: 43200

@@ -1,0 +1,11 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://raw.githubusercontent.com/gitstua/trmnl-plugin-dev/refs/heads/main/_plugins/code-clock/sample.json
+polling_headers: 'content-type: application/json'
+name: Code Clock
+description: Displays current time as code snippets embedded in various programming contexts. Updates periodically with new random code samples and time. Note - This is not a realtime clock - it updates when the image is generated.
+refresh_interval: 900

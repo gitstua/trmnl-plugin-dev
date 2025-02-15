@@ -1,0 +1,16 @@
+---
+strategy: static
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://example.com/api/movies  # Placeholder URL
+polling_headers: ''
+name: Jellyfin Sample for RG
+description: Displays a list of unwatched movies sorted by rating.
+version: 1.0.0
+author: "@yourusername"
+refresh_interval: 3600  # Assuming hourly update frequency
+tags:
+  - entertainment
+  - movies 
