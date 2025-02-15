@@ -99,51 +99,61 @@ docker run -d -p 3000:3000 stuartleeks/trmnl-plugin-tester
 - Displays the time of image generation embedded in random code snippets.
 - **DATA**: Static snippets with dynamic time insertion.
 - **SOURCE**: [_plugins/code-clock](_plugins/code-clock).
+![Code Clock Preview](_plugins/code-clock/Preview/full.png)
 
 ### Home Assistant TRMNL Plugin
 - Displays Home Assistant sensor data in TRMNL.
 - **DATA**: Home Assistant API.
 - **SOURCE**: [_plugins/home-assistant-trmnl](_plugins/home-assistant-trmnl).
+![Home Assistant Preview](_plugins/home-assistant-trmnl/Preview/full.png)
 
 ### NTFY Plugin
 - Displays periodic alerts from the [ntfy.sh](https://ntfy.sh/) notification service.
 - **DATA**: ntfy.sh API.
 - **SOURCE**: [_plugins/ntfy](_plugins/ntfy).
+![NTFY Plugin Preview](_plugins/NTFY/Preview/full.png)
 
 ### My Agenda
 - Shows upcoming events in an agenda view.
 - **DATA**: Custom API for converting ICAL to JSON.
 - **SOURCE**: [_plugins/my-agenda](_plugins/my-agenda).
+![My Agenda Preview](_plugins/my-agenda/Preview/full.png)
 
 ### Currency Exchange
 - Shows the current exchange rate for a currency pair.
 - **DATA**: [currencyapi.com](https://currencyapi.com/).
 - **SOURCE**: [_plugins/currency-exchange](_plugins/currency-exchange).
+![Currency Exchange Preview](_plugins/currency-exchange/Preview/full.png)
 
 ### EPL Fixtures
 - Shows upcoming English Premier League fixtures.
 - **DATA**: [GitHub repo](https://github.com/openfootball).
 - **SOURCE**: [_plugins/epl-fixtures](_plugins/epl-fixtures).
+![EPL Fixtures Preview](_plugins/epl-fixtures/Preview/full.png)
 
 ### Random Fact
 - Displays interesting random facts.
 - **DATA**: [uselessfacts.jsph.pl](https://uselessfacts.jsph.pl).
 - **SOURCE**: [_plugins/random-fact](_plugins/random-fact).
+![Random Fact Preview](_plugins/random-fact/Preview/full.png)
 
 ### Random Joke
 - Shows setup and punchline of random jokes.
 - **DATA**: [official-joke-api.appspot.com](https://official-joke-api.appspot.com/random_joke).
 - **SOURCE**: [_plugins/random-joke](_plugins/random-joke).
+![Random Joke Preview](_plugins/random-joke/Preview/full.png)
 
 ### Wind Speed & Direction
 - Displays hourly wind speed, direction, and gusts data.
 - **DATA**: Open-Meteo API.
 - **SOURCE**: [_plugins/wind-speed-direction](_plugins/wind-speed-direction).
+![Wind Speed & Direction Preview](_plugins/wind-speed-direction/Preview/full.png)
 
 ### TRMNL Broadcast
 - Displays custom messages and announcements.
 - **DATA**: Static JSON or custom webhook endpoint.
 - **SOURCE**: [_plugins/trmnl-broadcast](_plugins/trmnl-broadcast).
+![TRMNL Broadcast Preview](_plugins/trmnl-broadcast/Preview/full.png)
 
 ## Credits / Acknowledgements
 
