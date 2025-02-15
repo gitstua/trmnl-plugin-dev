@@ -363,15 +363,20 @@
                 const selectedPlugin = params.get('plugin');
                 const selectedLayout = params.get('layout');
                 
-                if (selectedPlugin) {
+                // New code to handle URL fragment
+                const urlFragment = window.location.hash.substring(1); // Get the fragment without the '#'
+                if (urlFragment) {
+                    select.value = urlFragment;
+                } else if (selectedPlugin) {
                     select.value = selectedPlugin;
                 }
+
                 if (selectedLayout) {
                     document.getElementById('layout').value = selectedLayout;
                 }
                 
-                // Auto-load preview if we have parameters
-                if (selectedPlugin) {
+                // Auto-load preview if we have parameters or fragment
+                if (selectedPlugin || urlFragment) {
                     loadPreview();
                 }
             }
