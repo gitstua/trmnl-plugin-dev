@@ -38,7 +38,7 @@ body {
     padding: 10px 20px;
     text-align: center;
     box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-    z-index: 100;
+    /* z-index: 100; */
 }
 
 /* HACK: not sure why this is needed but it overrides what is in the plugins.css from 
@@ -613,10 +613,6 @@ body.view-only {
     margin-top: 1.5rem;
 }
 
-/* Adjust footer z-index to be below popup */
-.footer {
-    z-index: 100; /* Keep this lower than popup's z-index */
-}
 
 /* Add frame styling to mimic TRMNL device */
 .preview-container {
