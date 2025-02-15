@@ -20,5 +20,6 @@ custom_fields:
 name: Wind Speed & Direction
 refresh_interval: 720
 
-latitude: 40.7128
-longitude: -74.0060
+custom_fields_values:
+  latitude: 40.7128
+  longitude: -74.0060
