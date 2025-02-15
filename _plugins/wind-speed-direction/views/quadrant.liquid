@@ -6,22 +6,22 @@
 
 
 <div class="layout">
-  <div class="table-container">
+  <div class="table--condensed">
     <table>
       <thead>
         <tr>
-          <th>Time</th>
-          <th>Speed</th>
-          <th>Gusts</th>
+          <th><span class="title title--large">Time</span></th>
+          <th class="text--center"><span class="title">Speed</span></th>
+          <th class="text--center"><span class="title">Gusts</span></th>
         </tr>
       </thead>
       <tbody>
         {% for i in (start_time_hour..end_time_hour) %}
           {% assign time = hourly.time[i] | date: "%H:%M" %}
           <tr>
-            <td>{{ time }}</td>
-            <td>{{ hourly.wind_speed_10m[i] }}</td>
-            <td>{{ hourly.wind_gusts_10m[i] }}</td>
+            <td><span class="value value--small text--center">{{ time }}</span></td>
+            <td><span class="value value--small text--center">{{ hourly.wind_speed_10m[i] }}</span></td>
+            <td><span class="value value--small text--center">{{ hourly.wind_gusts_10m[i] }}</span></td>
           </tr>
         {% endfor %}
       </tbody>
