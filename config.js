@@ -207,19 +207,19 @@ function getNestedValue(obj, path) {
 }
 
 async function replaceTokensInUrl(url, pluginInfo, envVars, deviceData) {
-    // Replace any {placeholder} in the URL with environment variables first
+    // Replace any {{placeholder}} in the URL with environment variables first
     Object.entries(envVars).forEach(([key, value]) => {
-        const placeholder = `{${key}}`;
+        const placeholder = `{{ ${key} }}`;
         if (url.includes(placeholder)) {
             url = url.replace(placeholder, value);
         }
     });
 
     // Replace tokens with fully qualified paths
-    const tokenRegex = /{([^}]+)}/g;
+    const tokenRegex = /\{\{\s*([^}]+)\s*\}\}/g;
     url = url.replace(tokenRegex, (match, path) => {
         // Check env vars first (already done above, this handles any remaining tokens)
-        if (envVars[path]) return envVars[path];
+        if (envVars[path.trim()]) return envVars[path.trim()];
         
         // Try to get value from plugin settings or device data
         const data = {
@@ -232,7 +232,7 @@ async function replaceTokensInUrl(url, pluginInfo, envVars, deviceData) {
             }
         };
 
-        const value = getNestedValue(data, path);
+        const value = getNestedValue(data, path.trim());
         return value !== undefined ? value : match; // Keep original token if path not found
     });
 
@@ -270,8 +270,8 @@ async function prepareHeaders(pluginInfo, envVars) {
     let headers = { ...pluginInfo.trmnl.plugin_settings.polling_headers };
     
     Object.entries(headers).forEach(([key, value]) => {
-        if (typeof value === 'string' && value.startsWith('{') && value.endsWith('}')) {
-            const envKey = value.slice(1, -1);
+        if (typeof value === 'string' && value.startsWith('{{') && value.endsWith('}}')) {
+            const envKey = value.slice(2, -2).trim();
             headers[key] = envVars[envKey] || envVars[envKey.toUpperCase()] || value;
         }
     });

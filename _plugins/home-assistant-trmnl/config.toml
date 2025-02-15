@@ -1,13 +1,22 @@
-strategy = "webhook"
+strategy = "polling"
 
-# Poll URL (required for polling strategy)
-# url = "https://official-joke-api.appspot.com/random_joke"
+# Poll URL
+url = "{{ trmnl.plugin_settings.custom_fields_values.ha_url }}/api/states/{{ trmnl.plugin_settings.custom_fields_values.entity_id }}"
 
 # Plugin metadata
 name = "Home Assistant TRMNL"
-description = "Monitor and control your Home Assistant devices directly from TRMNL. View device states, sensor readings, and automation status."
+description = "Displays Home Assistant sensor data in TRMNL"
 version = "1.0.0"
 author = "@gitstua"
-update_frequency = "30s"
+requires_auth_headers = true
+update_frequency = "1/min"
 data_source = "Home Assistant API"
-tags = ["smart home", "automation", "monitoring"] 
+tags = ["home-assistant", "automation"]
+
+[polling_headers]
+Authorization = "Bearer {{ HA_TOKEN }}"
+content-type = "application/json"
+
+[custom_fields_values]
+ha_url = "http://homeassistant.local:8123"
+entity_id = "sensor.example" 

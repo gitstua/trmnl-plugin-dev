@@ -123,7 +123,7 @@ router.post('/plugins/:pluginId/export', async (req, res) => {
             dark_mode: 'no',
             static_data: '',
             polling_verb: tomlConfig.polling_verb || 'get',
-            polling_url: tomlConfig.url?.replace('${API_KEY}', envConfig.API_KEY || ''),
+            polling_url: tomlConfig.url,
             polling_headers: '',
             name: tomlConfig.name || 'Plugin',
             refresh_interval: tomlConfig.refresh_interval || 720

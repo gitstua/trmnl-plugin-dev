@@ -9,4 +9,11 @@ version = "1.0.0"
 author = "@gitstua"
 update_frequency = "hourly"
 data_source = "Static"
-tags = ["utility", "message"] 
+tags = ["utility", "message"]
+
+# If using polling strategy, update any tokens in the URL
+url = "https://api.example.com/broadcast?channel={{ trmnl.plugin_settings.custom_fields_values.channel }}"
+
+# If there are any headers with tokens, update those too
+[polling_headers]
+Authorization = "Bearer {{ AUTH_TOKEN }}" 

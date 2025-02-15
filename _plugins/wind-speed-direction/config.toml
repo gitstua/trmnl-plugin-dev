@@ -1,7 +1,7 @@
 strategy = "polling"
 
 # Poll URL
-url = "https://api.open-meteo.com/v1/forecast?latitude={trmnl.plugin_settings.custom_fields_values.latitude}&longitude={trmnl.plugin_settings.custom_fields_values.longitude}&timezone={trmnl.user.time_zone_iana}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=mph&forecast_days=1"
+url = "https://api.open-meteo.com/v1/forecast?latitude={{ trmnl.plugin_settings.custom_fields_values.latitude }}&longitude={{ trmnl.plugin_settings.custom_fields_values.longitude }}&timezone={{ trmnl.user.time_zone_iana }}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=mph&forecast_days=1"
 
 # Plugin metadata
 name = "Wind Speed & Direction"

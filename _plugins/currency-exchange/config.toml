@@ -3,7 +3,7 @@
 strategy = "polling"
 
 # Poll URL (required for polling strategy)
-url = "https://api.currencyapi.com/v3/latest?currencies=AUD%2CUSD&apikey={apikey}"
+url = "https://api.currencyapi.com/v3/latest?currencies=AUD%2CUSD&apikey={{ apikey }}"
 
 # Plugin metadata
 name = "Currency Exchange Rates"
