@@ -17,10 +17,15 @@
             <tbody>
               {% assign counter = 0 %}
               {% assign all_matches = matches | sort: "date" | reverse %}
+              {% assign myteam = trmnl.plugin_settings.custom_fields_values.myteam %}
               
               {% for match in all_matches %}
                 {% if counter < 7 and match.score.ft and match.score.ft[0] != nil %}
-                  {% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}
+
+                {% assign normalized_team1 = match.team1 | downcase | replace: " ", "_" %}
+                {% assign normalized_team2 = match.team2 | downcase | replace: " ", "_" %}
+
+                  {% if normalized_team1 == myteam or normalized_team2 == myteam %}
                     {% assign match_date = match.date | date: "%-d %b" %}
                     <tr>
                       <td><span class="title title--small">{{ match_date }}</span></td>
@@ -72,7 +77,11 @@
               
               {% for match in upcoming_matches %}
                 {% if counter < 7 and match.score.ft == nil %}
-                  {% if match.team1 == "Manchester United FC" or match.team2 == "Manchester United FC" %}
+
+                {% assign normalized_team1 = match.team1 | downcase | replace: " ", "_" %}
+                {% assign normalized_team2 = match.team2 | downcase | replace: " ", "_" %}
+
+                  {% if normalized_team1 == myteam or normalized_team2 == myteam %}
                     {% assign match_date = match.date | date: "%-d %b" %}
                     <tr>
                       <td><span class="title title--small">{{ match_date }}</span></td>
@@ -92,7 +101,7 @@
   </div>
   <div class="title_bar">
     <img class="image" src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg" />
-    <span class="title">Manchester United FC</span>
+    <span class="title">{{ myteam | replace: "_", " " | upcase }}</span>
     <span class="instance">Results & Fixtures</span>
   </div>
 </div> 
