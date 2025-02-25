@@ -1,8 +1,11 @@
+{% assign items_per_column = 9 %}
+{% assign items_before_wrap = items_per_column | minus: 1 %}
+{% assign max_cols = 3 %}
+
+{% assign font_size = "large" %}
+
 <div class="content-center">
-    <div class="grid grid--cols-3 gap--[10px]">
-        {% assign items_per_column = 9 %}
-        {% assign items_before_wrap = items_per_column | minus: 1 %}
-        {% assign max_cols = 3 %}
+    <div class="grid grid--cols-{{max_cols}} gap--[10px]" id="agenda-grid">
         
         <div class="col">
             {% assign item_count = 0 %}
@@ -82,6 +85,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Get the grid element
+    const grid = document.getElementById('agenda-grid');
+    
+    // Define font size multipliers
+    const sizeMultipliers = {
+        large: 1.10,
+        xlarge: 1.20,
+        xxlarge: 1.30,
+        xxxlarge: 1.40
+    };
+    
+    // Get the current font size multiplier
+    const multiplier = sizeMultipliers['{{ font_size }}'] || 1;
+    
+    // Apply the font size to all text elements within the grid
+    if (grid) {
+        const textElements = grid.querySelectorAll('span, div, .label, .description');
+        textElements.forEach(el => {
+            const currentSize = window.getComputedStyle(el).fontSize;
+            const newSize = parseFloat(currentSize) * multiplier;
+            el.style.fontSize = `${newSize}px`;
+        });
+    }
+</script>
 
 <div class="title_bar" style="position: absolute; bottom: 0; width: 100%;">
     <span class="title">My Agenda</span>
